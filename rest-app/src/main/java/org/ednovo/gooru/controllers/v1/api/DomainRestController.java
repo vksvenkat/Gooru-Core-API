@@ -78,21 +78,27 @@ public class DomainRestController extends BaseController implements ConstantProp
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_READ })
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.GET)
-	public ModelAndView getDomain(@PathVariable(value = ID) Integer DomainId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(getDomainService().getDomain(DomainId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, DOMAIN);
+	public ModelAndView getDomain(@PathVariable(value = ID) Integer domainId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return toModelAndViewWithIoFilter(getDomainService().getDomain(domainId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, DOMAIN_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_READ })
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView getDomains(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(getDomainService().getDomains(limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, DOMAIN);
+		return toModelAndViewWithIoFilter(getDomainService().getDomains(limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, DOMAIN_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_DELETE })
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.DELETE)
-	public void deleteDomain(@PathVariable(value = ID) Integer DomainId, HttpServletRequest request, HttpServletResponse response) {
-		getDomainService().deleteDomain(DomainId);
+	public void deleteDomain(@PathVariable(value = ID) Integer domainId, HttpServletRequest request, HttpServletResponse response) {
+		getDomainService().deleteDomain(domainId);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_DELETE })
+	@RequestMapping(value = { "taxonomycourse/{cid}/domain/{id}" }, method = RequestMethod.GET)
+	public ModelAndView getDomainAttributes(HttpServletRequest request, HttpServletResponse response,@PathVariable(value = CID) Integer courseId, @PathVariable(value = ID) Integer domainId,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit) {
+		return toModelAndViewWithIoFilter(getDomainService().getDomainAttributes(courseId, domainId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL,true, SUBDOMAIN_ATTRIBUTE);
 	}
 
 	public DomainService getDomainService() {

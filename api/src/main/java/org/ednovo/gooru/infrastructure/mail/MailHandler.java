@@ -123,11 +123,10 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 
 	public void sendMailToResetPassword(String gooruUid, String password, Boolean flag, String gooruClassicUrl, String mailConfirmationUrl) throws Exception {
 
-		final String serverpath = this.getServerConstants().getProperty("serverPath");
+		final String serverpath = BaseUtil.changeHttpsProtocol(this.getServerConstants().getProperty("serverPath"));
 		final Identity identity = this.getUserRepositoryHibernate().findUserByGooruId(gooruUid);
 		String resetPasswordLink = null;
 		String resetPasswordURL = null;
-		String organizationUid = identity.getUser().getOrganization().getPartyUid();
 		String userEmailId = identity.getExternalId();
 		String resetToken = identity.getCredential().getToken();
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -177,7 +176,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 
 	public void sendMailToConfirmPasswordChanged(String gooruUid, String password, Boolean flag, String gooruClassicUrl, String mailConfirmationUrl) throws Exception {
 
-		final String serverpath = this.getServerConstants().getProperty("serverPath");
+		final String serverpath = BaseUtil.changeHttpsProtocol(this.getServerConstants().getProperty("serverPath"));
 		final Identity identity = this.getUserRepositoryHibernate().findUserByGooruId(gooruUid);
 		String organizationUid = identity.getUser().getOrganization().getPartyUid();
 		String userEmailId = identity.getExternalId();
@@ -216,7 +215,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 
 	public void sendMailToConfirm(String gooruUid, String password, String accountType, String tokenId, String encodedDateOfBirth, String gooruClassicUrl, String mailConfirmationUrl, String userGrade, String userCourse) throws Exception {
 
-		final String serverpath = this.getServerConstants().getProperty("serverPath");
+		final String serverpath = BaseUtil.changeHttpsProtocol(this.getServerConstants().getProperty("serverPath"));
 		final Identity identity = this.getUserRepositoryHibernate().findUserByGooruId(gooruUid);
 
 		String userEmailId = identity.getExternalId();
@@ -634,7 +633,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		}
 	}
 	public void sendAdminPortalMail(String eventType, String mailId,String firstName,String title,String gooruOid) {
-        final String serverpath = this.getServerConstants().getProperty("serverPath");
+        final String serverpath = BaseUtil.changeHttpsProtocol(this.getServerConstants().getProperty("serverPath"));
 			EventMapping eventMapping = this.getEventService().getTemplatesByEventName(eventType);
 				Map<String, Object> map = eventMapData(eventMapping);
                     map.put("serverpath",serverpath);
@@ -655,7 +654,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 	
 	public void sendEmailNotificationforComment(Map<String, String> commentData) {
 
-		final String serverpath = this.getServerConstants().getProperty("serverPath");
+		final String serverpath = BaseUtil.changeHttpsProtocol(this.getServerConstants().getProperty("serverPath"));
 		String goToCollectionLink = null;
 		String collectionId = commentData.get("collectionId");
 		Identity identity = null;
@@ -694,7 +693,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 	
 	public void sendMailToInviteCollaborator(Map<String,Object> collaboratorData) {
 		
-		final String serverpath = this.getServerConstants().getProperty("serverPath");
+		final String serverpath = BaseUtil.changeHttpsProtocol(this.getServerConstants().getProperty("serverPath"));
 		Content content = (Content) collaboratorData.get("contentObject");
 		if (content != null){
 			EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.SEND_MAIL_TO_INVITE_COLLABORATOR.getEvent());
@@ -753,7 +752,11 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		map.put(GOORU_OID, gooruOid);
 		map.put(RECIPIENT, email);
 		map.put("classCode", classCode);
-		map.put("shortenUrl", shortenUrl);
+		if(shortenUrl != null){
+			Map<String, Object> result = JsonDeserializer.deserialize(shortenUrl, new TypeReference<Map<String, Object>>(){
+			});
+			map.put(SHORTEN_URL, result.get("shortenUrl"));
+		}
 		map.put(HTMLCONTENT, generateMessage((String) map.get("templateContent"), map));
 		map.put(SUBJECT,  inviteUser + "  has shared their class \""+title+"\" "+" with you");
 		map.put(CONTENT, generateMessage((String) map.get(TEXTCONTENT), map));

@@ -28,11 +28,11 @@ import java.util.List;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentAssociation;
+import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.ContentProvider;
 import org.ednovo.gooru.core.api.model.ContentProviderAssociation;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
-import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.StatusType;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
@@ -42,8 +42,6 @@ public interface ContentRepository extends BaseRepository {
 	Content findByContent(Long contentId);
 
 	void delete(String gooruContentId);
-
-	Resource findByResourceType(String typeId, String url);
 
 	Content findContentByGooruId(String gooruContentId);
 
@@ -86,5 +84,13 @@ public interface ContentRepository extends BaseRepository {
 	ContentProvider getContentProviderByName(String name, String keyValue);
 	
 	void deleteContentProvider(String gooruOid, String providerType, String name);
+	
+	ContentMeta getContentMeta(Long contentId);
+	
+	void deleteContentTaxonomyCourseAssoc(Long contentId);
+	
+	void deleteContentMetaAssoc(Long contentId, String key);
+	
+	void deleteContentDomainAssoc(Long contentId);
 
 }

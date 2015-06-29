@@ -25,6 +25,8 @@ public class RequestMappingUri {
 	public static final String LESSON = "/v1/course/{courseId}/unit/{unitId}/lesson";
 
 	public static final String ID = "/{id}";
+	
+	public static final String CLASS_MEMBER = "/{id}/member";
 
 	public static final String LESSON_COLLECTION = "/v1/course/{courseId}/unit/{unitId}/lesson/{lessonId}/collection";
 
@@ -39,4 +41,6 @@ public class RequestMappingUri {
 	public static final String UPDATE_RESOURCE = "/collectionId}/resource/{id}";
 
 	public static final String UPDATE_QUESTION = "/collectionId}/question/{id}";
+	
+	public static final String USER_COURSES = "/{id}/course";
 }

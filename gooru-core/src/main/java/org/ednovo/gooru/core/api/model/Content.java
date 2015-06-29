@@ -65,9 +65,6 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 	@JsonManagedReference
 	private Set<Code> taxonomySet = new HashSet<Code>();
 
-	@JsonManagedReference
-	private Set<ContentMetaAssociation> contentMetaAssoc = new HashSet<ContentMetaAssociation>();
-
 	private Set<ContentPermission> contentPermissions;
 
 	@Column
@@ -83,12 +80,12 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 
 	private Map<String, String> settings = new HashMap<String, String>();
 
-	private Set<ContentSettings> contentSettings;	
-	
+	private Set<ContentSettings> contentSettings;
+
 	private Set<Map<String, Object>> skills;
-	
+
 	private Long views = 0L;
-	
+
 	private Long viewCount;
 
 	public Long getContentId() {
@@ -278,14 +275,6 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 		return meta;
 	}
 
-	public void setContentMetaAssoc(Set<ContentMetaAssociation> contentMetaAssoc) {
-		this.contentMetaAssoc = contentMetaAssoc;
-	}
-
-	public Set<ContentMetaAssociation> getContentMetaAssoc() {
-		return contentMetaAssoc;
-	}
-
 	public Integer getVersion() {
 		return version;
 	}
@@ -334,12 +323,22 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 			this.views = views;
 		}
 	}
-	
+
 	public Long getViewCount() {
 		return viewCount;
 	}
 
 	public void setViewCount(Long viewCount) {
 		this.viewCount = viewCount;
+	}
+
+	public static final String buildResourceFolder(Long contentId) {
+
+		String prefix = "f00000000000";
+
+		String contentFolder = prefix.substring(0, 12 - String.valueOf(contentId).length()) + contentId;
+		contentFolder = contentFolder.substring(0, 4) + "/" + contentFolder.substring(4, 8) + "/" + contentFolder.substring(8, 12);
+
+		return contentFolder + "/";
 	}
 }

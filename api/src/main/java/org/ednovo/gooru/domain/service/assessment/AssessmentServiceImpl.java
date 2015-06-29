@@ -198,26 +198,12 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 	@Override
 	public ActionResponseDTO<AssessmentQuestion> updateQuestion(AssessmentQuestion question, List<Integer> deleteAssets, String gooruOQuestionId, boolean copyToOriginal, boolean index) throws Exception {
-		List<ContentMetaDTO> depth = question.getDepthOfKnowledges();
-		List<ContentMetaDTO> educational = question.getEducationalUse();
 		question = initQuestion(question, gooruOQuestionId, copyToOriginal);
 		Errors errors = validateQuestion(question);
 		List<Asset> assets = buildQuestionAssets(deleteAssets, errors);
 
 		if (!errors.hasErrors()) {
 			assessmentRepository.save(question);
-
-			if (depth != null && depth.size() > 0) {
-				question.setDepthOfKnowledges(this.collectionService.updateContentMeta(depth, question.getGooruOid(), question.getUser(), DEPTH_OF_KNOWLEDGE));
-			} else {
-				question.setDepthOfKnowledges(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), question.getGooruOid(), DEPTH_OF_KNOWLEDGE));
-			}
-			if (educational != null && educational.size() > 0) {
-				question.setEducationalUse(this.collectionService.updateContentMeta(educational, question.getGooruOid(), question.getUser(), EDUCATIONAL_USE));
-			} else {
-				question.setEducationalUse(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation(EDUCATIONAL_USE), question.getGooruOid(), EDUCATIONAL_USE));
-			}
-
 			if (question.getResourceInfo() != null) {
 				resourceRepository.save(question.getResourceInfo());
 			}

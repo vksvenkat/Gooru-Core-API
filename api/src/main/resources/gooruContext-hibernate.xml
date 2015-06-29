@@ -80,14 +80,14 @@
 				<value>org/ednovo/gooru/domain/model/core/Subject.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/core/Subdomain.hbm.xml</value>
 
-				<!-- <value>org/ednovo/gooru/domain/model/taxonomy/GetTaxonomyProcedure.hbm.xml</value> -->
 				<!-- User Domain -->
 				<value>org/ednovo/gooru/domain/model/user/UserToken.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/user/UserRole.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/user/Idp.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/user/Identity.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/user/Profile.hbm.xml</value>
-				<value>org/ednovo/gooru/domain/model/user/UserRoleAssoc.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/user/UserRoleAssoc.hbm.xml
+				</value>
 				<value>org/ednovo/gooru/domain/model/user/Credential.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/user/UserRelationship.hbm.xml
 				</value>
@@ -104,7 +104,7 @@
 				</value>
 
 
-				<!-- Content Domain -->
+				<!-- Content -->
 				<value>org/ednovo/gooru/domain/model/content/Content.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/content/ContentSettings.hbm.xml
 				</value>
@@ -116,6 +116,13 @@
 				</value>
 				<value>org/ednovo/gooru/domain/model/content/ContentClassification.hbm.xml
 				</value>
+				<value>org/ednovo/gooru/domain/model/content/ContentMeta.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/content/ContentTaxonomyCourseAssoc.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/content/ContentDomainAssoc.hbm.xml
+				</value>
+
 
 				<!-- Resource Domain -->
 				<value>org/ednovo/gooru/domain/model/resource/ResourceType.hbm.xml
@@ -210,7 +217,7 @@
 				</value>
 				<value>org/ednovo/gooru/domain/model/session/SessionActivityItemAttemptTry.hbm.xml
 				</value>
-
+				<value>org/ednovo/gooru/domain/model/session/UserActivityCollectionAssoc.hbm.xml</value>
 				<!-- Response FieldSet -->
 				<value>org/ednovo/gooru/domain/model/responseFieldSet/ResponseFieldSet.hbm.xml
 				</value>
@@ -269,9 +276,10 @@
 				</value>
 
 				<!-- Course -->
-				<value>org/ednovo/gooru/domain/model/core/TaxonomyCourse.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/core/TaxonomyCourse.hbm.xml
+				</value>
 				<value>org/ednovo/gooru/domain/model/core/Domain.hbm.xml</value>
-				
+
 			</list>
 		</property>
 		<property name="hibernateProperties">
@@ -308,14 +316,14 @@
 		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
 		<property name="sessionFactory" ref="sessionFactoryReadOnly" />
 	</bean>
-	
-	 <!-- Configures the @Transactional programming model -->
-        <tx:annotation-driven transaction-manager="transactionManager"
-                proxy-target-class="true" />
-        <tx:annotation-driven transaction-manager="transactionManagerReadyOnly"
-                proxy-target-class="true" />
-        <tx:annotation-driven transaction-manager="revisionHistoryTransactionManager"
-                proxy-target-class="true" />
+
+	<!-- Configures the @Transactional programming model -->
+	<tx:annotation-driven transaction-manager="transactionManager"
+		proxy-target-class="true" />
+	<tx:annotation-driven transaction-manager="transactionManagerReadyOnly"
+		proxy-target-class="true" />
+	<tx:annotation-driven transaction-manager="revisionHistoryTransactionManager"
+		proxy-target-class="true" />
 
 	<!-- ========================= BUSINESS OBJECT DEFINITIONS ========================= -->
 

@@ -30,7 +30,6 @@ import java.util.Map;
 import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
-import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserCollectionItemAssoc;
@@ -112,10 +111,6 @@ public interface CollectionRepository extends BaseRepository {
 	List<Object[]> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String gooruUid);
 
 	Long getFolderListCount(String gooruOid, String title, String username);
-
-	List<ContentMetaAssociation> getContentMetaById(String gooruOid, String type);
-
-	ContentMetaAssociation getContentMetaByValue(String value, String collectionId);
 
 	List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, String status, String type);
 

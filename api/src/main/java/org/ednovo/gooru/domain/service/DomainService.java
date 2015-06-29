@@ -24,6 +24,7 @@
 package org.ednovo.gooru.domain.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Domain;
@@ -40,5 +41,7 @@ public interface DomainService {
 	List<Domain> getDomains(Integer limit, Integer offset);	
 	
     void deleteDomain(Integer domainId);
+    
+    List<Map<String, String>> getDomainAttributes(Integer courseId, Integer domainId,int limit, int offset);
 
 }

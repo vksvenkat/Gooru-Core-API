@@ -25,35 +25,46 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.content;
 
 import java.util.List;
 
+import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.ContentClassification;
+import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class ContentClassficationRepositoryHibernate extends BaseRepositoryHibernate implements ContentClassificationRepository {
+public class ContentClassificationRepositoryHibernate extends BaseRepositoryHibernate implements ContentClassificationRepository, ParameterProperties, ConstantProperties {
 
-	
-	@Autowired
-	private JdbcTemplate jdbcTemplate;
+	private static final String DELETE_CONTENT_CLASSIFICATION = "DELETE FROM ContentClassification where content.contentId=:contentId and typeId=:typeId";
 
+	private static final String GET_CODE_BY_IDS = "FROM Code where codeId in (:codeId)";
+
+	@SuppressWarnings("unchecked")
 	public ContentClassification findByContent(Long contentId) {
 		List<ContentClassification> cc = getSession().createQuery("select c from ContentClassification c   where c.content.contentId = ? and " + generateAuthQueryWithDataNew("c.content.")).setLong(0, contentId).list();
 		return cc.size() == 0 ? null : cc.get(0);
 	}
 
+	@SuppressWarnings("unchecked")
 	public ContentClassification findByContentGooruId(String gooruContentId) {
 		List<ContentClassification> cc = getSession().createQuery("select c from ContentClassification c  where c.content.gooruOid = ? and " + generateAuthQueryWithDataNew("c.content.")).setString(0, gooruContentId).list();
 		return cc.size() == 0 ? null : cc.get(0);
 	}
 
-	public JdbcTemplate getJdbcTemplate() {
-		return jdbcTemplate;
+	@Override
+	public void deleteContentClassification(Long contentId, Short typeId) {
+		Query query = getSession().createQuery(DELETE_CONTENT_CLASSIFICATION);
+		query.setParameter(CONTENT_ID, contentId);
+		query.setParameter(TYPE_ID, typeId);
+		query.executeUpdate();
 	}
 
-	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
-		this.jdbcTemplate = jdbcTemplate;
+	@Override
+	public List<Code> getCodes(List<Integer> codeIds) {
+		Query query = getSession().createQuery(GET_CODE_BY_IDS);
+		query.setParameterList(CODE_ID, codeIds);
+		return list(query);
 	}
 
 }

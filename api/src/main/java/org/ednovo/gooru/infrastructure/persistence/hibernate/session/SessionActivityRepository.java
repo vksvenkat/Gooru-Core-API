@@ -62,7 +62,7 @@ public interface SessionActivityRepository extends BaseRepository {
 
 	Integer getCollectionSessionActivityCount(Long collectionId, String gooruUId);
 
-	void updateOldSessions();
+	void updateOldSessions(SessionActivity sessionActivity);
 
 	Integer getItemCount(Long itemId);
 

@@ -15,5 +15,7 @@ public interface CourseService extends AbstractCollectionService {
 	Map<String, Object> getCourse(String courseId);
 	
 	List<Map<String, Object>> getCourses(int limit, int offset);
+	
+	List<Map<String, Object>> getCourses(String gooruUId, int limit, int offset);
 
 }

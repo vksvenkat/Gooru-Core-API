@@ -420,6 +420,8 @@ public interface ConstantProperties {
 
 	static final String[] CLASS_MEMBER_FIELDS = { "*.totalHitCount", "*.searchResults", "*.emailId", "*.username", "*.gooruUid", "*.associatedDate", "*.status", "*.profileImageUrl", "*.firstName", "*.lastName" };
 
+	static final String[] CLASS_FIELDS = { "*.gooruUId","*.username", "*.emailId","*.associationDate", "*.profileImageUrl"};
+	
 	static final String[] USER_CONTENT_TAGS_INCLUDES = { "*.totalHitCount", "*.searchResults", "*.count", "*.label", "*.tagGooruOid" };
 
 	static final String[] COLLECTION_STANDARDS_INCLUDES = { "searchResults", "*.code", "*.label", "*.codeUid", "*.codeId" };
@@ -431,8 +433,8 @@ public interface ConstantProperties {
 	static final String ORG_ADMIN_KEY = "organizationAdmin";
 
 	static final String USER_FLAG_EXCLUDE_FIELDS[] = { "*.class", "segment", "*.creator" };
-	
-    static final String CUSTOM_VALUE_INCLUDE_FIELDS[] = { "*.keyValue", "*.value", "*.customTableValueId" };
+
+	static final String CUSTOM_VALUE_INCLUDE_FIELDS[] = { "*.keyValue", "*.value", "*.customTableValueId" };
 
 	public static final String OAUTH_CLIENT_INCLUDES[] = { "*.key", "*.secretKey", "*.clientName", "*.description", "*.clientSecret", "*.scopes", "*.grantTypes", "*.authorities", "*.redirectUrl", "*.title", "*.accessTokenValiditySeconds", "*.refreshTokenValiditySeconds", "*.totalHitCount",
 			"*.searchResults", "*.count", "*.totalPages", "*.resourceType.name" };
@@ -821,10 +823,10 @@ public interface ConstantProperties {
 
 	static final String COUNTRY[] = { "*.countryUid", "*.countryCode", "*.name", "*.totalHitCount", "*.searchResults" };
 
-	static final String COURSE_[] = {"*.courseId","*.name","*.thumbnails","thumbnails.url"};
-	
-	static final String DOMAIN[] = {"*.thumbnails", "thumbnails.url","*.domainId","*.name"};
-	
+	static final String COURSE_[] = { "*.courseId", "*.name", "*.thumbnails", "thumbnails.url" };
+
+	static final String DOMAIN_INCLUDES[] = { "*.thumbnails", "thumbnails.url", "*.domainId", "*.name" };
+
 	static final String STATE[] = { "*.stateUid", "*.stateCode", "*.name", "*.totalHitCount", "*.searchResults" };
 
 	static final String CITY[] = { "*.cityUid", "*.cityCode", "*.name", "*.totalHitCount", "*.searchResults" };
@@ -893,15 +895,15 @@ public interface ConstantProperties {
 
 	public static final String DATA = "data";
 
-	public static final String CREATE_INCLUDES[] = { "name", "uri", "title", "type"};
-	
-	static final String RESOURCE_COLLECTION_USED_INCLUDE_FIELDS[] = { "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.assetURI", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description",
-			"*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.gooruUId", "*.buildType", "*.emailId", "*.value", "*.code", "*.label", "*.modifiedDate", "*.gooruid", "*.username", "*.customFields", "*.optionalValue", "*.optionalKey",
-			"*.collectionItemId", "*.skills", "*.course", "*.standards", "*.metaInfo", "*.meta" };
-	
-	final static String SUBJECT_INCLUDES[] = {"*.name","*.subjectId","*.thumbnails","thumbnails.url"};
-	
-	final static String SUBDOMAIN_INCLUDES[] = {"*.subdomainId","*.courseId","*.domainId"};
+	public static final String CREATE_INCLUDES[] = { "name", "uri", "title", "type" };
+
+	static final String RESOURCE_COLLECTION_USED_INCLUDE_FIELDS[] = { "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.assetURI", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.folder",
+			"*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.gooruUId", "*.buildType", "*.emailId", "*.value", "*.code", "*.label", "*.modifiedDate", "*.gooruid", "*.username", "*.customFields", "*.optionalValue", "*.optionalKey", "*.collectionItemId", "*.skills",
+			"*.course", "*.standards", "*.metaInfo", "*.meta" };
+
+	final static String SUBJECT_INCLUDES[] = { "*.name", "*.subjectId", "*.thumbnails", "thumbnails.url" };
+
+	final static String SUBDOMAIN_INCLUDES[] = { "*.subdomainId", "*.courseId", "*.domainId" };
 
 	public static final String PIPE = "|";
 
@@ -925,7 +927,17 @@ public interface ConstantProperties {
 
 	final static String UNIT_ID = "unitId";
 
-	final static String LESSON_ID = "lessonId";	
-	
+	final static String LESSON_ID = "lessonId";
+
 	final static String PARENT_COLLECTION_TYPE = "parentCollectionType";
+
+	final static String META_DATA = "metaData";
+
+	final static String SUBDOMAIN_ATTRIBUTE[] = { "*.codeId", "*.label", "*.code", "*.description" };
+
+	final static String DOMAIN = "domain";
+	
+	final static String DOT = ".";
+
+	final static String REGX_DOT = "\\.";
 }

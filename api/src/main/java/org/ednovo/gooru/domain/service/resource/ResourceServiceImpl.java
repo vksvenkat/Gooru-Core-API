@@ -225,12 +225,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		if (resource == null) {
 			throw new NotFoundException("resource not found ", GL0056);
 		}
-		if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
-			resource.setDepthOfKnowledges(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), resource, DEPTH_OF_KNOWLEDGE));
-		} else {
-			resource.setMomentsOfLearning(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation(MOMENTS_OF_LEARNING), resource, MOMENTS_OF_LEARNING));
-		}
-		resource.setEducationalUse(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation(EDUCATIONAL_USE), resource, EDUCATIONAL_USE));
 		resource.setRatings(this.collectionService.setRatingsObj(this.getResourceRepository().getResourceSummaryById(gooruContentId)));
 		setContentProvider(resource);
 		return resource;
@@ -1491,17 +1485,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			updateYoutubeResourceFeeds(resource, false);
 			resourceRepository.saveOrUpdate(resource);
 			mapSourceToResource(resource);
-
-			if (newResource.getMomentsOfLearning() != null && newResource.getMomentsOfLearning().size() > 0) {
-				resource.setMomentsOfLearning(this.getCollectionService().updateContentMeta(newResource.getMomentsOfLearning(), resource, user, MOMENTS_OF_LEARNING));
-			} else {
-				resource.setMomentsOfLearning(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation(MOMENTS_OF_LEARNING), resource, MOMENTS_OF_LEARNING));
-			}
-			if (newResource.getEducationalUse() != null && newResource.getEducationalUse().size() > 0) {
-				resource.setEducationalUse(this.getCollectionService().updateContentMeta(newResource.getEducationalUse(), resource, user, EDUCATIONAL_USE));
-			} else {
-				resource.setEducationalUse(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation(EDUCATIONAL_USE), resource, EDUCATIONAL_USE));
-			}
 			if (newResource.getHost() != null && newResource.getHost().size() > 0) {
 				resource.setHost(updateContentProvider(resource.getGooruOid(), newResource.getHost(), user, "host"));
 			}
@@ -1625,16 +1608,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				if (licenseData != null) {
 					resource.setLicense(licenseData);
 				}
-			}
-			if (newResource.getMomentsOfLearning() != null && newResource.getMomentsOfLearning().size() > 0) {
-				resource.setMomentsOfLearning(this.getCollectionService().updateContentMeta(newResource.getMomentsOfLearning(), resource.getGooruOid(), user, MOMENTS_OF_LEARNING));
-			} else {
-				resource.setMomentsOfLearning(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation(MOMENTS_OF_LEARNING), resource.getGooruOid(), MOMENTS_OF_LEARNING));
-			}
-			if (newResource.getEducationalUse() != null && newResource.getEducationalUse().size() > 0) {
-				resource.setEducationalUse(this.getCollectionService().updateContentMeta(newResource.getEducationalUse(), resource.getGooruOid(), user, EDUCATIONAL_USE));
-			} else {
-				resource.setEducationalUse(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation(EDUCATIONAL_USE), resource.getGooruOid(), EDUCATIONAL_USE));
 			}
 
 			if (newResource.getPublisher() != null && newResource.getPublisher().size() > 0) {

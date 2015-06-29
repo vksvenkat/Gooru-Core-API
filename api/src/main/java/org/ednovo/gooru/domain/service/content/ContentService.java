@@ -27,7 +27,6 @@ import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentAssociation;
-import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.User;
 
 public interface ContentService {
@@ -37,8 +36,6 @@ public interface ContentService {
 	Content findByContentGooruId(String gooruContentId);
 
 	void delete(String gooruContentId);
-
-	Resource findByResourceType(String typeId, String url);
 
 	Content findContentByGooruId(String gooruContentId);
 

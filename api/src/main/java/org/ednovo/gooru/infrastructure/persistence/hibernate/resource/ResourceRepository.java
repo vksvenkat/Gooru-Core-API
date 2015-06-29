@@ -161,6 +161,6 @@ public interface ResourceRepository extends BaseRepository {
 
 	List<Object[]> getContentIds(String gooruOids);
 
-	List<Object> findNumericCodeAndIstudent(Long classContentId, String gooruUId);
+	List<Object[]> findNumericCodeAndIstudent(Long classContentId, String gooruUId);
 
 }

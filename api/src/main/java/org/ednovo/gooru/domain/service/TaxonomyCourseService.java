@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.User;
 

@@ -1,9 +1,11 @@
 package org.ednovo.gooru.domain.service.collection;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionType;
@@ -46,6 +48,11 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	@Autowired
 	private OperationAuthorizer operationAuthorizer;
 
+	@Autowired
+	private GooruImageUtil gooruImageUtil;
+
+	private final String COLLECTION_IMAGE_DIMENSION = "160x120,75x56,120x90,80x60,800x600";
+
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Collection> createCollection(String lessonId, Collection collection, User user) {
@@ -64,13 +71,10 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 				parentCollection = getCollectionDao().getCollection(lessonId);
 				rejectIfNull(parentCollection, GL0056, LESSON);
 			}
-			// FIX me TO DO
-			collection.setBuildType((short) 1);
 			if (collection.getSharing() != null && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && collection.getSharing().equalsIgnoreCase(PUBLIC)) {
-				// FIX me TO DO
-				collection.setPublishStatus((short) 2);
 				collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
 			}
+			// FIX me TO DO
 			createCollectionSettings(collection);
 			if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())) {
 				indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
@@ -118,12 +122,19 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 				collection.setNetwork(newCollection.getNetwork());
 			}
 		}
+		if (newCollection.getMediaFilename() != null) {
+			String folderPath = Collection.buildResourceFolder(collection.getContentId());
+			this.getGooruImageUtil().imageUpload(newCollection.getMediaFilename(), folderPath, COLLECTION_IMAGE_DIMENSION);
+			StringBuilder basePath = new StringBuilder(folderPath);
+			basePath.append(File.separator).append(newCollection.getMediaFilename());
+			collection.setImagePath(basePath.toString());
+		}
 		updateCollection(collection, newCollection, user);
 	}
 
 	private void createCollectionSettings(Collection collection) {
 		final ContentSettings contentSetting = new ContentSettings();
-		if (collection.getSettings() == null) {
+		if (collection.getSettings() == null || collection.getSettings().size()==0) {
 			collection.setSettings(Constants.COLLECTION_DEFAULT_SETTINGS);
 		}
 		contentSetting.setContent(collection);
@@ -149,11 +160,13 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getCollection(String collectionId, String collectionType) {
 		return super.getCollection(collectionId, collectionType);
-	}
+	}	
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getCollections(String lessonId, String collectionType, int limit, int offset) {
 		Map<String, Object> filters = new HashMap<String, Object>();
 		String[] collectionTypes = collectionType.split(",");
@@ -167,6 +180,10 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		if (collection != null) {
 			rejectIfNullOrEmpty(errors, collection.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 			rejectIfInvalidType(errors, collection.getCollectionType(), COLLECTION_TYPE, GL0007, generateErrorMessage(GL0007, COLLECTION_TYPE), Constants.COLLECTION_TYPES);
+			rejectIfInvalidType(errors, collection.getBuildType(), BUILD_TYPE, GL0007, generateErrorMessage(GL0007, BUILD_TYPE), Constants.BUILD_TYPE);
+			if(collection.getPublishStatus() != null){
+				rejectIfInvalidType(errors, collection.getPublishStatus(), PUBLISH_STATUS, GL0007, generateErrorMessage(GL0007, PUBLISH_STATUS), Constants.PUBLISH_STATUS);
+				}
 		}
 		return errors;
 	}
@@ -186,4 +203,9 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	public OperationAuthorizer getOperationAuthorizer() {
 		return operationAuthorizer;
 	}
+
+	public GooruImageUtil getGooruImageUtil() {
+		return gooruImageUtil;
+	}
+
 }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- ContentClassification.hbm.xml gooru-api Created by Gooru on 2014 Copyright 
-	(c) 2014 Gooru. All rights reserved. http://www.goorulearning.org/ Permission 
+
+<!-- ContentMeta.hbm.xml gooru-api Created by Gooru on 2014 Copyright 
+	(c) 2015 Gooru. All rights reserved. http://www.goorulearning.org/ Permission 
 	is hereby granted, free of charge, to any person obtaining a copy of this 
 	software and associated documentation files (the "Software"), to deal in 
 	the Software without restriction, including without limitation the rights 
@@ -19,17 +20,12 @@
     "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
-<hibernate-mapping>
-	<class name="org.ednovo.gooru.core.api.model.ContentClassification"
-		table="content_classification">
-		<composite-id>
-			<key-many-to-one column="content_id" name="content"
-				class="org.ednovo.gooru.core.api.model.Content" lazy="proxy" />
-			<key-many-to-one column="code_id" name="code"
-				class="org.ednovo.gooru.core.api.model.Code" lazy="proxy" />
-		</composite-id>
-		<property column="type_id" name="typeId" not-null="false" />
 
+<hibernate-mapping>
+	<class name="org.ednovo.gooru.core.api.model.ContentMeta" table="content_meta" >
+		<composite-id>
+			<key-many-to-one  column="content_id" name="content" class="org.ednovo.gooru.core.api.model.Content" lazy="proxy" />			
+		</composite-id>
+		<property  column="meta_data" name="metaData"/>
 	</class>
 </hibernate-mapping>
-

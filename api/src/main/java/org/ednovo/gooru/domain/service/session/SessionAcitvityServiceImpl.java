@@ -84,11 +84,22 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 		final Errors errors = this.validateCreateSessionActivity(sessionActivity, sessionActivity.getContentGooruId());
 		
 		if (!errors.hasErrors()) {
+
+			sessionActivity.setUser(user);
+			sessionActivity.setScore(0.0);
+			sessionActivity.setScoreInPercentage(0.0);
+			sessionActivity.setReaction(0);
+			sessionActivity.setRating(0);
+			sessionActivity.setTimeSpentInMillis(0L);
+			sessionActivity.setType(sessionActivity.getType());
+			sessionActivity.setStatus(SessionStatus.OPEN.getSessionStatus());
+			sessionActivity.setViewsInSession(1);
+			sessionActivity.setStartTime(new Date(System.currentTimeMillis()));
+			
 			if (sessionActivity.getClassGooruId() != null && sessionActivity.getUnitGooruId() != null && sessionActivity.getLessonGooruId() != null) {
 				
-				this.getSessionActivityRepository().updateOldSessions();
-
 				StringBuilder listOfGooruOids = new StringBuilder();
+				listOfGooruOids.append(sessionActivity.getContentGooruId());
 				listOfGooruOids.append(COMMA).append(sessionActivity.getClassGooruId());
 				listOfGooruOids.append(COMMA).append(sessionActivity.getUnitGooruId());
 				listOfGooruOids.append(COMMA).append(sessionActivity.getLessonGooruId());
@@ -100,18 +111,24 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 				}
 				final Long collectionId = ((Number) contentIds.get(sessionActivity.getContentGooruId())).longValue();
 
+				sessionActivity.setCollectionId(collectionId);
 				sessionActivity.setClassContentId(((Number) contentIds.get(sessionActivity.getClassGooruId())).longValue());
 				sessionActivity.setLessonContentId(((Number) contentIds.get(sessionActivity.getLessonGooruId())).longValue());
 				sessionActivity.setUnitContentId(((Number) contentIds.get(sessionActivity.getUnitGooruId())).longValue());
-				sessionActivity.setSequence(getSessionActivityRepository().getClassSessionActivityCount(collectionId, sessionActivity.getClassContentId(), sessionActivity.getUnitContentId(),
-						sessionActivity.getLessonContentId(), user.getGooruUId()) + 1);
-				sessionActivity.setCollectionId(collectionId);
-				sessionActivity.setIsLastSession(true);
 
-				List<Object> classInfo =  getResourceRepository().findNumericCodeAndIstudent(sessionActivity.getClassContentId(), user.getGooruUId());
-				
-				sessionActivity.setIsStudent(((Boolean)classInfo.get(0)).booleanValue());
-				sessionActivity.setClassId(((Number)classInfo.get(1)).longValue());				
+				Integer perviousSessionCount = getSessionActivityRepository().getClassSessionActivityCount(collectionId, sessionActivity.getClassContentId(), sessionActivity.getUnitContentId(),
+						sessionActivity.getLessonContentId(), user.getGooruUId());
+				if(perviousSessionCount > 0){	
+					this.getSessionActivityRepository().updateOldSessions(sessionActivity);
+				}
+				sessionActivity.setSequence(perviousSessionCount + 1);
+				sessionActivity.setIsLastSession(true);
+				List<Object[]> classInfos =  getResourceRepository().findNumericCodeAndIstudent(sessionActivity.getClassContentId(), user.getGooruUId());
+				for (Object[] classInfo : classInfos) {
+					System.out.print("isStudent:" + classInfo[0]);
+					sessionActivity.setIsStudent(((Boolean) classInfo[0]).booleanValue());
+					sessionActivity.setClassId(((Number) classInfo[1]).longValue());
+				}				
 			
 			} else {
 				final Long collectionId = getResourceRepository().getContentId(sessionActivity.getContentGooruId());
@@ -120,16 +137,6 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 				sessionActivity.setSequence(getSessionActivityRepository().getCollectionSessionActivityCount(collectionId,user.getGooruUId()) + 1);
 				sessionActivity.setCollectionId(collectionId);
 			}
-			sessionActivity.setScore(0.0);
-			sessionActivity.setScoreInPercentage(0.0);
-			sessionActivity.setReaction(0);
-			sessionActivity.setRating(0);
-			sessionActivity.setTimeSpentInMillis(0L);
-			sessionActivity.setType(sessionActivity.getType());
-			sessionActivity.setStatus(SessionStatus.OPEN.getSessionStatus());
-			sessionActivity.setViewsInSession(1);
-			sessionActivity.setStartTime(new Date(System.currentTimeMillis()));
-			sessionActivity.setUser(user);
 			this.getSessionActivityRepository().save(sessionActivity);
 		}
 		return new ActionResponseDTO<SessionActivity>(sessionActivity, errors);
@@ -168,20 +175,39 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 				Double unitScoreInPercentage = (unitTotalScoreInPercentage/unitCount);
 				
 				UserActivityCollectionAssoc userActivityUnitAssoc = this.getSessionActivityRepository().getUserActivityCollectionAssoc(sessionActivity.getUser().getGooruUId(), sessionActivity.getClassContentId(), sessionActivity.getUnitContentId());
-				userActivityUnitAssoc.setScoreInPercentage(unitScoreInPercentage);
+				if(userActivityUnitAssoc != null){
+					userActivityUnitAssoc.setScoreInPercentage(unitScoreInPercentage);
+				}else{
+					userActivityUnitAssoc = this.createUserActivityCollectionAssoc(sessionActivity);
+					userActivityUnitAssoc.setCollectionId(sessionActivity.getUnitContentId());
+					userActivityUnitAssoc.setScoreInPercentage(unitScoreInPercentage);
+				}
 				this.getSessionActivityRepository().save(userActivityUnitAssoc);
-				
 				Double lessonTotalScoreInPercentage =  this.getSessionActivityRepository().getUnitTotalScore(sessionActivity.getLessonContentId());
 				Integer lessonCount =  this.getSessionActivityRepository().getItemCount(sessionActivity.getUnitContentId());
 				Double lessonScoreInPercentage = (lessonTotalScoreInPercentage/lessonCount);
 				
 				UserActivityCollectionAssoc userActivityLessonAssoc = this.getSessionActivityRepository().getUserActivityCollectionAssoc(sessionActivity.getUser().getGooruUId(), sessionActivity.getClassContentId(), sessionActivity.getLessonContentId());
-				userActivityLessonAssoc.setScoreInPercentage(lessonScoreInPercentage);
-				this.getSessionActivityRepository().save(userActivityLessonAssoc);
 				
+				if(userActivityLessonAssoc != null){
+					userActivityLessonAssoc.setScoreInPercentage(lessonScoreInPercentage);
+				}else{
+					userActivityLessonAssoc = this.createUserActivityCollectionAssoc(sessionActivity);
+					userActivityLessonAssoc.setCollectionId(sessionActivity.getLessonContentId());
+					userActivityLessonAssoc.setScoreInPercentage(lessonScoreInPercentage);
+				}
+				this.getSessionActivityRepository().save(userActivityLessonAssoc);
+
 				UserActivityCollectionAssoc userActivityCollectionAssoc = this.getSessionActivityRepository().getUserActivityCollectionAssoc(sessionActivity.getUser().getGooruUId(), sessionActivity.getClassContentId(), sessionActivity.getCollectionId());
-				userActivityCollectionAssoc.setScoreInPercentage(sessionActivity.getScoreInPercentage());
-				userActivityCollectionAssoc.setScore(sessionActivity.getScore());
+				if (userActivityCollectionAssoc != null) {
+					userActivityCollectionAssoc.setScoreInPercentage(sessionActivity.getScoreInPercentage());
+					userActivityCollectionAssoc.setScore(sessionActivity.getScore());
+				}else{
+					userActivityCollectionAssoc = this.createUserActivityCollectionAssoc(sessionActivity);
+					userActivityCollectionAssoc.setScoreInPercentage(sessionActivity.getScoreInPercentage());
+					userActivityCollectionAssoc.setScore(sessionActivity.getScore());
+					userActivityCollectionAssoc.setCollectionId(sessionActivity.getLessonContentId());
+				}
 				this.getSessionActivityRepository().save(userActivityCollectionAssoc);
 			}
 			/**
@@ -357,6 +383,12 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 		return sessionMode;
 	}
 	
+	private UserActivityCollectionAssoc createUserActivityCollectionAssoc(SessionActivity sessionActivity) {
+		UserActivityCollectionAssoc userActivityCollectionAssoc = new UserActivityCollectionAssoc();
+		userActivityCollectionAssoc.setClassContentId(sessionActivity.getClassContentId());
+		userActivityCollectionAssoc.setUserUid(sessionActivity.getUser().getGooruUId());
+		return userActivityCollectionAssoc;
+	}
 	
 	@Override
 	public Map<String, Object> getInCompleteSessionActivity(final String gooruOid, final String user) {

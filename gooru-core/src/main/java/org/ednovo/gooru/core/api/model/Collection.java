@@ -15,6 +15,8 @@ public class Collection extends Content implements Versionable {
 
 	private static final String INDEX_TYPE = "scollection";
 
+	private static final String URL = "url";
+
 	private String collectionType;
 
 	private String narrationLink;
@@ -25,8 +27,6 @@ public class Collection extends Content implements Versionable {
 
 	private String language;
 
-	private String goals;
-
 	private String estimatedTime;
 
 	private Set<CollectionItem> collectionItems;
@@ -34,8 +34,6 @@ public class Collection extends Content implements Versionable {
 	private List<User> collaborators;
 
 	private ContentAssociation contentAssociation;
-
-	private Map<Integer, List<Map<String, Object>>> taxonomySetMapping;
 
 	private String network;
 
@@ -57,7 +55,7 @@ public class Collection extends Content implements Versionable {
 
 	private String languageObjective;
 
-	private List<ContentMetaDTO> audience;
+	private List<Integer> audienceIds;
 
 	private List<ContentMetaDTO> learningSkills;
 
@@ -89,10 +87,15 @@ public class Collection extends Content implements Versionable {
 
 	private String lastAccessedTime;
 
-	private static final String URL = "url";
-
 	private String uri;
 
+	private String mediaFilename;
+
+	private List<Integer> taxonomyCourseIds;
+	
+	private List<Integer> domainIds;
+	
+	private List<Integer> standardIds;
 
 	public String getIdeas() {
 		return ideas;
@@ -178,12 +181,9 @@ public class Collection extends Content implements Versionable {
 		this.language = language;
 	}
 
+	@Deprecated
 	public String getGoals() {
-		return goals;
-	}
-
-	public void setGoals(String goals) {
-		this.goals = goals;
+		return getDescription();
 	}
 
 	public String getEstimatedTime() {
@@ -226,14 +226,6 @@ public class Collection extends Content implements Versionable {
 		this.contentAssociation = contentAssociation;
 	}
 
-	public void setTaxonomySetMapping(Map<Integer, List<Map<String, Object>>> taxonomySetMapping) {
-		this.taxonomySetMapping = taxonomySetMapping;
-	}
-
-	public Map<Integer, List<Map<String, Object>>> getTaxonomySetMapping() {
-		return taxonomySetMapping;
-	}
-
 	@Override
 	public String getEntityId() {
 		return getGooruOid();
@@ -261,14 +253,6 @@ public class Collection extends Content implements Versionable {
 			mailNotification = true;
 		}
 		this.mailNotification = mailNotification;
-	}
-
-	public void setAudience(List<ContentMetaDTO> audience) {
-		this.audience = audience;
-	}
-
-	public List<ContentMetaDTO> getAudience() {
-		return audience;
 	}
 
 	public void setLearningSkills(List<ContentMetaDTO> learningSkills) {
@@ -428,6 +412,46 @@ public class Collection extends Content implements Versionable {
 
 	public String getType() {
 		return getCollectionType();
+	}
+
+	public String getMediaFilename() {
+		return mediaFilename;
+	}
+
+	public void setMediaFilename(String mediaFilename) {
+		this.mediaFilename = mediaFilename;
+	}
+
+	public List<Integer> getAudienceIds() {
+		return audienceIds;
+	}
+
+	public void setAudienceIds(List<Integer> audienceIds) {
+		this.audienceIds = audienceIds;
+	}
+
+	public List<Integer> getTaxonomyCourseIds() {
+		return taxonomyCourseIds;
+	}
+
+	public void setTaxonomyCourseIds(List<Integer> taxonomyCourseIds) {
+		this.taxonomyCourseIds = taxonomyCourseIds;
+	}
+
+	public List<Integer> getDomainIds() {
+		return domainIds;
+	}
+
+	public void setDomainIds(List<Integer> domainIds) {
+		this.domainIds = domainIds;
+	}
+
+	public List<Integer> getStandardIds() {
+		return standardIds;
+	}
+
+	public void setStandardIds(List<Integer> standardIds) {
+		this.standardIds = standardIds;
 	}
 
 }

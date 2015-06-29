@@ -23,6 +23,9 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.infrastructure.persistence.hibernate.content;
 
+import java.util.List;
+
+import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.ContentClassification;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
@@ -31,5 +34,8 @@ public interface ContentClassificationRepository extends BaseRepository {
 	ContentClassification findByContent(Long contentId);
 
 	ContentClassification findByContentGooruId(String gooruContentId);
-
+	
+	void deleteContentClassification(Long contentId, Short typeId);
+	
+	List<Code> getCodes(List<Integer> codeIds);
 }
