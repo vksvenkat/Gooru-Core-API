@@ -39,9 +39,9 @@ public class Collection extends Content implements Versionable {
 
 	private CollectionItem collectionItem;
 
-	private Short buildType;
+	private Short buildTypeId;
 
-	private Short publishStatus;
+	private Short publishStatusId;
 
 	private Boolean mailNotification;
 
@@ -78,6 +78,16 @@ public class Collection extends Content implements Versionable {
 	private String copiedCollectionId;
 
 	private List<ContentMetaDTO> depthOfKnowledges;
+	
+	private Integer position; 
+
+	public Integer getPosition() {
+		return position;
+	}
+
+	public void setPosition(Integer position) {
+		this.position = position;
+	}
 
 	private String url;
 
@@ -96,6 +106,10 @@ public class Collection extends Content implements Versionable {
 	private List<Integer> domainIds;
 	
 	private List<Integer> standardIds;
+	
+	private List<Integer> skillIds;
+	
+	private List<Integer> depthOfKnowledgeIds;
 
 	public String getIdeas() {
 		return ideas;
@@ -393,23 +407,7 @@ public class Collection extends Content implements Versionable {
 	public void setUri(String uri) {
 		this.uri = uri;
 	}
-
-	public Short getBuildType() {
-		return buildType;
-	}
-
-	public void setBuildType(Short buildType) {
-		this.buildType = buildType;
-	}
-
-	public Short getPublishStatus() {
-		return publishStatus;
-	}
-
-	public void setPublishStatus(Short publishStatus) {
-		this.publishStatus = publishStatus;
-	}
-
+	
 	public String getType() {
 		return getCollectionType();
 	}
@@ -452,6 +450,38 @@ public class Collection extends Content implements Versionable {
 
 	public void setStandardIds(List<Integer> standardIds) {
 		this.standardIds = standardIds;
+	}
+
+	public List<Integer> getSkillIds() {
+		return skillIds;
+	}
+
+	public void setSkillIds(List<Integer> skillIds) {
+		this.skillIds = skillIds;
+	}
+
+	public List<Integer> getDepthOfKnowledgeIds() {
+		return depthOfKnowledgeIds;
+	}
+
+	public void setDepthOfKnowledgeIds(List<Integer> depthOfKnowledgeIds) {
+		this.depthOfKnowledgeIds = depthOfKnowledgeIds;
+	}
+
+	public Short getBuildTypeId() {
+		return buildTypeId;
+	}
+
+	public void setBuildTypeId(Short buildTypeId) {
+		this.buildTypeId = buildTypeId;
+	}
+
+	public Short getPublishStatusId() {
+		return publishStatusId;
+	}
+
+	public void setPublishStatusId(Short publishStatusId) {
+		this.publishStatusId = publishStatusId;
 	}
 
 }

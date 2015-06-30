@@ -5,9 +5,9 @@ public interface ParameterProperties {
 	public String SESSION_EXPIRES_TIME = "session.expires.time";
 
 	public static final String DELETE = "delete";
-	
-	public static final String DELETED = "deleted"; 
-	
+
+	public static final String DELETED = "deleted";
+
 	public static final String _DELETE = "DELETE";
 
 	public static final String HREF = "href";
@@ -49,8 +49,8 @@ public interface ParameterProperties {
 	public static final String PARAM_FORMAT = "format";
 
 	public static final String MODEL = "model";
-	
-	public static final String EXCLUDE_COLLABORATOR_COLLECTION = "excludeCollaboratorCollection";	
+
+	public static final String EXCLUDE_COLLABORATOR_COLLECTION = "excludeCollaboratorCollection";
 
 	public static final String REST_MODEL = "rest/model";
 
@@ -83,7 +83,7 @@ public interface ParameterProperties {
 	public static final String IS_BLACKLISTED = "isBlacklisted";
 
 	public static final String _RESOURCE_SOURCE_ID = "resourceSourceId";
-	
+
 	public static final String SESSION_TOKEN_KEY = "authenticate_";
 
 	String ADD_TO_USER_CLASSPAGE = "addToUserClasspage";
@@ -109,7 +109,7 @@ public interface ParameterProperties {
 	String INLCLUDE_META_INFO = "includeMetaInfo";
 
 	String INCLUDE_COLLABORATOR = "includeCollaborator";
-	
+
 	String COLLABORATOR_INFO = "collaboratorInfo";
 
 	String INCLUDE_RELATED_CONTENT = "includeRelatedContent";
@@ -117,13 +117,13 @@ public interface ParameterProperties {
 	String INCLUDE_COLLECTION_ITEM = "includeCollectionItem";
 
 	String INCLUDE_ADDITIONAL_INFO = "includeAdditionalInfo";
-	
+
 	String ORDER_BY = "orderBy";
 
 	String SOFT_DELETE = "softdelete";
 
 	String DESC = "desc";
-	
+
 	String ASC = "asc";
 
 	String CLASSPAGE = "classpage";
@@ -139,7 +139,7 @@ public interface ParameterProperties {
 	String RESOURCE_ID = "resourceId";
 
 	String COLLECTION_ID = "collectionId";
-	
+
 	String SOURCE_COLLECTION_ID = "sourceCollectionId";
 
 	String TARGET_COLLECTION_ID = "targetCollectionId";
@@ -157,7 +157,7 @@ public interface ParameterProperties {
 	String TITLE = "title";
 
 	String _TITLE = "Title";
-	
+
 	String QUESTION_TITLE = "questionTitle";
 
 	String RENDITION = "rendition";
@@ -179,7 +179,7 @@ public interface ParameterProperties {
 	String DESCRIPTION = "description";
 
 	String START = "start";
-	
+
 	String RESOURCE_TAGS = "resourceTags";
 
 	String STOP = "stop";
@@ -187,7 +187,7 @@ public interface ParameterProperties {
 	String URL = "url";
 
 	String SOURCE_ID = "sourceId";
-	
+
 	String SOURCE_ITEM_ID = "sourceItemId";
 
 	String TARGET_ID = "targetId";
@@ -253,7 +253,7 @@ public interface ParameterProperties {
 	String SHOW_RATING = "Show rating";
 
 	String RATING = "rating";
-	
+
 	String RATINGS = "ratings";
 
 	String GOORU_CONTENT_ID = "gooruContentId";
@@ -269,27 +269,27 @@ public interface ParameterProperties {
 	String USER_ID = "userId";
 
 	String CLASS_CONTENT_ID = "classContentId";
-	
+
 	String UNIT_CONTENT_ID = "unitContentId";
-	
+
 	String LESSON_CONTENT_ID = "lessonContentId";
-	
+
 	String GOORU_UID = "gooruUId";
-	
+
 	String CLASS_UID = "classUid";
 
 	String COUNT = "count";
-	
+
 	String REVIEW_COUNT = "reviewCount";
-	
+
 	String COLLECTION_COUNT = "collectionCount";
 
 	String SCORE = "score";
-	
+
 	String RESOURCE_FORMAT = "resource_format";
-    
-    String RESOURCE_INSTRUCTIONAL = "resource_instructional";
-    
+
+	String RESOURCE_INSTRUCTIONAL = "resource_instructional";
+
 	String FREE_TEXT = "freeText";
 
 	String COLLECTION_ITEM = "collectionItem";
@@ -299,7 +299,7 @@ public interface ParameterProperties {
 	String COLLECTION_ITEMS = "collectionItems";
 
 	String SESSION = "session";
-	
+
 	String SESSION_ITEM_FEEDBACK = "sessionItemFeedback";
 
 	String GOORU_USER_CREATED_DEVICE = "gooru_user_created_device";
@@ -349,7 +349,7 @@ public interface ParameterProperties {
 	String USER_UID = "userUid";
 
 	String UID = "uid";
-	
+
 	String EXCLUDE_TYPE = "excludeType";
 
 	String TASK_ASSOC = "taskAssoc";
@@ -383,9 +383,9 @@ public interface ParameterProperties {
 	String GL0056 = "GL0056";
 
 	String GL0006 = "GL0006";
-	
+
 	String GL0007 = "GL0007";
-	
+
 	String GL0108 = "GL0108";
 
 	String GL0042 = "GL0042";
@@ -393,11 +393,11 @@ public interface ParameterProperties {
 	String GL0043 = "GL0043";
 
 	String GL0057 = "GL0057";
-	
+
 	String GL0058 = "GL0058";
 
 	String GL0041 = "GL0041";
-	
+
 	String GL0106 = "GL0106";
 
 	String EVENTNAME = "eventName";
@@ -451,7 +451,7 @@ public interface ParameterProperties {
 	String TO_ADDRESS = "to";
 
 	String FROM_ADDRESS = "from";
-	
+
 	String FROM_DISPLAY_NAME = "fromDisplayName";
 
 	String MESSAGE = "message";
@@ -463,9 +463,9 @@ public interface ParameterProperties {
 	String COLLECTION = "collection";
 
 	String _COLLECTION = "Collection";
-	
+
 	String DEACTIVATE_COURSE = "course";
-	
+
 	String DEACTIVATE_DOMAIN = "domain";
 
 	String TAXONOMY_SET = "taxonomySet";
@@ -481,7 +481,7 @@ public interface ParameterProperties {
 	String COMMENT_UID = "commentUid";
 
 	String ACTIVE = "active";
-	
+
 	String NOTINVITED = "not-invited";
 
 	String SHARING = "sharing";
@@ -579,7 +579,7 @@ public interface ParameterProperties {
 	String FILE = "file";
 
 	String FILENAME = "fileName";
-	
+
 	String JOB_UID = "jobUid";
 
 	String FILE_DATA = "fileData";
@@ -611,11 +611,11 @@ public interface ParameterProperties {
 	String YOUTUBE_URL = "http://www.youtube.com";
 
 	String RESOURCE_CATEGORY_TYPE = "resource_category_type";
-	
+
 	String RESOURCE_CATEGORY_FORMAT = "resource_category_format";
-	
+
 	String RESOURCE_INSTRUCTIONAL_USE = "resource_instructional_use";
-	
+
 	String HANDOUT = "handout";
 
 	String TYPE_ID = "typeId";
@@ -663,7 +663,7 @@ public interface ParameterProperties {
 	String RESOURCE_MANAGER = "resourceManager";
 
 	String SCOLLECTION = "scollection";
-	
+
 	String PATHWAY = "pathway";
 
 	String SUGGESTEDSTUDY = "suggestedstudy";
@@ -701,13 +701,13 @@ public interface ParameterProperties {
 	String CURRICULUM_CODE = "curriculumCode";
 
 	String COURSE = "course";
-	
+
 	String COURSE_CODE = "courseCode";
-	
+
 	String DISPLAY_SEQUENCE = "displaySequence";
-	
+
 	String DOMAIN_ = "domain";
-	
+
 	String CURRICULUM_DESC = "curriculumDesc";
 
 	String CURRICULUM_NAME = "curriculumName";
@@ -911,7 +911,7 @@ public interface ParameterProperties {
 	String RANDOM = "random";
 
 	String THEME_CODE = "themeCode";
-	
+
 	String THEME_TYPE = "themeType";
 
 	String JSON = "json";
@@ -977,8 +977,8 @@ public interface ParameterProperties {
 	String TAXONOMY = "taxonomy";
 
 	String _TAXONOMY = "Taxonomy";
-	
-	String SKILLS = "skills" ;
+
+	String SKILLS = "skills";
 
 	String RELATED_CONTENT = "related-content";
 
@@ -1033,7 +1033,7 @@ public interface ParameterProperties {
 	String MY_SHELF = "My Shelf";
 
 	String PERMISSIONS = "permissions";
-	
+
 	String ISMEMBER = "isMember";
 
 	String REACTION_AGGREGATE = "reactionAggregate";
@@ -1061,7 +1061,7 @@ public interface ParameterProperties {
 	String TEMPLATE_HTML = "Template html ";
 
 	String TEMPLATE_TEXT = "Template text ";
-	
+
 	String TEMPLATE_CONTENT = "templateContent";
 
 	String TEMPLATE_SUBJECT = "Template subject ";
@@ -1127,9 +1127,9 @@ public interface ParameterProperties {
 	String SHOW_SCORE = "showScore";
 
 	String SHOW_HINTS = "showHints";
-	
+
 	String SHOW_ANSWER_END = "showAnswerEnd";
-	
+
 	String MINIMUM_SCORE = "minimumScore";
 
 	String SHOW_CORRECT_ANSWER = "showCorrectAnswer";
@@ -1263,15 +1263,15 @@ public interface ParameterProperties {
 	String QUOTE = "quote";
 
 	String FIRST = "first";
-	
+
 	String LAST = "last";
-	
+
 	String ANONYMOUS_ = "anonymous_";
-	
+
 	String HTTP_URL = "http://";
-	
+
 	String DOT_COM = ".com";
-	
+
 	String AT_GMAIL_DOT_COM = "@gmail.com";
 
 	String IN_USE = "in_use";
@@ -1347,7 +1347,7 @@ public interface ParameterProperties {
 	String ASSESSMENT_ANSWER = "assessmentAnswer";
 
 	String MODE = "mode";
-	
+
 	String CREATE = "create";
 
 	String SHELF_UID = "shelfUid";
@@ -1435,9 +1435,9 @@ public interface ParameterProperties {
 	String BIRTH_YEAR = "birthYear";
 
 	String ABOUT_ME = "aboutMe";
-	
+
 	String DISTRICT = "district";
-	
+
 	String PROVINCE = "province";
 
 	String HIGHEST_DEGREE = "highestDegree";
@@ -1475,9 +1475,9 @@ public interface ParameterProperties {
 	String SIGNATURE = "signature";
 
 	String ZERO = "0";
-	
+
 	final int _ZERO = '0';
-	
+
 	final int _ONE = '1';
 
 	String SHOW_PROFILE_PAGE = "show_profile_page";
@@ -1771,9 +1771,9 @@ public interface ParameterProperties {
 	String SCOLLECTION_COPY = "scollection-copy";
 
 	String COLLABORATOR = "collaborator";
-	
+
 	String COLLABORATOR_COUNT = "collaboratorCount";
-	
+
 	String COLABORATOR = "Collaborator";
 
 	String ADD_COLLABORATORS = "add-collaborators";
@@ -1819,7 +1819,7 @@ public interface ParameterProperties {
 	String DATA_COLUMN_NAME = "dataColumnName";
 
 	String IS_REQUIRED = "isRequired";
-	
+
 	String SHOW_ANSWER_BY_QUESTIONS = "showAnswerByQuestions";
 
 	String GROUPNAME = "groupName";
@@ -1901,7 +1901,7 @@ public interface ParameterProperties {
 	String APPROVED_FLAG = "approvedFlag";
 
 	String NETWORK_CREATE = "network.create";
-	
+
 	String NETWORK = "network";
 
 	String _ORGANIZATION_UID = "organizationUid";
@@ -2119,7 +2119,7 @@ public interface ParameterProperties {
 	String CONTENT_SHARE = "content-share";
 
 	String IS_AUTHENTICATED = "isAuthenticated";
-	
+
 	String IS_VALID_TOKEN = "isValidToken";
 
 	String CHECK_SESSION = "check-session";
@@ -2275,7 +2275,7 @@ public interface ParameterProperties {
 	String USER_UPDATE_USER_DENY_ROLE = "user.update_user_deny_role";
 
 	String USER_LOGIN = "user.login";
-	
+
 	String USER_LOG_OUT = "user.logout";
 
 	String USER_SIGN_IN = "User-Signin";
@@ -2287,7 +2287,7 @@ public interface ParameterProperties {
 	String CREATED_ON = "createdOn";
 
 	String LOGIN_TYPE = "loginType";
-	
+
 	String LOG_OUT_TYPE = "logOutType";
 
 	String GOORU_LOG_OUT = "gooru.logout";
@@ -2457,9 +2457,9 @@ public interface ParameterProperties {
 	String COLLECTION_TITLE = "collectionTitle";
 
 	String COMMENTS = "comments";
-	
+
 	String COMMENTS_COUNT = "commentsCount";
-	
+
 	String COLLECTION_ITEM_COUNT = "collectionItemCount";
 
 	String SUBSCRIBED_STATUS = "subscribedStatus";
@@ -2469,7 +2469,7 @@ public interface ParameterProperties {
 	String TYPENAME = "type_name";
 
 	String LICENSE_NAME = "license_name";
-	
+
 	String LICENSENAME = "licenseName";
 
 	String BROKEN_STATUS = "brokenStatus";
@@ -2659,7 +2659,7 @@ public interface ParameterProperties {
 	String SOURCE = "source";
 
 	String LAST_MODIFIED_BY = "lastModifiedBy";
-	
+
 	String SUBJECT_CODE = "subjectCode";
 
 	String IS_FEATURED = "isFeatured";
@@ -2679,261 +2679,260 @@ public interface ParameterProperties {
 	String RESOURCE_INSTANCES = "resourceInstances";
 
 	String IS_OWNER = "isOwner";
-	
+
 	String SHELF_NAME = "shelfName";
 
 	String SHELF_CREATE = "shelf-create";
-	
+
 	String ITEM_COUNT = "itemCount";
-	
+
 	String PENDING = "pending";
-	
+
 	String REVIEWED = "reviewed";
-	
+
 	String FEMALE = "female";
-	
+
 	String MALE = "male";
-	
+
 	String MR = "Mr.";
-	
+
 	String MS = "Ms.";
-	
+
 	String HIS = "his";
-	
+
 	String HER = "her";
-	
+
 	String CONTENT_OBJ = "contentObject";
-	
+
 	String INVITE_USER_STATUS = "invite_user_status";
-	
+
 	String ASSOC_DATE = "associatedDate";
-	
+
 	String PROFILE_IMG_URL = "profileImageUrl";
-	
+
 	String STANDARD = "standard";
-	
+
 	String IS_PARTNER_PORTAL = "isPartnerPortal";
-	
+
 	String SERVERPATH = "serverPath";
-	
+
 	String TEACHERNAME = "teachername";
-	
+
 	String MEMBERMAILID = "memberMailId";
-	
+
 	String RECIPIENT = "recipient";
-	
+
 	String HTMLCONTENT = "htmlContent";
-	
+
 	String BCC = "bcc";
-	
+
 	String FROMNAME = "fromName";
-	
+
 	String TEXTCONTENT = "textContent";
-	
+
 	String NOUN = "noun";
-	
+
 	String ITEM_LIMIT_FIELD = "itemLimit";
-	
+
 	String FETCH_CHILDS = "fetchChilds";
-	
+
 	String RESOURCESOURCE = "resourceSource";
-		
+
 	String LIBRARY_ID = "libraryId";
-	
+
 	String LIBRARY_NAMES = "library,rusd";
-	
+
 	String TOP_LEVEL_COLLECTION_TYPE = "topLevelCollectionType";
-	
+
 	String OPTIMIZE = "optimize";
-	
+
 	String ANYONE_WITH_LINK = "anyonewithlink";
-	
-	String GOOGLE_ACCESS_TOKEN = "google_access_token";       
-	
+
+	String GOOGLE_ACCESS_TOKEN = "google_access_token";
+
 	String GOOGLE_REFRESH_TOKEN = "google_refresh_token";
-	
-	String GOOGLE_DRIVE_EMAIL_ID = "google_drive_email_id"; 
-	
+
+	String GOOGLE_DRIVE_EMAIL_ID = "google_drive_email_id";
+
 	String REFRESH_TOKEN = "refresh_token";
-	
+
 	Integer MAX_LIMIT = 50;
-	
+
 	String EDUCATIONAL_USE = "educational_use";
-	
+
 	String MAIL_NOTIFICATION = "mailNotification";
-	
+
 	String ESTIMATED_TIME = "estimatedTime";
-	
-	String KEYPOINTS  = "keyPoints"; 
-	
-	String LANGUAGE  = "language";
-	
-	String LANGUAGE_OBJECTIVE = "languageObjective" ;
-	
+
+	String KEYPOINTS = "keyPoints";
+
+	String LANGUAGE = "language";
+
+	String LANGUAGE_OBJECTIVE = "languageObjective";
+
 	String IDEAS = "ideas";
-	
+
 	String QUESTIONS = "questions";
-	
+
 	String PERFORMANCE_TASKS = "performanceTasks";
-	
+
 	String DEPTHOFKNOWLEDGES = "depthOfKnowledges";
-	
+
 	String LEARNING_SKILLS = "learningSkills";
-	
+
 	String INSTRUCTIONALMETHOD = "instructionalMethod";
-	
+
 	String METAINFO = "metaInfo";
-	
+
 	String COLLECTIONITEMS = "collectionItems";
-	
+
 	String DEFAULT_VERSION = "version";
-	
+
 	String CREATOR_USER_NAME = "creatorUsername";
-	
+
 	String ASSOCIATED_USER_NAME = "associatedUsername";
 
 	String OAUTH_CLIENT = "oauthClient";
-	
+
 	String ROLE_CLIENT = "ROLE_CLIENT";
-	
+
 	String LTI = "LTI";
-	
+
 	String READ = "read";
-	
+
 	String ASSOC_COLLECTION_NO = "assocCollectionNo";
-	
+
 	String DIRECTION = "direction";
-	
+
 	String DUEDATE = "dueDate";
-	
+
 	String COLLECTION_CREATOR = "collectionCreator";
-	
+
 	String CLASSPAGE_CREATOR = "classpageCreator";
-	
-	String RETURN_URL ="returnUrl";
-	
+
+	String RETURN_URL = "returnUrl";
+
 	String APPLICATION_URL = "applicationUrl";
-	
+
 	String APPLICATION_ITEM = "applicationItem";
 
 	String MENU = "menu";
-	
+
 	String MENU_UID = "menuUid";
-	
+
 	String GL0010 = "GL0010";
-	
+
 	String GL0101 = "GL0101";
-	
+
 	String GL0102 = "GL0102";
-	
+
 	String GL0103 = "GL0103";
 
 	String APPLICATION = "application";
-	
+
 	String GL0104 = "GL0104";
-	
+
 	String ENTITY_OPERATION = "entity operation";
-	
+
 	String IN_ACTIVE = "in_active";
-	
+
 	String APPLICATION_ID = "applicationId";
-	
+
 	String MENU_ITEM = "menu item";
-		
-	String USER_CATEGORY ="user_category";
-	
+
+	String USER_CATEGORY = "user_category";
+
 	String GL0105 = "GL0105";
-	
+
 	String GL0078 = "GL0078";
-	
+
 	String GL0061 = "GL0061";
-	
+
 	String GL0079 = "GL0079";
-	
+
 	String GL0081 = "GL0081";
-	
+
 	String GL0072 = "GL0072";
-	
+
 	String ASSESSMENT_URL = "assessment/url";
-	
+
 	String TWO = "2";
 
 	String COUNTRY_ = "country";
-	
+
 	String STATE_ = "state";
-	
+
 	String CITY_ = "city";
-	
+
 	String COUNTRY_NAME = "countryName";
-	
+
 	String CLASSIFICATION_TYPE_ID = "classificationTypeId";
-	
+
 	String STATE_NAME = "stateName";
 
 	String CITY_NAME = "cityName";
-	
+
 	String COUNTRY_CODE = "countryCode";
-	
+
 	String STATE_CODE = "stateCode";
-	
+
 	String CITY_CODE = "cityCode";
-	
+
 	String STATE_UID = "stateUid";
-	
+
 	String COUNTRY_UID = "countryUid";
-	
+
 	String CITY_UID = "cityUid";
-	
+
 	String INCLUDE_CONTENT_PROVIDER = "includeContentProvider";
-	
+
 	String INCLUDE_CUSTOM_FIELDS = "includeCustomFields";
-	
+
 	String SETTINGS = "settings";
-	
+
 	String GL0099 = "GL0099";
 
 	String PROFANITY_TEXT = "profanity text";
-	
+
 	String GL0001 = "GL0001";
-	
+
 	String GL0004 = "GL0004";
-	
+
 	String GL0014 = "GL0014";
-	
+
 	String PROFILE_ID = "profileId";
-	
+
 	String SECURITY_LEVEL = "securityLevel";
-	
+
 	String INCLUDE_CIMIN = "includeCIMin";
-	
-	String PATH ="path";
-	
+
+	String PATH = "path";
+
 	String ITEMS = "items";
-	
+
 	String SNIPPET = "snippet";
-	
+
 	String CONTENT_DETAILS = "contentDetails";
-	
+
 	String PAGE_INFO = "pageInfo";
-	
+
 	String TOTAL_RESULTS = "totalResults";
 
 	String EXPORT_CLASS_QUERY = "class.export.query";
-	
+
 	String EXPORT_CLASS_HEADER = "class.export.header";
-	
+
 	String EXPORT_CLASS_FILENAME = "reports.csv";
-	
+
 	String CLASS_GOORU_ID = "classGooruId";
 
-	String GL0107 = "GL0107";	
-	
+	String GL0107 = "GL0107";
+
 	String GL0109 = "GL0109";
-	
+
 	String HOST = "host";
-	
+
 	String REFERER = "referer";
 	
 	public static final String CLASS_UID = "classUid";
 }
-

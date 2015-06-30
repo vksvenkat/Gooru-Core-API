@@ -51,7 +51,7 @@ public class UnitRestController extends BaseController implements ConstantProper
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.PUT)
 	public void updateUnit(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = ID) final String unitUId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		this.getUnitService().updateUnit(unitUId, buildUnit(data), user);
+		this.getUnitService().updateUnit(courseUId, unitUId, buildUnit(data), user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })

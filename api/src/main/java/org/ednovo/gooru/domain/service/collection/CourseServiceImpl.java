@@ -66,6 +66,9 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 			updateContentMeta(contentMeta, data);
 		}
 		this.updateCollection(collection, newCollection, user);
+		if(newCollection.getPosition() != null){
+			this.resetSequence(courseId, collection.getGooruOid() , newCollection.getPosition());
+		}
 	}
 
 	@Override

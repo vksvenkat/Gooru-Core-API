@@ -11,7 +11,7 @@ public interface UnitService extends AbstractCollectionService {
 
 	ActionResponseDTO<Collection> createUnit(String courseId, Collection collection, User user);
 	
-	void updateUnit(String unitId, Collection newCollection, User user);
+	void updateUnit(String courseUId, String unitUId, Collection newCollection, User user);
 	
 	Map<String, Object> getUnit(String unitId);
 	

@@ -38,7 +38,7 @@ public class CollectionRestController extends BaseController implements Constant
 	public ModelAndView createCollection(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @RequestBody final String data, final HttpServletRequest request,
 			final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		final ActionResponseDTO<Collection> responseDTO = this.getCollectionBoService().createCollection(lessonUId, buildCollection(data), user);
+		final ActionResponseDTO<Collection> responseDTO = this.getCollectionBoService().createCollection(courseUId, unitUId, lessonUId, user, buildCollection(data));
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
