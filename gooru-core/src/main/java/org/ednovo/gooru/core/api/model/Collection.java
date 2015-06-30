@@ -78,6 +78,16 @@ public class Collection extends Content implements Versionable {
 	private String copiedCollectionId;
 
 	private List<ContentMetaDTO> depthOfKnowledges;
+	
+	private Integer position; 
+
+	public Integer getPosition() {
+		return position;
+	}
+
+	public void setPosition(Integer position) {
+		this.position = position;
+	}
 
 	private String url;
 

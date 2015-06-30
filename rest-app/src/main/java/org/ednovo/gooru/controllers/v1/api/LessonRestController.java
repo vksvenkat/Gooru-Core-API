@@ -51,7 +51,7 @@ public class LessonRestController extends BaseController implements ConstantProp
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.PUT)
 	public void updateLesson(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = ID) final String lessonUId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		this.getLessonService().updateLesson(lessonUId, buildLesson(data), user);
+		this.getLessonService().updateLesson(courseUId, lessonUId, buildLesson(data), user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
