@@ -60,6 +60,16 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 		List<Map<String, Object>> results = list(query);
 		return results.size() > 0 ? results.get(0) : null;
 	}
+	
+	@Override
+	public List<Map<String, Object>> getClassesByCourse(String courseGooruOid, int limit, int offset) {
+		StringBuilder sql = new StringBuilder(GET_CLASSES);
+		sql.append("where cc.gooru_oid = :gooruOid order by p.created_on desc");
+		Query query = getSession().createSQLQuery(sql.toString());
+		query.setParameter(GOORU_OID, courseGooruOid);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		return list(query);
+	}
 
 	@Override
 	public List<Map<String, Object>> getStudyClasses(String gooruUid, int limit, int offset) {

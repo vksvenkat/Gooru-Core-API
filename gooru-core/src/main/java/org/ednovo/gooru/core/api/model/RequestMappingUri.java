@@ -53,5 +53,8 @@ public class RequestMappingUri {
 	public static final String LESSON_UPDATE_RESOURCE = "/v1/course/{courseId}/unit/{unitId}/lesson/{lessonId}/collection/{collectionId}/resource/{id}";
 
 	public static final String LESSON_UPDATE_QUESTION = "/v1/course/{courseId}/unit/{unitId}/lesson/{lessonId}/collection/{collectionId}/question/{id}";
+	
+	public static final String COURSES_CLASS = "/{id}/classes";
+	
 
 }
