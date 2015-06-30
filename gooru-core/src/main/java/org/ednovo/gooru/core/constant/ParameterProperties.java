@@ -2934,5 +2934,4 @@ public interface ParameterProperties {
 
 	String REFERER = "referer";
 	
-	public static final String CLASS_UID = "classUid";
 }
