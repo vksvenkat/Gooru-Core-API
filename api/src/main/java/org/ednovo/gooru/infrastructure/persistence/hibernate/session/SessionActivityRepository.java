@@ -54,7 +54,7 @@ public interface SessionActivityRepository extends BaseRepository {
 	
 	AssessmentQuestion getQuestion(String gooruOid);
 	
-	SessionActivity getLastSessionActivity(Long parentId, Long collectionId, String userUid);
+	SessionActivity getLastSessionActivity(Long classId,Long courseId,Long unitId,Long lessionId, Long collectionId, String userUid);
 	
     Map<String, Object> getSessionActivityByCollectionId(String gooruOid, String user);
 

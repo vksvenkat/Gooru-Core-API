@@ -28,8 +28,6 @@
 
 		<property name="classId" column="class_id" not-null="false" />
 
-		<property name="classContentId" column="class_content_id" not-null="false" />
-
 		<property name="lessonContentId" column="lesson_content_id" not-null="false" />
 		
 		<property name="unitContentId" column="unit_content_id" not-null="false" />
@@ -64,6 +62,8 @@
 
 		<property name="type" column="type" not-null="false"></property>
 
+		<property name="courseId" column="course_id" not-null="true"></property>
+		
 		<many-to-one name="user" class="org.ednovo.gooru.core.api.model.User"
 			column="user_uid" not-null="true" lazy="proxy" cascade="none" />
 	</class>

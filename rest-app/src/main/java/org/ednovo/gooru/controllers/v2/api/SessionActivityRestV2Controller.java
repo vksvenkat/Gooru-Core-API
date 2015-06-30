@@ -63,7 +63,6 @@ public class SessionActivityRestV2Controller extends BaseController implements P
 	private SessionActivityService sessionActivityService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "", method = RequestMethod.POST)
 	public ModelAndView createSession(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
@@ -78,7 +77,6 @@ public class SessionActivityRestV2Controller extends BaseController implements P
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	public ModelAndView updateSession(@RequestBody String data, @PathVariable(ID) Long sessionActivityId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		ActionResponseDTO<SessionActivity> sessionActivity = getSessionActivityService().updateSessionActivity(sessionActivityId, this.buildSessionActivityFromInputParameters(data));

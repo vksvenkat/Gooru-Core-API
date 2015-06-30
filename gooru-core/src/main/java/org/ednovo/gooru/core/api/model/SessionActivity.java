@@ -43,8 +43,6 @@ public class SessionActivity implements Serializable {
 	private String status;
 
 	private User user;
-
-	private Long classContentId;
 	
 	private Long unitContentId;
 	
@@ -59,6 +57,10 @@ public class SessionActivity implements Serializable {
 	private Double scoreInPercentage;
 	
 	private Boolean isLastSession;
+	
+	private Long courseId;
+	
+	private String courseGooruId;
 	
 	public void setStatus(String status) {
 		this.status = status;
@@ -195,15 +197,7 @@ public class SessionActivity implements Serializable {
 	public void setCollectionId(Long collectionId) {
 		this.collectionId = collectionId;
 	}
-
-	public Long getClassContentId() {
-		return classContentId;
-	}
-
-	public void setClassContentId(Long classContentId) {
-		this.classContentId = classContentId;
-	}
-
+	
 	public Long getUnitContentId() {
 		return unitContentId;
 	}
@@ -258,6 +252,22 @@ public class SessionActivity implements Serializable {
 
 	public void setIsLastSession(Boolean isLastSession) {
 		this.isLastSession = isLastSession;
+	}
+
+	public Long getCourseId() {
+		return courseId;
+	}
+
+	public void setCourseId(Long courseId) {
+		this.courseId = courseId;
+	}
+
+	public String getCourseGooruId() {
+		return courseGooruId;
+	}
+
+	public void setCourseGooruId(String courseGooruId) {
+		this.courseGooruId = courseGooruId;
 	}
 
 }

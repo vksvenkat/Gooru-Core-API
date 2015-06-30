@@ -1,6 +1,7 @@
 package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class UserActivityCollectionAssoc implements Serializable {
 
@@ -25,6 +26,10 @@ public class UserActivityCollectionAssoc implements Serializable {
 
 	private Integer collectionAttemptCount;
 
+	private Integer viewsInSession;
+	
+	private Date lastAccessedTime;
+	
 	public String getUserUid() {
 		return userUid;
 	}
@@ -87,6 +92,22 @@ public class UserActivityCollectionAssoc implements Serializable {
 
 	public void setClassContentId(Long classContentId) {
 		this.classContentId = classContentId;
+	}
+
+	public Integer getViewsInSession() {
+		return viewsInSession;
+	}
+
+	public void setViewsInSession(Integer viewsInSession) {
+		this.viewsInSession = viewsInSession;
+	}
+
+	public Date getLastAccessedTime() {
+		return lastAccessedTime;
+	}
+
+	public void setLastAccessedTime(Date lastAccessedTime) {
+		this.lastAccessedTime = lastAccessedTime;
 	}
 	
 }

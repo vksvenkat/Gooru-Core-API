@@ -96,8 +96,10 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	
 	private static final String GET_CONTENT_ID = "SELECT content_id AS contentId from content WHERE gooru_oid =:gooruOid";
 
-	private static final String FIND_STUDENT_AND_NUMERIC_CODE = "SELECT IFNULL(uga.is_group_owner,false) isStudent,IFNULL(conv(class.classpage_code,36,10),0) AS classCode FROM classpage class LEFT JOIN user_group ug ON class.classpage_code = ug.user_group_code LEFT JOIN user_group_association uga ON ug.user_group_uid = uga.user_group_uid WHERE class.classpage_content_id =:classContentId";
+	private static final String FIND_STUDENT_AND_CLASS_ID = "SELECT IFNULL(c.class_id,0) AS classId,COALESCE(true,false) isStudent FROM  class c INNER JOIN user_group ug on c.class_uid = ug.user_group_uid LEFT JOIN user_group_association uga ON ug.user_group_uid = uga.user_group_uid AND uga.gooru_uid =:gooruUId WHERE ug.user_group_uid =:classGooruId";
 	
+	private static final String GET_CLASS_ID = "SELECT class_id from class where class_uid =:classGooruId" ;
+			
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceServiceImpl.class);
 
 	@Override
@@ -162,10 +164,13 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 
 	@Override
-	public List<Object[]> findNumericCodeAndIstudent(Long classContentId, String gooruUId) {
+	public List<Object[]> findIstudentAndClassId(String classGooruId, String gooruUId) {
 		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createSQLQuery(FIND_STUDENT_AND_NUMERIC_CODE).addScalar(IS_STUDENT, StandardBasicTypes.BOOLEAN).addScalar(CLASS_CODE, StandardBasicTypes.LONG);
-		query.setParameter(CLASS_CONTENT_ID, classContentId);
+		Query query = session.createSQLQuery(FIND_STUDENT_AND_CLASS_ID)
+				.addScalar(_CLASS_ID,StandardBasicTypes.LONG)
+				.addScalar(IS_STUDENT, StandardBasicTypes.BOOLEAN);		
+		query.setParameter(CLASS_GOORU_ID, classGooruId);
+		query.setParameter(GOORU_UID, gooruUId);
 		return list(query);
 	}
 	
@@ -176,6 +181,15 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		query.setParameter(GOORU_OID, contentGooruOid);
 		List<Long> results = list(query);
 
+		return (results != null && results.size() > 0) ? results.get(0) : 0L;
+	}
+
+	@Override
+	public Long getClassId(String classGooruId) {
+		Session session = getSessionFactory().getCurrentSession();
+		Query query = session.createSQLQuery(GET_CLASS_ID).addScalar(CLASS_ID, StandardBasicTypes.LONG);
+		query.setParameter(CLASS_GOORU_ID, classGooruId);
+		List<Long> results = list(query);
 		return (results != null && results.size() > 0) ? results.get(0) : 0L;
 	}
 	

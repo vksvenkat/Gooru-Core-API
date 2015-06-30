@@ -923,8 +923,6 @@ public interface ConstantProperties {
 
 	final static String CLASS_INCLUDES[] = { "classUid", "classCode", "name", "description", "visibility", "*.minimumScore", "*.memberCount", "user.username", "user.gooruUId", "user.gender", "*.thumbnails", "*.user", "thumbnails.url", "courseGooruOid" };
 
-	final static String IMAGE_PATH = "imagePath";
-
 	final static String UNIT_ID = "unitId";
 
 	final static String LESSON_ID = "lessonId";
@@ -940,4 +938,8 @@ public interface ConstantProperties {
 	final static String DOT = ".";
 
 	final static String REGX_DOT = "\\.";
+	
+	final static String CLASS_ID = "class_id";
+	
+	final static String _CLASS_ID = "classId";
 }

@@ -33,11 +33,15 @@
 		
 		<property name="totalTimeSpentInMillis" column="total_time_spent_in_millis" not-null="false"></property>
 
-		<property name="score" column="score" not-null="true"></property>
+		<property name="score" column="score" not-null="false"></property>
 		
-		<property name="scoreInPercentage" column="score_in_percentage" not-null="true"></property>
+		<property name="scoreInPercentage" column="score_in_percentage" not-null="false"></property>
 		
-		<property name="collectionAttemptCount" column="collection_attempt_count" not-null="true"></property>
+		<property name="collectionAttemptCount" column="collection_attempt_count" not-null="false"></property>
+	
+		<property name="viewsInSession" column="views_in_session" not-null="false"></property>
+		
+		<property name="lastAccessedTime" column="last_accessed_time" not-null="false"></property>		
 		
 	</class>
 </hibernate-mapping>

@@ -61,7 +61,7 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 
 	private final String FIND_QUESTION = "From AssessmentQuestion q   where q.gooruOid=:gooruOid";
 	
-	private final String RETRIEVE_LAST_SESSION_ACTIVITY_BY_IDS = "From SessionActivity s   where s.parentId=:parentId and s.collectionId=:collectionId and s.user.partyUid=:userId order by s.sequence desc";
+	private final String RETRIEVE_LAST_SESSION_ACTIVITY_BY_IDS = "From SessionActivity s where s.collectionId=:collectionId and s.user.partyUid=:userId AND s.class_id =:classId AND s.course_id=:courseId AND s.unit_content_id =:unitId AND s.lesson_content_id =:lessonId AND s.is_last_session = 1";
 	
 	private final String RETRIVE_INCOMPLETE_SESSION_ACTIVITY_ID = "SELECT sa.user_uid as userUid,sa.session_activity_id as sessionActivityId,so.gooru_oid as collectionGooruOid,sai.gooru_oid as resourceGooruOid from session_activity sa inner join session_activity_item si on sa.session_activity_id=si.session_activity_id inner join content so on so.content_id=sa.collection_id left join content sai on sai.content_id=si.resource_id where sa.status='open' and sa.user_uid=:userUid and so.gooru_oid =:collectionId order by si.start_time DESC";
 
@@ -73,9 +73,9 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 	
 	private final String GET_ITEM_COUNT = "SELECT IFNULL(item_count,0) AS itemCount FROM collection WHERE content_id=:contentId";
 	
-	private final String GET_LESSON_SCORE = "SELECT SUM(score_in_percentage) AS scoreInPerCentage, score FROM session_activity WHERE lesson_content_id =:lessonContentId AND is_last_session = 1";
+	private final String GET_LESSON_SCORE = "SELECT (score_in_percentage) AS scoreInPerCentage FROM session_activity WHERE lesson_content_id =:lessonContentId AND is_last_session = 1";
 	
-	private final String GET_UNIT_SCORE = "SELECT SUM(score_in_percentage) AS scoreInPerCentage, score FROM session_activity WHERE unit_content_id =:unitContentId AND is_last_session = 1";
+	private final String GET_UNIT_SCORE = "SELECT (score_in_percentage) AS scoreInPerCentage FROM session_activity WHERE unit_content_id =:unitContentId AND is_last_session = 1";
 	
 	private final String RETRIEVE_USER_ACTIVITY_COLLECTION_ASSOC = "From UserActivityCollectionAssoc  uaca  where uaca.userUid=:userUid AND uaca.collectionId=:collectionId AND uaca.classContentId=:classContentId";
 	
@@ -220,9 +220,12 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 	}
 
 	@Override
-	public SessionActivity getLastSessionActivity(Long parentId, Long contentId, String userUid) {
+	public SessionActivity getLastSessionActivity(Long classId,Long courseId,Long unitId,Long lessonId, Long contentId, String userUid) {
 		Query query = getSession().createQuery(RETRIEVE_LAST_SESSION_ACTIVITY_BY_IDS);
-		query.setParameter(PARENT_ID, parentId);
+		query.setParameter(_CLASS_ID, classId);
+		query.setParameter(COURSE_ID, classId);
+		query.setParameter(UNIT_ID, classId);
+		query.setParameter(LESSION_ID, classId);
 		query.setParameter(COLLECTION_ID, contentId);
 		query.setParameter(USER_ID, userUid);
 		query.setMaxResults(1);
@@ -244,7 +247,7 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 	public void updateOldSessions(SessionActivity sessionActivity){
 		Query query = getSession().createSQLQuery(UPDATE_LAST_SESSION);
 		query.setParameter(USER_UID, sessionActivity.getUser().getUserUid());
-		query.setParameter(CLASS_CONTENT_ID, sessionActivity.getClassContentId());
+		query.setParameter(CLASS_ID, sessionActivity.getClassId());
 		query.setParameter(UNIT_CONTENT_ID, sessionActivity.getUnitContentId());
 		query.setParameter(LESSON_CONTENT_ID, sessionActivity.getLessonContentId());
 		query.setParameter(COLLECTION_ID, sessionActivity.getCollectionId());
