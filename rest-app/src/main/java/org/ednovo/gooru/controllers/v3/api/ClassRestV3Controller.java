@@ -18,8 +18,6 @@ import org.ednovo.gooru.domain.service.ClassService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,7 +41,7 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
 			response.setStatus(HttpServletResponse.SC_CREATED);
-			responseDTO.getModel().setUri(RequestMappingUri.V3_CLASS + RequestMappingUri.SEPARATOR + responseDTO.getModel().getPartyUid());
+			responseDTO.getModel().setUri(generateUri(request.getRequestURI(), responseDTO.getModel().getPartyUid()));
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
