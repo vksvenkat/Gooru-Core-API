@@ -7,6 +7,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.RequestMappingUri;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -55,6 +56,14 @@ public class CollectionRestController extends BaseController implements Constant
 			final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		this.getCollectionBoService().updateCollection(collectionId, buildCollection(data), user);
+	}
+	
+	//@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
+	@RequestMapping(value = { RequestMappingUri.LESSON_COLLECTION_ITEM_ID }, method = RequestMethod.PUT)
+	public void updateCollectionItem(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @PathVariable(value = ID) final String collectionId,@PathVariable(value = COLLECTIONID) final String collectionItemId, @RequestBody final String data,
+			final HttpServletRequest request, final HttpServletResponse response) {
+		final User user = (User) request.getAttribute(Constants.USER);
+		this.getCollectionBoService().updateCollectionItem(collectionItemId,collectionId, buildCollectionItem(data), user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
@@ -122,5 +131,9 @@ public class CollectionRestController extends BaseController implements Constant
 
 	private Collection buildCollection(final String data) {
 		return JsonDeserializer.deserialize(data, Collection.class);
+	}
+	
+	private CollectionItem buildCollectionItem(final String data) {
+		return JsonDeserializer.deserialize(data, CollectionItem.class);
 	}
 }
