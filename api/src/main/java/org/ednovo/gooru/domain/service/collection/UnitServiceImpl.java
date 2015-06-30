@@ -56,9 +56,12 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void updateUnit(String unitId, Collection newCollection, User user) {
+	public void updateUnit(String courseUId,String unitId, Collection newCollection, User user) {
 		Collection collection = this.getCollectionDao().getCollection(unitId);
 		rejectIfNull(collection, GL0056, UNIT);
+		if(newCollection.getPosition() != null){
+			this.resetSequence(courseUId, collection.getGooruOid() , newCollection.getPosition());
+		}
 		this.updateCollection(collection, newCollection, user);
 		Map<String, Object> data = generateUnitMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {

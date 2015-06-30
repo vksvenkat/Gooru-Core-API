@@ -194,7 +194,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 				
 				Double lessonTotalScore =  this.getSessionActivityRepository().getLessonTotalScore(sessionActivity.getLessonContentId());
 				Integer collectionCount =  this.getCollectionDao().getCollectionItemCount(sessionActivity.getUnitContentId(), COLLECTION);
-				Double lessonScoreInPercentage = (lessonTotalScore/collectionCount);
+				Double lessonScoreInPercentage = 0.0;
 				if(collectionCount != 0){
 					lessonScoreInPercentage = (lessonTotalScore/collectionCount);
 				}

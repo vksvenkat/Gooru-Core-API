@@ -62,7 +62,7 @@
 
 		<property name="type" column="type" not-null="false"></property>
 
-		<property name="courseId" column="course_id" not-null="true"></property>
+		<property name="courseId" column="course_id" not-null="false"></property>
 		
 		<many-to-one name="user" class="org.ednovo.gooru.core.api.model.User"
 			column="user_uid" not-null="true" lazy="proxy" cascade="none" />

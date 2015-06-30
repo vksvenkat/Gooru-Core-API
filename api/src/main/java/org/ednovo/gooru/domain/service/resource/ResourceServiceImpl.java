@@ -28,8 +28,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -1234,7 +1232,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		resourceSource.setDomainName(domainName);
 		resourceSource.setAttribution(attribution);
 		resourceSource.setActiveStatus(1);
-		if (checkUrlHasHttpSupport(domainName)) {
+		if (BaseUtil.checkUrlHasHttpSupport(domainName)) {
 			resourceSource.setHasHttpsSupport(1);
 		} else {
 			resourceSource.setHasHttpsSupport(0);
@@ -1854,25 +1852,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		return errors;
 	}
 
-	public boolean checkUrlHasHttpSupport(String domainName) {
-		if (domainName != null) {
-			try {
-				URL url = new URL("https://" + domainName);
-				if ((HttpURLConnection) url.openConnection() != null) {
-					int responseCode = ((HttpURLConnection) url.openConnection()).getResponseCode();
-					if (responseCode == 200) {
-						return true;
-					} else {
-						return false;
-					}
-				}
-			} catch (Exception e) {
-				LOGGER.debug("error" + e.getMessage());
-			}
-		}
-		return false;
-
-	}
 
 	public TaxonomyRespository getTaxonomyRepository() {
 		return taxonomyRepository;
