@@ -950,8 +950,6 @@ public interface ParameterProperties {
 
 	String ASSET_QUESTION = "asset-question";
 
-	String ASSET_ANSWERS = "asset-answers";
-
 	String ASSET_EXPLANATION = "asset-explanation";
 
 	String RESOURCE_CONTENTID = "resourceContentId";

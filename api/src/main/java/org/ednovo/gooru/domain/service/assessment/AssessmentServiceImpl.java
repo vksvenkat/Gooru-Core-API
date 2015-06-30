@@ -779,7 +779,14 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		} else {
 			final String mediaFolderPath = resource.getOrganization().getNfsStorageArea().getInternalPath() + Constants.UPLOADED_MEDIA_FOLDER;
 			String resourceImageFile = mediaFolderPath + "/" + fileName;
-			String newImageFile = mediaFolderPath + "/" + assetKey + "_" + fileName;
+			String newImageFile = null;
+			if (assetKey != null) {
+				newImageFile = mediaFolderPath + "/" + assetKey + "_" + fileName;
+			} else {
+                // Currently if we are storing assets for answers then we are storing them w/o
+                // any prefix so that FE can fetch that directly
+				newImageFile = mediaFolderPath + "/" + fileName;
+			}
 			File mediaImage = new File(resourceImageFile);
 			File newImage = new File(newImageFile);
 			mediaImage.renameTo(newImage);
