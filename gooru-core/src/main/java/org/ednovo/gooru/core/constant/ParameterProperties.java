@@ -2933,4 +2933,6 @@ public interface ParameterProperties {
 	String HOST = "host";
 
 	String REFERER = "referer";
+	
+	String GL0012 = "GL0012";
 }

@@ -22,9 +22,11 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentClassificationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
+import org.ednovo.gooru.security.OperationAuthorizer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -40,6 +42,12 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	@Autowired
 	private ContentClassificationRepository contentClassificationRepository;
+
+	@Autowired
+	private IndexHandler indexHandler;
+
+	@Autowired
+	private OperationAuthorizer operationAuthorizer;
 
 	public Collection createCollection(Collection collection, User user) {
 		collection.setGooruOid(UUID.randomUUID().toString());
@@ -269,6 +277,14 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
+	}
+
+	public IndexHandler getIndexHandler() {
+		return indexHandler;
+	}
+
+	public OperationAuthorizer getOperationAuthorizer() {
+		return operationAuthorizer;
 	}
 
 }
