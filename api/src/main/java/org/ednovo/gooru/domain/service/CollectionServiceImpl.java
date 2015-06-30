@@ -178,7 +178,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
                     updateAssetInS3 = true;
                     for (String answerAsset : answerAssets) {
                         this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(),
-                                answerAsset, question, ASSET_ANSWERS);
+                                answerAsset, question, null);
                     }
                 }
             }
@@ -331,7 +331,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
                                             assessmentQuestion.getGooruOid(),
                                             mediaFileToAdd,
                                             assessmentQuestion,
-                                            ASSET_ANSWERS
+                                            null
                                     );
                                 }
                             }
