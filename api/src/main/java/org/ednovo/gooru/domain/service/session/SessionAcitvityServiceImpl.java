@@ -310,6 +310,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public File exportClass(String classGooruId) {
 		String query = getSessionActivityRepository().getExportConfig(EXPORT_CLASS_QUERY);
 		List<Object[]> resultSet = getSessionActivityRepository().getClassReport(classGooruId, query);
@@ -317,6 +318,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 		return csvBuilderService.generateCSVReport(resultSet, headers.split(COMMA), EXPORT_CLASS_FILENAME);
 	}
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SessionActivityItem updateLastResourceSessionActivityItem(SessionActivityItem sessionActivityItem) {
 		rejectIfNull(sessionActivityItem.getPayLoadObject(), GL0056, COLLECTION);
 		Map<String, String> data = JsonDeserializer.deserialize(sessionActivityItem.getPayLoadObject(), new TypeReference<Map<String, String>>() {
