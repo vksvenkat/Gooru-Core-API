@@ -1,27 +1,29 @@
 package org.ednovo.gooru.domain.service.collection;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Collection;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.ContentSettings;
 import org.ednovo.gooru.core.api.model.MetaConstants;
+import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
-import org.ednovo.gooru.security.OperationAuthorizer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,13 +43,10 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	private CollectionDao collectionDao;
 
 	@Autowired
-	private IndexHandler indexHandler;
-
-	@Autowired
-	private OperationAuthorizer operationAuthorizer;
-
-	@Autowired
 	private GooruImageUtil gooruImageUtil;
+
+	@Autowired
+	private ResourceBoService resourceBoService;
 
 	private final static String COLLECTION_IMAGE_DIMENSION = "160x120,75x56,120x90,80x60,800x600";
 
@@ -152,7 +151,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		}
 		createCollectionSettings(collection);
 		if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())) {
-			indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
+			getIndexHandler().setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		}
 		return collection;
 	}
@@ -260,6 +259,60 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		return data;
 	}
 
+	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public List<Map<String, Object>> getCollectionItem(String collectionId, int limit, int offset) {
+		List<Map<String, Object>> collectionItems = this.getCollectionDao().getCollectionItem(collectionId, null, limit, offset);
+		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
+		for (Map<String, Object> item : collectionItems) {
+			items.add(mergeCollectionItemMetaData(item));
+		}
+		return items;
+	}
+
+	private Map<String, Object> mergeCollectionItemMetaData(Map<String, Object> content) {
+		Object data = content.get(META_DATA);
+		if (data != null) {
+			Map<String, Object> metaData = JsonDeserializer.deserialize(String.valueOf(data), new TypeReference<Map<String, Object>>() {
+			});
+			content.putAll(metaData);
+		}
+		return content;
+	}
+
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public ActionResponseDTO<Resource> createResource(String collectionId, Resource resource, User user) {
+		final Errors errors = validateResource(resource);
+		if (!errors.hasErrors()) {
+			Collection collection = getCollectionDao().getCollectionByType(collectionId, COLLECTION);
+			rejectIfNull(collection, GL0056, COLLECTION);
+			getResourceBoService().createResource(resource, user);
+			CollectionItem collectionItem = new CollectionItem();
+			collectionItem.setItemType(ADDED);
+			createCollectionItem(collectionItem, collection, resource, user);
+		}
+		return new ActionResponseDTO<Resource>(resource, errors);
+	}
+
+	@Override
+	public void updateResource(String collectionId, String resourceId, Resource newResource, User user) {
+		Collection collection = getCollectionDao().getCollectionByType(collectionId, COLLECTION);
+		rejectIfNull(collection, GL0056, COLLECTION);
+		getResourceBoService().updateResource(resourceId, newResource, user);
+	}
+
+	@Override
+	public ActionResponseDTO<AssessmentQuestion> createQuestion(String lessonId, AssessmentQuestion assessmentQuestion, User user) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void updateQuestion(String lessonId, String resourceId, AssessmentQuestion assessmentQuestion, User user) {
+		// TODO Auto-generated method stub
+	}
+
 	private Errors validateCollection(final Collection collection) {
 		final Errors errors = new BindException(collection, COLLECTION);
 		if (collection != null) {
@@ -272,19 +325,23 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		return errors;
 	}
 
+	private Errors validateResource(final Resource resource) {
+		final Errors errors = new BindException(resource, RESOURCE);
+		if (resource != null) {
+			rejectIfNullOrEmpty(errors, resource.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
+		}
+		return errors;
+	}
+
 	public CollectionDao getCollectionDao() {
 		return collectionDao;
 	}
 
-	public IndexHandler getIndexHandler() {
-		return indexHandler;
-	}
-
-	public OperationAuthorizer getOperationAuthorizer() {
-		return operationAuthorizer;
-	}
-
 	public GooruImageUtil getGooruImageUtil() {
 		return gooruImageUtil;
+	}
+
+	public ResourceBoService getResourceBoService() {
+		return resourceBoService;
 	}
 }
