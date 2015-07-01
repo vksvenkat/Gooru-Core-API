@@ -35,6 +35,15 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 	private Boolean showAnswerByQuestions;
 	private Boolean showHints;
 	private Boolean showAnswerEnd;
+	private Integer position;
+
+	public Integer getPosition() {
+		return position;
+	}
+
+	public void setPosition(Integer position) {
+		this.position = position;
+	}
 
 	/**
 	 * 

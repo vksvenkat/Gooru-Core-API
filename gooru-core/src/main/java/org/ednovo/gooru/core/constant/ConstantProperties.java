@@ -938,8 +938,6 @@ public interface ConstantProperties {
 	final static String DOT = ".";
 
 	final static String REGX_DOT = "\\.";
-	
-	final static String CLASS_ID = "class_id";
-	
-	final static String _CLASS_ID = "classId";
+		
+	final static String CLASS_ID = "classId";
 }

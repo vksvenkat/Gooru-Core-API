@@ -65,7 +65,6 @@ import org.hibernate.type.StandardBasicTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.stereotype.Repository;
@@ -95,11 +94,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	private static final String GET_CONTENT_IDS = "SELECT gooru_oid AS gooruOid , content_id AS contentId from content WHERE gooru_oid IN (:gooruOids)";
 	
 	private static final String GET_CONTENT_ID = "SELECT content_id AS contentId from content WHERE gooru_oid =:gooruOid";
-
-	private static final String FIND_STUDENT_AND_CLASS_ID = "SELECT IFNULL(c.class_id,0) AS classId,COALESCE(true,false) isStudent FROM  class c INNER JOIN user_group ug on c.class_uid = ug.user_group_uid LEFT JOIN user_group_association uga ON ug.user_group_uid = uga.user_group_uid AND uga.gooru_uid =:gooruUId WHERE ug.user_group_uid =:classGooruId";
 	
-	private static final String GET_CLASS_ID = "SELECT class_id from class where class_uid =:classGooruId" ;
-			
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceServiceImpl.class);
 
 	@Override
@@ -142,54 +137,12 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 
 	@Override
-	@Cacheable("persistent")
-	public Long getNumericClassCode(Long contentId) {
-		Session session = getSessionFactory().getCurrentSession();
-		String sql = " SELECT conv(classpage_code,36,10) AS classCode FROM classpage WHERE classpage_content_id =" + contentId;
-		Query query = session.createSQLQuery(sql).addScalar("classCode", StandardBasicTypes.LONG);
-		List<Long> results = list(query);
-
-		return (results != null && results.size() > 0) ? results.get(0) : 0L;
-	}
-
-	@Override
-	public Boolean findUserIsStudent(Long classContentId, String gooruUId) {
-		Session session = getSessionFactory().getCurrentSession();
-		String sql = " SELECT uga.is_group_owner isStudent FROM classpage class INNER JOIN user_group ug ON class.classpage_code = ug.user_group_code INNER JOIN user_group_association uga ON ug.user_group_uid = uga.user_group_uid WHERE class.classpage_content_id = " + classContentId
-		        + " AND uga.gooru_uid = '" + gooruUId + "'";
-		Query query = session.createSQLQuery(sql).addScalar("isStudent", StandardBasicTypes.BOOLEAN);
-		List<Boolean> results = list(query);
-
-		return (results != null && results.size() > 0) ? results.get(0) : false;
-	}
-
-	@Override
-	public List<Object[]> findIstudentAndClassId(String classGooruId, String gooruUId) {
-		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createSQLQuery(FIND_STUDENT_AND_CLASS_ID)
-				.addScalar(_CLASS_ID,StandardBasicTypes.LONG)
-				.addScalar(IS_STUDENT, StandardBasicTypes.BOOLEAN);		
-		query.setParameter(CLASS_GOORU_ID, classGooruId);
-		query.setParameter(GOORU_UID, gooruUId);
-		return list(query);
-	}
-	
-	@Override
 	public Long getContentId(String contentGooruOid) {
 		Session session = getSessionFactory().getCurrentSession();
 		Query query = session.createSQLQuery(GET_CONTENT_ID).addScalar(CONTENT_ID, StandardBasicTypes.LONG);
 		query.setParameter(GOORU_OID, contentGooruOid);
 		List<Long> results = list(query);
 
-		return (results != null && results.size() > 0) ? results.get(0) : 0L;
-	}
-
-	@Override
-	public Long getClassId(String classGooruId) {
-		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createSQLQuery(GET_CLASS_ID).addScalar(CLASS_ID, StandardBasicTypes.LONG);
-		query.setParameter(CLASS_GOORU_ID, classGooruId);
-		List<Long> results = list(query);
 		return (results != null && results.size() > 0) ? results.get(0) : 0L;
 	}
 	

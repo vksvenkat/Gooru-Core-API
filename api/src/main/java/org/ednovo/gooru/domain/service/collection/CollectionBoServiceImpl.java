@@ -24,6 +24,7 @@ import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,9 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 
 	@Autowired
 	private ResourceBoService resourceBoService;
+	
+	@Autowired
+	private CollectionRepository collectionRepository;
 
 	private final static String COLLECTION_IMAGE_DIMENSION = "160x120,75x56,120x90,80x60,800x600";
 
@@ -139,7 +143,27 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 			updateContentMeta(contentMeta, data);
 		}
 	}
-
+	
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void updateCollectionItem(final String collectionItemId,String collectionId,CollectionItem newCollectionItem, User user) {
+		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
+		rejectIfNull(collectionItem, GL0056, _COLLECTION_ITEM);
+		if (newCollectionItem.getNarration() != null) {
+			collectionItem.setNarration(newCollectionItem.getNarration());
+		}
+		if (newCollectionItem.getStart() != null) {
+			collectionItem.setStart(newCollectionItem.getStart());
+		}
+		if (newCollectionItem.getStop() != null) {
+			collectionItem.setStop(newCollectionItem.getStop());
+        }
+		if (newCollectionItem.getPosition() != null){
+			this.resetSequence(collectionId, collectionItem.getContent().getGooruOid(),newCollectionItem.getPosition());
+		}
+	    this.getCollectionRepository().save(collectionItem);
+    }
+	
 	private Collection createCollection(User user, Collection collection, Collection parentCollection) {
 		createCollection(collection, parentCollection, user);
 		if (collection.getSharing() != null && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && collection.getSharing().equalsIgnoreCase(PUBLIC)) {
@@ -343,5 +367,9 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 
 	public ResourceBoService getResourceBoService() {
 		return resourceBoService;
+	}
+	
+	public CollectionRepository getCollectionRepository() {
+		return collectionRepository;
 	}
 }
