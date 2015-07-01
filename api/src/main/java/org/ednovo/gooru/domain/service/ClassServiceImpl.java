@@ -17,7 +17,6 @@ import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.domain.service.collection.CourseService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
@@ -122,6 +121,19 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public List<Map<String, Object>> getClassesByCourse(String courseGooruOid, int limit, int offset) {
+		List<Map<String, Object>> resultSet = this.getClassRepository().getClassesByCourse(courseGooruOid, limit, offset);
+		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+		if (resultSet != null) {
+			for (Map<String, Object> result : resultSet) {
+				results.add(setClass(result));
+			}
+		}
+		return results;
+	}
+
+	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getMember(String classUid, int limit, int offset) {
 		final List<Map<String, Object>> members = this.getClassRepository().getMember(classUid, limit, offset);
 		final List<Map<String, Object>> userList = new ArrayList<Map<String, Object>>();
@@ -191,5 +203,4 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	public void setCollectionDao(CollectionDao collectionDao) {
 		this.collectionDao = collectionDao;
 	}
-
 }

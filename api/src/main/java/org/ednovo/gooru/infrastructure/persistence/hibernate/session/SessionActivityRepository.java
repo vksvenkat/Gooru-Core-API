@@ -25,9 +25,11 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.session;
 
 import java.util.List;
 import java.util.Map;
+
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.SessionActivity;
 import org.ednovo.gooru.core.api.model.SessionActivityItem;
+import org.ednovo.gooru.core.api.model.UserActivityCollectionAssoc;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface SessionActivityRepository extends BaseRepository {
@@ -52,10 +54,22 @@ public interface SessionActivityRepository extends BaseRepository {
 	
 	AssessmentQuestion getQuestion(String gooruOid);
 	
-	SessionActivity getLastSessionActivity(Long parentId, Long collectionId, String userUid);
-
-	Integer getSessionActivityCount(Long collectionId, Long classContentId, Long unitContentId, Long lessonContentId, String gooruUId);
+	SessionActivity getLastSessionActivity(Long classId,Long courseId,Long unitId,Long lessionId, Long collectionId, String userUid);
 	
     Map<String, Object> getSessionActivityByCollectionId(String gooruOid, String user);
+
+	Integer getClassSessionActivityCount(Long collectionId, Long classContentId, Long unitContentId, Long lessonContentId, String gooruUId);
+
+	Integer getCollectionSessionActivityCount(Long collectionId, String gooruUId);
+
+	void updateOldSessions(SessionActivity sessionActivity);
+
+	Integer getItemCount(Long itemId);
+
+	Double getUnitTotalScore(Long itemId);
+
+	Double getLessonTotalScore(Long itemId);
+
+	UserActivityCollectionAssoc getUserActivityCollectionAssoc(String userUid, Long classContentId, Long collectionId);
 	
 }
