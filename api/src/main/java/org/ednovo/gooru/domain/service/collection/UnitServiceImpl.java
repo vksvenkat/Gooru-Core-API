@@ -18,6 +18,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.DomainRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,13 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 
 	@Autowired
 	private DomainRepository domainRepository;
+	
+	@Autowired
+	private CollectionRepository collectionRepository;
+
+	public CollectionRepository getCollectionRepository() {
+		return collectionRepository;
+	}
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -98,6 +106,7 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		rejectIfNull(course, GL0056, COURSE);
 		Collection unit = getCollectionDao().getCollectionByType(unitUId, UNIT);
 		rejectIfNull(unit, GL0056, UNIT);
+		getCollectionDao().deleteCollectionItem(unitUId);
 		this.deleteCollection(unitUId);
 		this.updateMetaDataSummary(course.getContentId(), unit.getContentId());
 	}

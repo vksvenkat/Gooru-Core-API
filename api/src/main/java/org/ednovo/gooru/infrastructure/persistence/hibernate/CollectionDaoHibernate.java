@@ -38,6 +38,11 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	private static final String GET_COLLECTION_SEQUENCE ="FROM CollectionItem ci where ci.collection.gooruOid=:gooruOid and ci.itemSequence between :parameterOne and :parameterTwo order by ci.itemSequence";
 	
 	private static final String GET_COLLECTIONITEM_BY_GOORUOID = "FROM CollectionItem where content.gooruOid=:gooruOid and collection.gooruOid=:parentGooruOid";
+	
+	private static final String DELETE_CONTENT= "delete c from content c inner join collection_item ci on ci.collection_content_id=c.content_id where c.gooru_oid=:gooruOid and c.sharing !='public' and ci.item_type!='collaborator'";
+	
+	private static final String DELETE_COLLECTIONITEM = "delete ci from content c inner join collection_item ci on ci.collection_content_id=c.content_id where c.gooru_oid=:gooruOid and c.sharing !='public' and ci.item_type!='collaborator'";
+	
 
 	@Override
 	public Collection getCollection(String collectionId) {
@@ -172,4 +177,45 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 		return (CollectionItem) query.list().get(0);
 	}
 
+	@Override
+	public void deleteCollectionItem(String gooruOid) {
+		Query collectionItem = getSession().createSQLQuery(DELETE_COLLECTIONITEM).setParameter(GOORU_OID, gooruOid);
+		Query content= getSession().createSQLQuery(DELETE_CONTENT).setParameter(GOORU_OID, gooruOid);
+		collectionItem.executeUpdate();
+		content.executeUpdate();
+	}
+//delete unit in
+	private static final String DELETE_LESSON_COLLECTIONITEM = "delete ci2 from content c inner join collection_item ci on ci.collection_content_id=c.content_id join collection_item ci2 on ci2.collection_content_id=ci.resource_content_id  where c.gooru_oid=:gooruOid and c.sharing !='public' and ci.item_type!='collaborator';";
+	private static final String DELETE_LESSON_CONTENT = "delete cc from content c inner join collection_item ci on ci.collection_content_id=c.content_id join collection_item ci2 on ci2.collection_content_id=ci.resource_content_id join content cc on cc.content_id=ci2.resource_content_id  where c.gooru_oid=gooruOid and c.sharing !='public' and ci.item_type!='collaborator'";
+//delete lesson in
+	private static final String DELETE_UNIT_COLLECTIONITEM = "delete ci3 from content c inner join collection_item ci on ci.collection_content_id=c.content_id join collection_item ci2 on ci2.collection_content_id=ci.resource_content_id join collection_item ci3 on ci3.collection_content_id=ci2.resource_content_id  where c.gooru_oid=:gooruOid and c.sharing !='public' and ci.item_type!='collaborator'";
+	private static final String DELETE_UNIT_CONTENT = "delete cc from content c inner join collection_item ci on ci.collection_content_id=c.content_id join collection_item ci2 on ci2.collection_content_id=ci.resource_content_id join collection_item ci3 on ci3.collection_content_id=ci2.resource_content_id join content cc on cc.content_id=ci3.resource_content_id where c.gooru_oid=:gooruOid and c.sharing !='public' and ci.item_type!='collaborator'";
+//delete collection in
+	private static final String DELETE_COURSE_COLLECTIONITEM = "delete ci4 from content c inner join collection_item ci on ci.collection_content_id=c.content_id join collection_item ci2 on ci2.collection_content_id=ci.resource_content_id join collection_item ci3 on ci3.collection_content_id=ci2.resource_content_id join collection_item ci4 on ci4.collection_content_id=ci3.resource_content_id where c.gooru_oid=:gooruOid and c.sharing !='public' and ci.item_type!='collaborator'";
+	private static final String DELETE_COURSE_CONTENT = "select cc.* from content c inner join collection_item ci on ci.collection_content_id=c.content_id join collection_item ci2 on ci2.collection_content_id=ci.resource_content_id join collection_item ci3 on ci3.collection_content_id=ci2.resource_content_id join collection_item ci4 on ci4.collection_content_id=ci3.resource_content_id join content cc on cc.content_id=ci4.resource_content_id where c.gooru_oid=:gooruOid and c.sharing !='public' and ci.item_type!='collaborator';";
+	
+	@Override
+	public void deleteLesson(String gooruOid) {
+		Query collectionItem = getSession().createSQLQuery(DELETE_LESSON_COLLECTIONITEM).setParameter(GOORU_OID, gooruOid);
+		Query content= getSession().createSQLQuery(DELETE_LESSON_CONTENT).setParameter(GOORU_OID, gooruOid);
+		collectionItem.executeUpdate();
+		content.executeUpdate();
+	}
+	
+	@Override
+	public void deleteUnit(String gooruOid) {
+		Query collectionItem = getSession().createSQLQuery(DELETE_UNIT_COLLECTIONITEM).setParameter(GOORU_OID, gooruOid);
+		Query content= getSession().createSQLQuery(DELETE_UNIT_CONTENT).setParameter(GOORU_OID, gooruOid);
+		collectionItem.executeUpdate();
+		content.executeUpdate();		
+	}
+	
+	@Override
+	public void deleteCourse(String gooruOid) {
+		Query collectionItem = getSession().createSQLQuery(DELETE_COURSE_COLLECTIONITEM).setParameter(GOORU_OID, gooruOid);
+		Query content= getSession().createSQLQuery(DELETE_COURSE_CONTENT).setParameter(GOORU_OID, gooruOid);
+		collectionItem.executeUpdate();
+		content.executeUpdate();
+	}
+	
 }

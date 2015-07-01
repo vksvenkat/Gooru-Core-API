@@ -12,6 +12,7 @@ import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentClassificationRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +28,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 public class LessonServiceImpl extends AbstractCollectionServiceImpl implements LessonService {
 
 	private static final String[] LESSON_TYPE = { "lesson" };
-
-	@Autowired
-	private ContentClassificationRepository contentClassificationRepository;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -77,6 +75,7 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		rejectIfNull(unit, GL0056, UNIT);
 		Collection lesson = getCollectionDao().getCollectionByType(lessonUId, LESSON);
 		rejectIfNull(unit, GL0056, LESSON);
+		getCollectionDao().deleteUnit(lessonUId);
 		this.deleteCollection(lessonUId);
 		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId());
 	}
@@ -175,10 +174,6 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 			rejectIfNullOrEmpty(errors, collection.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 		}
 		return errors;
-	}
-
-	public ContentClassificationRepository getContentClassificationRepository() {
-		return contentClassificationRepository;
 	}
 
 }

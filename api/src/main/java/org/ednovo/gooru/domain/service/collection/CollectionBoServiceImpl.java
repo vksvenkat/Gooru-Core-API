@@ -21,6 +21,7 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.security.OperationAuthorizer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,13 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 
 	@Autowired
 	private OperationAuthorizer operationAuthorizer;
+	
+	@Autowired
+	private CollectionRepository CollectionRepository;
+
+	public CollectionRepository getCollectionRepository() {
+		return CollectionRepository;
+	}
 
 	@Autowired
 	private GooruImageUtil gooruImageUtil;
@@ -83,6 +91,8 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		Collection lesson = getCollectionDao().getCollectionByType(lessonId, LESSON);
 		rejectIfNull(lesson, GL0056, LESSON);
 		Collection collection = this.getCollectionDao().getCollection(collectionId);
+		rejectIfNull(lesson, GL0056, COLLECTION);
+		getCollectionDao().deleteCollectionItem(collectionId);
 		this.deleteCollection(collectionId);
 		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getCollectionType(), DELETE);
 	}
