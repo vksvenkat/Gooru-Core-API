@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
@@ -359,6 +360,18 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	
 	public CollectionRepository getCollectionRepository() {
 		return collectionRepository;
+	}
+
+	@Override
+	public ActionResponseDTO<AssessmentQuestion> createQuestion(String collectionId, AssessmentQuestion assessmentQuestion, User user) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void updateQuestion(String collectionId, String resourceId, AssessmentQuestion assessmentQuestion, User user) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
