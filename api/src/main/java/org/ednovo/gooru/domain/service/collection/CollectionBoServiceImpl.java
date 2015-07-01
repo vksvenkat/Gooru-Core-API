@@ -72,6 +72,20 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
+	
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void deleteCollection(String courseId, String unitId, String lessonId, String collectionId) {
+		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE);
+		rejectIfNull(course, GL0056, COURSE);
+		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT);
+		rejectIfNull(unit, GL0056, UNIT);
+		Collection lesson = getCollectionDao().getCollectionByType(lessonId, LESSON);
+		rejectIfNull(lesson, GL0056, LESSON);
+		Collection collection = this.getCollectionDao().getCollection(collectionId);
+		this.deleteCollection(collectionId);
+		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getCollectionType(), DELETE);
+	}
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -88,7 +102,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 			Map<String, Object> data = generateCollectionMetaData(collection, collection, user);
 			data.put(SUMMARY, MetaConstants.COLLECTION_SUMMARY);
 			createContentMeta(collection, data);
-			updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getCollectionType());
+			updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getCollectionType(), ADD);
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
@@ -201,7 +215,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	}
 
 	@SuppressWarnings("unchecked")
-	private void updateMetaDataSummary(Long courseId, Long unitId, Long lessonId, String collectionType) {
+	private void updateMetaDataSummary(Long courseId, Long unitId, Long lessonId, String collectionType, String action) {
 		ContentMeta unitContentMeta = this.getContentRepository().getContentMeta(unitId);
 		ContentMeta courseContentMeta = this.getContentRepository().getContentMeta(courseId);
 		ContentMeta lessonContentMeta = this.getContentRepository().getContentMeta(lessonId);
@@ -218,25 +232,35 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		}
 
 		if (unitContentMeta != null) {
-			updateSummaryMeta(collectionType, unitContentMeta);
+			updateSummaryMeta(collectionType, unitContentMeta, action);
 		}
 		if (courseContentMeta != null) {
-			updateSummaryMeta(collectionType, courseContentMeta);
+			updateSummaryMeta(collectionType, courseContentMeta, action);
 		}
 
 	}
 
 	@SuppressWarnings("unchecked")
-	private void updateSummaryMeta(String collectionType, ContentMeta contentMeta) {
+	private void updateSummaryMeta(String collectionType, ContentMeta contentMeta, String action) {
 		Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
 		});
 		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
 		if (collectionType.equalsIgnoreCase(CollectionType.ASSESSMENT.getCollectionType())) {
-			int assessmentCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue() + 1;
+			int assessmentCount = 0;
+			if(action.equalsIgnoreCase(DELETE)){
+				assessmentCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue() - 1;
+			}else if(action.equalsIgnoreCase(ADD)){
+				assessmentCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue() + 1;
+			}
 			summary.put(MetaConstants.ASSESSMENT_COUNT, assessmentCount);
 		}
 		if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
-			int collectionCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue() + 1;
+			int collectionCount = 0;
+			if(action.equalsIgnoreCase(DELETE)){
+				collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue() - 1;
+			}else if(action.equalsIgnoreCase(ADD)){
+				collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue() + 1;
+			}
 			summary.put(MetaConstants.COLLECTION_COUNT, collectionCount);
 		}
 		metaData.put(SUMMARY, summary);

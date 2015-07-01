@@ -70,6 +70,7 @@ public class UnitRestController extends BaseController implements ConstantProper
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_DELETE })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.DELETE)
 	public void deleteUnit(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = ID) final String unitUId, final HttpServletRequest request, final HttpServletResponse response) {
+		this.getUnitService().deleteUnit(courseUId, unitUId);
 	}
 
 	private Collection buildUnit(final String data) {

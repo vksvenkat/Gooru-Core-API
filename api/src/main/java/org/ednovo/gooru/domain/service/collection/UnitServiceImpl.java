@@ -90,6 +90,51 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		return units;
 	}
 
+
+	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void deleteUnit(String courseUId, String unitUId) {
+		Collection course = getCollectionDao().getCollectionByType(courseUId, COURSE);
+		rejectIfNull(course, GL0056, COURSE);
+		Collection unit = getCollectionDao().getCollectionByType(unitUId, UNIT);
+		rejectIfNull(unit, GL0056, UNIT);
+		this.deleteCollection(unitUId);
+		this.updateMetaDataSummary(course.getContentId(), unit.getContentId());
+	}
+	
+	private void updateMetaDataSummary(Long courseId, Long unitId) {
+		ContentMeta unitContentMeta = this.getContentRepository().getContentMeta(unitId);
+		ContentMeta courseContentMeta = this.getContentRepository().getContentMeta(courseId);
+		if (courseContentMeta != null) {
+			updateSummaryMeta(courseContentMeta, unitContentMeta);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void updateSummaryMeta(ContentMeta contentMeta, ContentMeta unitContentMeta) {
+		Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
+		});
+		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
+		Map<String, Object> unitMetaData = JsonDeserializer.deserialize(unitContentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
+		});
+		Map<String, Object> unitSummary = (Map<String, Object>) unitMetaData.get(SUMMARY);
+		
+		int unitCount =  ((Number) summary.get(MetaConstants.UNIT_COUNT)).intValue() -1;
+		summary.put(MetaConstants.UNIT_COUNT, unitCount);
+		
+		int lessonCount =  ((Number) summary.get(MetaConstants.LESSON_COUNT)).intValue() -((Number) unitSummary.get(MetaConstants.LESSON_COUNT)).intValue();
+		summary.put(MetaConstants.LESSON_COUNT, lessonCount);
+		
+		int assessmentCount =  ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue() - ((Number) unitSummary.get(MetaConstants.ASSESSMENT_COUNT)).intValue();
+		summary.put(MetaConstants.ASSESSMENT_COUNT, assessmentCount);
+
+		int collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue() - ((Number) unitSummary.get(MetaConstants.COLLECTION_COUNT)).intValue();
+		summary.put(MetaConstants.COLLECTION_COUNT, collectionCount);
+		
+		metaData.put(SUMMARY, summary);
+		updateContentMeta(contentMeta, metaData);
+	}
+	
 	private void updateCourseMetaData(Long courseId) {
 		ContentMeta contentMeta = this.getContentRepository().getContentMeta(courseId);
 		if (contentMeta != null) {

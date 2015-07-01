@@ -17,5 +17,7 @@ public interface CollectionBoService extends AbstractCollectionService {
 	Map<String, Object> getCollection(String collectionId, String collectionType);
 
 	List<Map<String, Object>> getCollections(String lessonId, String collectionType, int limit, int offset);
+	
+	void deleteCollection(String courseUId, String unitUId, String lessonUId, String collectionId);
 
 }

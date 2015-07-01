@@ -70,6 +70,7 @@ public class CourseRestController extends BaseController implements ConstantProp
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.DELETE)
 	public void deleteCourse(@PathVariable(value = ID) final String courseUId, final HttpServletRequest request, final HttpServletResponse response) {
+		
 	}
 
 	private Collection buildCourse(final String data) {

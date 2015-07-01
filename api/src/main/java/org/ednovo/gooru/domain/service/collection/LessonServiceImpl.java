@@ -66,7 +66,55 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 			updateContentMeta(contentMeta, data);
 		}
 	}
+	
+	
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void deleteLesson(String courseUId, String unitUId, String lessonUId) {
+		Collection course = getCollectionDao().getCollectionByType(courseUId, COURSE);
+		rejectIfNull(course, GL0056, COURSE);
+		Collection unit = getCollectionDao().getCollectionByType(unitUId, UNIT);
+		rejectIfNull(unit, GL0056, UNIT);
+		Collection lesson = getCollectionDao().getCollectionByType(lessonUId, LESSON);
+		rejectIfNull(unit, GL0056, LESSON);
+		this.deleteCollection(lessonUId);
+		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId());
+	}
+	
+	private void updateMetaDataSummary(Long courseId, Long unitId, Long lessonId) {
+		ContentMeta unitContentMeta = this.getContentRepository().getContentMeta(unitId);
+		ContentMeta courseContentMeta = this.getContentRepository().getContentMeta(courseId);
+		ContentMeta lessonContentMeta = this.getContentRepository().getContentMeta(lessonId);
+		if (unitContentMeta != null) {
+			updateSummaryMeta(unitContentMeta, lessonContentMeta);
+		}
+		if (courseContentMeta != null) {
+			updateSummaryMeta(courseContentMeta, lessonContentMeta);
+		}
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void updateSummaryMeta(ContentMeta contentMeta, ContentMeta lessonContentMeta) {
+		Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
+		});
+		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
+		Map<String, Object> lessonMetaData = JsonDeserializer.deserialize(lessonContentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
+		});
+		Map<String, Object> lessonSummary = (Map<String, Object>) lessonMetaData.get(SUMMARY);
+		int lessonCount =  ((Number) summary.get(MetaConstants.LESSON_COUNT)).intValue() -1;
+		summary.put(MetaConstants.LESSON_COUNT, lessonCount);
+		
+		int assessmentCount =  ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue() - ((Number) lessonSummary.get(MetaConstants.ASSESSMENT_COUNT)).intValue();
+		summary.put(MetaConstants.ASSESSMENT_COUNT, assessmentCount);
 
+		int collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue() - ((Number) lessonSummary.get(MetaConstants.COLLECTION_COUNT)).intValue();
+		summary.put(MetaConstants.COLLECTION_COUNT, collectionCount);
+		
+		metaData.put(SUMMARY, summary);
+		updateContentMeta(contentMeta, metaData);
+	}
+	
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getLesson(String lessonId) {
