@@ -595,6 +595,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		} else if (gooruOid != null) {
 			sql += " and cc.gooru_oid = '" + gooruOid + "' ";
 		}
+		// Temp Fix 
+		sql += " and co.collection_type not in ('course', 'unit', 'lesson') ";
 		if (excludeType != null) { 
 			sql += " and co.collection_type not in ('"+ excludeType.replace(",", "','") + "')";
 		}
@@ -664,6 +666,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (collectionType != null) {
 			sql += " and re.collection_type =:collectionType ";
 		}
+		// Temp Fix
+		sql += " and co.collection_type not in ('course', 'unit', 'lesson') ";
 		if (excludeType != null) { 
 			sql += " and co.collection_type not in ('"+ excludeType.replace(",", "','") + "')";
 		}
