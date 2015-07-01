@@ -23,15 +23,10 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.controllers.v2.api;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.poi.util.IOUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.SessionActivity;
@@ -47,8 +42,6 @@ import org.ednovo.gooru.domain.service.session.SessionActivityService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -117,21 +110,7 @@ public class SessionActivityRestV2Controller extends BaseController implements P
 		}
 		return toModelAndViewWithIoFilter(sessionActivityItemAttemptTry, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, SESSION_ITEM_ATTEMPT_INCLUDES);
 	}
-
-	@RequestMapping(method = RequestMethod.GET, value = "/export/class/{classGooruId}")
-	public void generateClassReport(@PathVariable("classGooruId") final String classGooruId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-		final File csvFile = this.getSessionActivityService().exportClass(classGooruId);
-
-		InputStream sheet = new FileInputStream(csvFile);
-		response.setHeader("Content-Disposition", "inline; filename=" + csvFile.getName());
-		response.setContentType("application/csv");
-		IOUtils.copy(sheet, response.getOutputStream());
-		response.getOutputStream().flush();
-		response.getOutputStream().close();
-		csvFile.delete();
-	}
 	
-
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/incomplete-session")
 	public ModelAndView getInCompleteSession(@PathVariable(ID) final String gooruOid, final HttpServletRequest request, final HttpServletResponse response) throws Exception {

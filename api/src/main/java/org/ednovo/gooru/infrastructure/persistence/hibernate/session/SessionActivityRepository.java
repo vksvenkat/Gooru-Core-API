@@ -23,7 +23,6 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.infrastructure.persistence.hibernate.session;
 
-import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
@@ -39,10 +38,6 @@ public interface SessionActivityRepository extends BaseRepository {
 	SessionActivityItem getSessionActivityItem(Long sessionActivityId, Long resourceId);
 		
 	Integer getSessionActivityItemAttemptCount(Long sessionActivityId, Long resourceId);
-
-	List<Object[]> getClassReport(String classGooruId,String query);
-
-	String getExportConfig(String key);
 	
 	Integer getSessionActivityReactionCount(Long sessionActivityId);
 	
@@ -64,11 +59,9 @@ public interface SessionActivityRepository extends BaseRepository {
 
 	void updateOldSessions(SessionActivity sessionActivity);
 
-	Integer getItemCount(Long itemId);
+	Double getUnitTotalScore(Long unitId);
 
-	Double getUnitTotalScore(Long itemId);
-
-	Double getLessonTotalScore(Long itemId);
+	Double getLessonTotalScore(Long lessonId);
 
 	UserActivityCollectionAssoc getUserActivityCollectionAssoc(String userUid, Long classContentId, Long collectionId);
 	
