@@ -337,6 +337,19 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		}
 		return errors;
 	}
+	
+
+	@Override
+	public ActionResponseDTO<AssessmentQuestion> createQuestion(String collectionId, AssessmentQuestion assessmentQuestion, User user) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void updateQuestion(String collectionId, String resourceId, AssessmentQuestion assessmentQuestion, User user) {
+		// TODO Auto-generated method stub
+		
+	}
 
 	private Errors validateResource(final Resource resource) {
 		final Errors errors = new BindException(resource, RESOURCE);
@@ -360,18 +373,6 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	
 	public CollectionRepository getCollectionRepository() {
 		return collectionRepository;
-	}
-
-	@Override
-	public ActionResponseDTO<AssessmentQuestion> createQuestion(String collectionId, AssessmentQuestion assessmentQuestion, User user) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void updateQuestion(String collectionId, String resourceId, AssessmentQuestion assessmentQuestion, User user) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }
