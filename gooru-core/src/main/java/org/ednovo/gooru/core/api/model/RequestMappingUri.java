@@ -31,6 +31,8 @@ public class RequestMappingUri {
 	public static final String LESSON_COLLECTION = "/v1/course/{courseId}/unit/{unitId}/lesson/{lessonId}/collection";
 
 	public static final String LESSON_COLLECTION_ID = "/v1/course/{courseId}/unit/{unitId}/lesson/{lessonId}/collection/{id}";
+	
+	public static final String LESSON_COLLECTION_ITEM_ID = "/v1/course/{courseId}/unit/{unitId}/lesson/{lessonId}/collection/{id}/item/{collectionItemId}";
 
 	public static final String TARGET_LESSON = "/course/{courseId}/targetUnit/{unitId}/targetLesson/{lessonId}";
 
@@ -44,6 +46,8 @@ public class RequestMappingUri {
 	
 	public static final String USER_COURSES = "/{id}/course";
 	
+	public static final String DELETE_USER_FROM_CLASS = "/{id}/member/{userUid}";
+	
 	public static final String LESSON_COLLECTION_ITEM = "/v1/course/{courseId}/unit/{unitId}/lesson/{lessonId}/collection/{id}/item";
 	
 	public static final String LESSON_CREATE_QUESTION = "/v1/course/{courseId}/unit/{unitId}/lesson/{lessonId}/collection/id}/question";
@@ -53,5 +57,8 @@ public class RequestMappingUri {
 	public static final String LESSON_UPDATE_RESOURCE = "/v1/course/{courseId}/unit/{unitId}/lesson/{lessonId}/collection/{collectionId}/resource/{id}";
 
 	public static final String LESSON_UPDATE_QUESTION = "/v1/course/{courseId}/unit/{unitId}/lesson/{lessonId}/collection/{collectionId}/question/{id}";
+	
+	public static final String COURSES_CLASS = "/{id}/classes";
+	
 
 }

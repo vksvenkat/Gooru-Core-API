@@ -17,11 +17,11 @@ import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.domain.service.collection.CourseService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +33,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Autowired
 	private ClassRepository classRepository;
+	
 
 	@Autowired
 	private SettingService settingService;
@@ -120,6 +121,19 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public List<Map<String, Object>> getClassesByCourse(String courseGooruOid, int limit, int offset) {
+		List<Map<String, Object>> resultSet = this.getClassRepository().getClassesByCourse(courseGooruOid, limit, offset);
+		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+		if (resultSet != null) {
+			for (Map<String, Object> result : resultSet) {
+				results.add(setClass(result));
+			}
+		}
+		return results;
+	}
+
+	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getMember(String classUid, int limit, int offset) {
 		final List<Map<String, Object>> members = this.getClassRepository().getMember(classUid, limit, offset);
 		final List<Map<String, Object>> userList = new ArrayList<Map<String, Object>>();
@@ -171,6 +185,17 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		return this.getClassRepository().getClassById(classUid);
 	}
 
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void deleteUserFromClass(final String classUid, final String userUid, User user) {
+		UserClass userclass = this.getClassRepository().getClassById(classUid);
+		rejectIfNull(userclass, GL0056, CLASS);
+		if (userclass.getUserUid().equals(user.getGooruUId()) || user.getGooruUId().equals(userUid)) {
+			this.getClassRepository().deleteUserFromClass(classUid, userUid);
+		} else {
+			throw new AccessDeniedException(generateErrorMessage("GL0089"));
+		}
+	}
 	public CollectionDao getCollectionDao() {
 		return collectionDao;
 	}
@@ -178,5 +203,4 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	public void setCollectionDao(CollectionDao collectionDao) {
 		this.collectionDao = collectionDao;
 	}
-
 }

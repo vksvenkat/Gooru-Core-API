@@ -6,6 +6,7 @@ import java.util.Map;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Collection;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.User;
 
@@ -15,6 +16,8 @@ public interface CollectionBoService extends AbstractCollectionService {
 	ActionResponseDTO<Collection> createCollection(String courseId, String unitId, String lessonId, User user, Collection collection);
 
 	void updateCollection(String collectionId, Collection newCollection, User user);
+	
+	void updateCollectionItem(String collectionItemId,String collectionId, CollectionItem newCollectionItem, User user);
 
 	Map<String, Object> getCollection(String collectionId, String collectionType);
 

@@ -20,6 +20,8 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	private static final String GET_STUDY_CLASSES = "select class_uid as classUid,name, user_group_code as classCode, minimum_score as minimumScore, visibility, username, u.gooru_uid as gooruUId, image_path as thumbnail, gender, member_count as memberCount from class c inner join user_group ug  on ug.user_group_uid = c.class_uid inner join party p on p.party_uid = ug.user_group_uid inner join  user u on  created_by_uid = gooru_uid inner join profile pr on pr.user_uid = gooru_uid inner join content cc on cc.content_id = course_content_id inner join user_group_association uga on uga.user_group_uid = ug.user_group_uid where u.gooru_uid =:gooruUId order by uga.association_date desc";
 
+	private static final String DELETE_USER_FROM_CLASS = "delete uga from class c inner join user_group ug on c.class_uid=ug.user_group_uid inner join user_group_association uga on ug.user_group_uid=uga.user_group_uid where uga.gooru_uid=:gooruUId and c.class_uid=:classUid";
+
 	private static final String GET_MEMBERS = "select p.party_uid as gooruUId,u.username as username,i.external_id as emailId,uga.association_date as associationDate from class c inner join user_group ug on c.class_uid = ug.user_group_uid inner join user_group_association uga on uga.user_group_uid = ug.user_group_uid inner join party p on uga.gooru_uid = p.party_uid left join identity i on i.user_uid = p.party_uid inner join user u on u.gooru_uid = p.party_uid where c.class_uid=:classUid";
 
 	private static final String FIND_STUDENT_AND_CLASS_ID = "SELECT IFNULL(c.class_id,0) AS classId,COALESCE(true,false) isStudent FROM  class c INNER JOIN user_group ug on c.class_uid = ug.user_group_uid LEFT JOIN user_group_association uga ON ug.user_group_uid = uga.user_group_uid AND uga.gooru_uid =:gooruUId WHERE ug.user_group_uid =:classGooruId";
@@ -67,6 +69,16 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 		List<Map<String, Object>> results = list(query);
 		return results.size() > 0 ? results.get(0) : null;
 	}
+	
+	@Override
+	public List<Map<String, Object>> getClassesByCourse(String courseGooruOid, int limit, int offset) {
+		StringBuilder sql = new StringBuilder(GET_CLASSES);
+		sql.append("where cc.gooru_oid = :gooruOid order by p.created_on desc");
+		Query query = getSession().createSQLQuery(sql.toString());
+		query.setParameter(GOORU_OID, courseGooruOid);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		return list(query);
+	}
 
 	@Override
 	public List<Map<String, Object>> getStudyClasses(String gooruUid, int limit, int offset) {
@@ -110,4 +122,10 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 		List<Long> results = list(query);
 		return (results != null && results.size() > 0) ? results.get(0) : 0L;
 	}
+	public void deleteUserFromClass(String classUid,String userUid) {
+         Query query = getSession().createSQLQuery(DELETE_USER_FROM_CLASS);
+         query.setParameter(GOORU_UID, userUid);
+         query.setParameter(CLASS_UID, classUid);
+         query.executeUpdate();	}
+
 }
