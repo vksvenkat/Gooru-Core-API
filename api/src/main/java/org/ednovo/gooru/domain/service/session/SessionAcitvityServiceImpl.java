@@ -114,24 +114,23 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 				sessionActivity.setLessonContentId(((Number) contentIds.get(sessionActivity.getLessonGooruId())).longValue());
 				sessionActivity.setUnitContentId(((Number) contentIds.get(sessionActivity.getUnitGooruId())).longValue());
 
-				Integer perviousSessionCount = getSessionActivityRepository().getClassSessionActivityCount(collectionId, sessionActivity.getClassId(), sessionActivity.getUnitContentId(),
-						sessionActivity.getLessonContentId(), user.getGooruUId());
-				if (perviousSessionCount > 0) {
-					this.getSessionActivityRepository().updateOldSessions(sessionActivity);
-				}
-				sessionActivity.setSequence(perviousSessionCount + 1);
-				sessionActivity.setIsLastSession(true);
 				Map<String, Object> classMap = this.getClassRepositoryHibernate().findStudentAndClassId(sessionActivity.getClassGooruId(), user.getGooruUId());
 				if (classMap != null) {
 					sessionActivity.setClassId(((Number) classMap.get(CLASS_ID)).longValue());
 					sessionActivity.setIsStudent(((Boolean) classMap.get(IS_STUDENT)).booleanValue());
 				}
+				Integer perviousSessionCount = getSessionActivityRepository().getClassSessionActivityCount(sessionActivity);
+				if (perviousSessionCount > 0) {
+					this.getSessionActivityRepository().updateOldSessions(sessionActivity);
+				}
+				sessionActivity.setSequence(perviousSessionCount + 1);
+				sessionActivity.setIsLastSession(true);
 
 			} else {
 				final Long collectionId = getResourceRepository().getContentId(sessionActivity.getContentGooruId());
 				sessionActivity.setIsStudent(false);
 				sessionActivity.setClassId(0L);
-				sessionActivity.setSequence(getSessionActivityRepository().getCollectionSessionActivityCount(collectionId, user.getGooruUId()) + 1);
+				sessionActivity.setSequence(getSessionActivityRepository().getCollectionSessionActivityCount(sessionActivity) + 1);
 				sessionActivity.setCollectionId(collectionId);
 			}
 			this.getSessionActivityRepository().save(sessionActivity);
@@ -184,7 +183,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 			this.getSessionActivityRepository().save(sessionActivity);
 
 			if (sessionActivity.getCourseId() != null && sessionActivity.getUnitContentId() != null && sessionActivity.getLessonContentId() != null) {
-				double unitTotalScore =  this.getSessionActivityRepository().getUnitTotalScore(sessionActivity.getUnitContentId());
+				double unitTotalScore =  this.getSessionActivityRepository().getUnitTotalScore(sessionActivity);
 				int lessonCount =  this.getCollectionDao().getCollectionItemCount(sessionActivity.getUnitContentId(), LESSON);
 				double unitScoreInPercentage = 0.0;
 				if(lessonCount != 0){
@@ -194,7 +193,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 				UserActivityCollectionAssoc userActivityUnitAssoc = this.getSessionActivityRepository().getUserActivityCollectionAssoc(sessionActivity.getUser().getGooruUId(), sessionActivity.getClassId(), sessionActivity.getUnitContentId());
 				this.createOrUpdateUserActivityCollectionAssoc(userActivityUnitAssoc, sessionActivity, sessionActivity.getUnitContentId(), unitTotalScore, unitScoreInPercentage);
 				
-				double lessonTotalScore =  this.getSessionActivityRepository().getLessonTotalScore(sessionActivity.getLessonContentId());
+				double lessonTotalScore =  this.getSessionActivityRepository().getLessonTotalScore(sessionActivity);
 				int collectionCount =  this.getCollectionDao().getCollectionItemCount(sessionActivity.getUnitContentId(), COLLECTION);
 				double lessonScoreInPercentage = 0.0;
 				if(collectionCount != 0){

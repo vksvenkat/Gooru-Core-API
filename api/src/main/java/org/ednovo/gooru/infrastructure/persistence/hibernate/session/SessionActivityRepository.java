@@ -53,16 +53,17 @@ public interface SessionActivityRepository extends BaseRepository {
 	
     Map<String, Object> getSessionActivityByCollectionId(String gooruOid, String user);
 
-	Integer getClassSessionActivityCount(Long collectionId, Long classContentId, Long unitContentId, Long lessonContentId, String gooruUId);
+	Integer getClassSessionActivityCount(SessionActivity sessionActivity);
 
-	Integer getCollectionSessionActivityCount(Long collectionId, String gooruUId);
+	Integer getCollectionSessionActivityCount(SessionActivity sessionActivity);
 
 	void updateOldSessions(SessionActivity sessionActivity);
 
-	Double getUnitTotalScore(Long unitId);
+	Double getUnitTotalScore(SessionActivity sessionActivity);
 
-	Double getLessonTotalScore(Long lessonId);
+	Double getLessonTotalScore(SessionActivity sessionActivity);
 
 	UserActivityCollectionAssoc getUserActivityCollectionAssoc(String userUid, Long classContentId, Long collectionId);
+
 	
 }
