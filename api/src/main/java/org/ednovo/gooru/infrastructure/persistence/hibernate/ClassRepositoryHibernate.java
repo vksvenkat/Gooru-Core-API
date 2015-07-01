@@ -18,6 +18,8 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	private static final String GET_STUDY_CLASSES = "select class_uid as classUid,name, user_group_code as classCode, minimum_score as minimumScore, visibility, username, u.gooru_uid as gooruUId, image_path as thumbnail, gender, member_count as memberCount from class c inner join user_group ug  on ug.user_group_uid = c.class_uid inner join party p on p.party_uid = ug.user_group_uid inner join  user u on  created_by_uid = gooru_uid inner join profile pr on pr.user_uid = gooru_uid inner join content cc on cc.content_id = course_content_id inner join user_group_association uga on uga.user_group_uid = ug.user_group_uid where u.gooru_uid =:gooruUId order by uga.association_date desc";
 
+	private static final String DELETE_USER_FROM_CLASS = "delete uga from class c inner join user_group ug on c.class_uid=ug.user_group_uid inner join user_group_association uga on ug.user_group_uid=uga.user_group_uid where uga.gooru_uid=:gooruUId and c.class_uid=:classUid";
+
 	private static final String GET_MEMBERS = "select p.party_uid as gooruUId,u.username as username,i.external_id as emailId,uga.association_date as associationDate from class c inner join user_group ug on c.class_uid = ug.user_group_uid inner join user_group_association uga on uga.user_group_uid = ug.user_group_uid inner join party p on uga.gooru_uid = p.party_uid left join identity i on i.user_uid = p.party_uid inner join user u on u.gooru_uid = p.party_uid where c.class_uid=:classUid";
 	
 	@Override
@@ -90,6 +92,14 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 		query.setMaxResults(limit != 0 ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
 		return list(query);
+	}
+
+	@Override
+	public void deleteUserFromClass(String classUid,String userUid) {
+         Query query = getSession().createSQLQuery(DELETE_USER_FROM_CLASS);
+         query.setParameter(GOORU_UID, userUid);
+         query.setParameter(CLASS_UID, classUid);
+         query.executeUpdate();
 	}
 
 }

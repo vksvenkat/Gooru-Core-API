@@ -21,6 +21,7 @@ import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Autowired
 	private ClassRepository classRepository;
+	
 
 	@Autowired
 	private SettingService settingService;
@@ -183,6 +185,17 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		return this.getClassRepository().getClassById(classUid);
 	}
 
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void deleteUserFromClass(final String classUid, final String userUid, User user) {
+		UserClass userclass = this.getClassRepository().getClassById(classUid);
+		rejectIfNull(userclass, GL0056, CLASS);
+		if (userclass.getUserUid().equals(user.getGooruUId()) || user.getGooruUId().equals(userUid)) {
+			this.getClassRepository().deleteUserFromClass(classUid, userUid);
+		} else {
+			throw new AccessDeniedException(generateErrorMessage("GL0089"));
+		}
+	}
 	public CollectionDao getCollectionDao() {
 		return collectionDao;
 	}

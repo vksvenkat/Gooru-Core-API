@@ -46,6 +46,8 @@ public class RequestMappingUri {
 	
 	public static final String USER_COURSES = "/{id}/course";
 	
+	public static final String DELETE_USER_FROM_CLASS = "/{id}/member/{userUid}";
+	
 	public static final String LESSON_COLLECTION_ITEM = "/v1/course/{courseId}/unit/{unitId}/lesson/{lessonId}/collection/{id}/item";
 	
 	public static final String LESSON_CREATE_QUESTION = "/v1/course/{courseId}/unit/{unitId}/lesson/{lessonId}/collection/id}/question";

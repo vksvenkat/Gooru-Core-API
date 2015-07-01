@@ -8,6 +8,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserClass;
 
 public interface ClassService {
+	
 	ActionResponseDTO<UserClass> createClass(UserClass userClass, User user);
 
 	public void updateClass(String classUId, UserClass userClass, User user);
@@ -20,6 +21,8 @@ public interface ClassService {
 	
 	List<Map<String, Object>> getStudyClasses(String gooruUid, int limit, int offset);
 	
+	void deleteUserFromClass(String classUid, String userUid, User user);
+	 
 	List<Map<String, Object>> getMember(String classUid, int limit, int offset);
 	
 	List<Map<String, Object>> getClassesByCourse(String courseGooruOid, int limit, int offset);
