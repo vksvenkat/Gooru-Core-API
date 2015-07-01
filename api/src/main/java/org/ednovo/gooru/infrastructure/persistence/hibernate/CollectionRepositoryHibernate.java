@@ -748,7 +748,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	public List<Object[]> getMyFolder(final String gooruUid, final Integer limit, final Integer offset, final String sharing, String collectionType, boolean fetchChildItem, String orderBy, String excludeType) {
 		String sql = "select re.title, cr.gooru_oid, re.type_name, re.folder, re.thumbnail, cr.sharing, ci.collection_item_id, co.goals, ct.value, ct.display_name, rs.attribution, rs.domain_name , co.ideas, co.questions,co.performance_tasks, co.collection_type, ci.item_sequence, cc.gooru_oid as parentGooruOid, re.s3_upload_flag as s3UploadFlag, re.description, re.url, cs.data from  resource r inner join collection c on c.content_id = r.content_id inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id left join content_settings cs on cs.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  left join collection co on co.content_id = re.content_id left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id left join resource_source rs on rs.resource_source_id = r.resource_source_id  where c.collection_type = 'shelf' and  cr.sharing in ('"
 				+ sharing.replace(",", "','") + "') ";
-		sql += " and cc.user_uid = '" + gooruUid + "' ";
+		sql += " and cc.user_uid = '" + gooruUid + "' and co.collection_type not in ('course', 'unit', 'lesson')  ";
 		if (excludeType != null) { 
 			sql += " and co.collection_type not in ('"+ excludeType.replace(",", "','") + "')";
 		}
@@ -776,7 +776,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	@Override
 	public List<Object[]> getCollectionItem(final String gooruOid, Integer limit, Integer offset, String sharing, String orderBy, String collectionType, boolean fetchChildItem, String sequenceOrder, boolean fecthAll, String excludeType) {
 		String sql = "select r.title, c.gooru_oid, r.type_name, r.folder, r.thumbnail, ct.value, ct.display_name, c.sharing, ci.collection_item_id, co.goals, rs.attribution, rs.domain_name, co.ideas, co.questions, co.performance_tasks, r.url ,rsummary.rating_star_avg, rsummary.rating_star_count, co.collection_type, ci.item_sequence, rc.gooru_oid as parentGooruOid, r.s3_upload_flag as s3UploadFlag, r.description, cs.data  from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join content_settings cs on cs.content_id = r.content_id left join collection co on co.content_id = r.content_id left join resource_source rs on rs.resource_source_id = r.resource_source_id left join resource_summary rsummary on   c.gooru_oid = rsummary.resource_gooru_oid where  c.sharing in ('"
-				+ sharing.replace(",", "','") + "') and rc.gooru_oid=:gooruOid";
+				+ sharing.replace(",", "','") + "') and rc.gooru_oid=:gooruOid and co.collection_type not in ('course', 'unit', 'lesson') ";
 		if (collectionType != null) {
 			collectionType = collectionType.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : collectionType;
 			sql += " and r.type_name =:collectionType ";
@@ -809,7 +809,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	@Override
 	public Long getMyShelfCount(final String gooruUid, final String sharing, String collectionType, final String excludeType) {
 		String sql = "select count(1) as count from  resource r inner join collection c on c.content_id = r.content_id inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid left join collection co on co.content_id = re.content_id  where c.collection_type = 'shelf' and cr.sharing in ('"
-				+ sharing.replace(",", "','") + "') and cc.user_uid=:gooruUid";
+				+ sharing.replace(",", "','") + "') and cc.user_uid=:gooruUid and co.collection_type not in ('course', 'unit', 'lesson') ";
 		if (collectionType != null) {
 			collectionType = collectionType.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : collectionType;
 			sql += " and re.type_name =:collectionType ";
@@ -827,7 +827,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public Long getCollectionItemCount(final String gooruOid, final String sharing, String collectionType, String excludeType) {
-		String sql = "select count(1) as count from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id where rc.gooru_oid=:gooruOid ";
+		String sql = "select count(1) as count from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id where rc.gooru_oid=:gooruOid and co.collection_type not in ('course', 'unit', 'lesson') ";
 		if (sharing != null) {		
 			sql += " and c.sharing in ('" + sharing.replace(",", "','") + "') ";
 		}
