@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
@@ -362,23 +361,4 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		return collectionRepository;
 	}
 
-	@Override
-	public ActionResponseDTO<Collection> copyCollection(String lessonId, User user, Collection newCollection) {
-      Collection sourceCollection = this.getCollectionRepository().getCollectionByGooruOid(lessonId, null);
-		rejectIfNull(sourceCollection, GL0056, _COLLECTION);
-		Collection destCollection = null;
-		if (sourceCollection != null) {
-			destCollection = new Collection();			
-			destCollection.setTitle(sourceCollection.getTitle());
-			destCollection.setCopiedCollectionId(sourceCollection.getGooruOid());
-			destCollection.setCollectionType(sourceCollection.getCollectionType());
-			destCollection.setDescription(sourceCollection.getDescription());
-			destCollection.setNotes(sourceCollection.getNotes());
-			destCollection.setLanguage(sourceCollection.getLanguage());
-			destCollection.setImagePath(sourceCollection.getImagePath());
-		}
-     this.getCollectionRepository().save(destCollection);	
-     CollectionItem collectionItem = new CollectionItem();
-	return null;
-	}
 }

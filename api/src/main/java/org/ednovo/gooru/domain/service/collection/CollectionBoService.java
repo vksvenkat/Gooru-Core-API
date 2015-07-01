@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Resource;
@@ -29,7 +28,4 @@ public interface CollectionBoService extends AbstractCollectionService {
 
 	void updateResource(String collectionId, String resourceId, Resource newResource, User user);
 	
-	ActionResponseDTO<AssessmentQuestion> createQuestion(String collectionId, AssessmentQuestion assessmentQuestion, User user);
-	
-	void updateQuestion(String collectionId, String resourceId, AssessmentQuestion assessmentQuestion, User user);
 }
