@@ -219,7 +219,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		Map<String, Object> filters = new HashMap<String, Object>();
 		String[] collectionTypes = collectionType.split(",");
 		filters.put(COLLECTION_TYPE, collectionTypes);
-		filters.put(PARENT_GOORU_ID, lessonId);
+		filters.put(PARENT_GOORU_OID, lessonId);
 		return this.getCollections(filters, limit, offset);
 	}
 
@@ -326,17 +326,6 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		getResourceBoService().updateResource(resourceId, newResource, user);
 	}
 
-	@Override
-	public ActionResponseDTO<AssessmentQuestion> createQuestion(String lessonId, AssessmentQuestion assessmentQuestion, User user) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void updateQuestion(String lessonId, String resourceId, AssessmentQuestion assessmentQuestion, User user) {
-		// TODO Auto-generated method stub
-	}
-
 	private Errors validateCollection(final Collection collection) {
 		final Errors errors = new BindException(collection, COLLECTION);
 		if (collection != null) {
@@ -371,5 +360,25 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	
 	public CollectionRepository getCollectionRepository() {
 		return collectionRepository;
+	}
+
+	@Override
+	public ActionResponseDTO<Collection> copyCollection(String lessonId, User user, Collection newCollection) {
+      Collection sourceCollection = this.getCollectionRepository().getCollectionByGooruOid(lessonId, null);
+		rejectIfNull(sourceCollection, GL0056, _COLLECTION);
+		Collection destCollection = null;
+		if (sourceCollection != null) {
+			destCollection = new Collection();			
+			destCollection.setTitle(sourceCollection.getTitle());
+			destCollection.setCopiedCollectionId(sourceCollection.getGooruOid());
+			destCollection.setCollectionType(sourceCollection.getCollectionType());
+			destCollection.setDescription(sourceCollection.getDescription());
+			destCollection.setNotes(sourceCollection.getNotes());
+			destCollection.setLanguage(sourceCollection.getLanguage());
+			destCollection.setImagePath(sourceCollection.getImagePath());
+		}
+     this.getCollectionRepository().save(destCollection);	
+     CollectionItem collectionItem = new CollectionItem();
+	return null;
 	}
 }
