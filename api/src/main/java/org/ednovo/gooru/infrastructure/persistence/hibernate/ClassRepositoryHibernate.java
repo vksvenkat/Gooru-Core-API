@@ -8,7 +8,9 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -21,6 +23,11 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 	private static final String DELETE_USER_FROM_CLASS = "delete uga from class c inner join user_group ug on c.class_uid=ug.user_group_uid inner join user_group_association uga on ug.user_group_uid=uga.user_group_uid where uga.gooru_uid=:gooruUId and c.class_uid=:classUid";
 
 	private static final String GET_MEMBERS = "select p.party_uid as gooruUId,u.username as username,i.external_id as emailId,uga.association_date as associationDate from class c inner join user_group ug on c.class_uid = ug.user_group_uid inner join user_group_association uga on uga.user_group_uid = ug.user_group_uid inner join party p on uga.gooru_uid = p.party_uid left join identity i on i.user_uid = p.party_uid inner join user u on u.gooru_uid = p.party_uid where c.class_uid=:classUid";
+
+	private static final String FIND_STUDENT_AND_CLASS_ID = "SELECT IFNULL(c.class_id,0) AS classId,COALESCE(true,false) isStudent FROM  class c INNER JOIN user_group ug on c.class_uid = ug.user_group_uid LEFT JOIN user_group_association uga ON ug.user_group_uid = uga.user_group_uid AND uga.gooru_uid =:gooruUId WHERE ug.user_group_uid =:classGooruId";
+	
+	private static final String GET_CLASS_ID = "SELECT class_id AS classId from class where class_uid =:classGooruId" ;
+
 	
 	@Override
 	public UserClass getClassById(String classUid) {
@@ -95,11 +102,30 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 	}
 
 	@Override
+	public Map<String,Object> findStudentAndClassId(String classGooruId, String gooruUId) {
+		Session session = getSessionFactory().getCurrentSession();
+		Query query = session.createSQLQuery(FIND_STUDENT_AND_CLASS_ID)
+				.addScalar(CLASS_ID,StandardBasicTypes.LONG)
+				.addScalar(IS_STUDENT, StandardBasicTypes.BOOLEAN);		
+		query.setParameter(CLASS_GOORU_ID, classGooruId);
+		query.setParameter(GOORU_UID, gooruUId);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		List<Map<String,Object>> results =  list(query);
+		return (results != null && results.size() > 0) ? results.get(0) : null;
+	}
+
+	@Override
+	public Long getClassId(String classGooruId) {
+		Session session = getSessionFactory().getCurrentSession();
+		Query query = session.createSQLQuery(GET_CLASS_ID).addScalar(CLASS_ID, StandardBasicTypes.LONG);
+		query.setParameter(CLASS_GOORU_ID, classGooruId);
+		List<Long> results = list(query);
+		return (results != null && results.size() > 0) ? results.get(0) : 0L;
+	}
 	public void deleteUserFromClass(String classUid,String userUid) {
          Query query = getSession().createSQLQuery(DELETE_USER_FROM_CLASS);
          query.setParameter(GOORU_UID, userUid);
          query.setParameter(CLASS_UID, classUid);
-         query.executeUpdate();
-	}
+         query.executeUpdate();	}
 
 }

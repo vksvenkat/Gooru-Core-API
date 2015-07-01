@@ -23,7 +23,6 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.session;
 
-import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -40,19 +39,17 @@ import org.ednovo.gooru.core.api.model.SessionActivityItemAttemptTry;
 import org.ednovo.gooru.core.api.model.SessionStatus;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserActivityCollectionAssoc;
-import org.ednovo.gooru.core.api.model.UserClass;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.assessment.AssessmentService;
 import org.ednovo.gooru.domain.service.eventlogs.SessionEventLog;
 import org.ednovo.gooru.domain.service.resource.CSVBuilderService;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.session.SessionActivityRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -83,12 +80,16 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 	@Autowired
 	private CollectionDao collectionDao;
 	
+	@Autowired
+	private ClassRepository classRepository;
+
+
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<SessionActivity> createSessionActivity(final SessionActivity sessionActivity, final User user) {
 
 		final Errors errors = this.validateCreateSessionActivity(sessionActivity, sessionActivity.getContentGooruId());
-		
+
 		if (!errors.hasErrors()) {
 
 			sessionActivity.setUser(user);
@@ -101,35 +102,35 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 			sessionActivity.setStatus(SessionStatus.OPEN.getSessionStatus());
 			sessionActivity.setViewsInSession(1);
 			sessionActivity.setStartTime(new Date(System.currentTimeMillis()));
-			
+
 			if (sessionActivity.getCourseGooruId() != null && sessionActivity.getUnitGooruId() != null && sessionActivity.getLessonGooruId() != null) {
-				
-				Map<Object, Object> contentIds = this.getContentIds(sessionActivity.getContentGooruId(),sessionActivity.getLessonGooruId(),sessionActivity.getUnitGooruId(),sessionActivity.getCourseGooruId());
-				
+
+				Map<Object, Object> contentIds = this.getContentIds(sessionActivity.getContentGooruId(), sessionActivity.getLessonGooruId(), sessionActivity.getUnitGooruId(),
+						sessionActivity.getCourseGooruId());
+
 				final Long collectionId = ((Number) contentIds.get(sessionActivity.getContentGooruId())).longValue();
 				sessionActivity.setCollectionId(collectionId);
 				sessionActivity.setCourseId(((Number) contentIds.get(sessionActivity.getCourseGooruId())).longValue());
 				sessionActivity.setLessonContentId(((Number) contentIds.get(sessionActivity.getLessonGooruId())).longValue());
 				sessionActivity.setUnitContentId(((Number) contentIds.get(sessionActivity.getUnitGooruId())).longValue());
 
-				Integer perviousSessionCount = getSessionActivityRepository().getClassSessionActivityCount(collectionId, sessionActivity.getClassId(), sessionActivity.getUnitContentId(),
-						sessionActivity.getLessonContentId(), user.getGooruUId());
-				if(perviousSessionCount > 0){	
+				Map<String, Object> classMap = this.getClassRepository().findStudentAndClassId(sessionActivity.getClassGooruId(), user.getGooruUId());
+				if (classMap != null) {
+					sessionActivity.setClassId(((Number) classMap.get(CLASS_ID)).longValue());
+					sessionActivity.setIsStudent(((Boolean) classMap.get(IS_STUDENT)).booleanValue());
+				}
+				Integer perviousSessionCount = getSessionActivityRepository().getClassSessionActivityCount(sessionActivity);
+				if (perviousSessionCount > 0) {
 					this.getSessionActivityRepository().updateOldSessions(sessionActivity);
 				}
 				sessionActivity.setSequence(perviousSessionCount + 1);
 				sessionActivity.setIsLastSession(true);
-				List<Object[]> classInfos =  getResourceRepository().findIstudentAndClassId(sessionActivity.getClassGooruId(), user.getGooruUId());
-				for (Object[] classInfo : classInfos) {
-					sessionActivity.setClassId(((Number) classInfo[0]).longValue());
-					sessionActivity.setIsStudent(((Boolean) classInfo[1]).booleanValue());
-				}				
-			
+
 			} else {
 				final Long collectionId = getResourceRepository().getContentId(sessionActivity.getContentGooruId());
 				sessionActivity.setIsStudent(false);
 				sessionActivity.setClassId(0L);
-				sessionActivity.setSequence(getSessionActivityRepository().getCollectionSessionActivityCount(collectionId,user.getGooruUId()) + 1);
+				sessionActivity.setSequence(getSessionActivityRepository().getCollectionSessionActivityCount(sessionActivity) + 1);
 				sessionActivity.setCollectionId(collectionId);
 			}
 			this.getSessionActivityRepository().save(sessionActivity);
@@ -167,7 +168,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 			/**
 			 * Score calculation for assessment/collection.It can be update through API from FE.
 			 */
-			if (newSession.getScore() != null) {
+			if (newSession.getScore() != null && newSession.getScoreInPercentage() != null) {
 				sessionActivity.setScore(newSession.getScore());
 				sessionActivity.setScoreInPercentage(newSession.getScoreInPercentage());
 			}else{
@@ -182,9 +183,9 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 			this.getSessionActivityRepository().save(sessionActivity);
 
 			if (sessionActivity.getCourseId() != null && sessionActivity.getUnitContentId() != null && sessionActivity.getLessonContentId() != null) {
-				Double unitTotalScore =  this.getSessionActivityRepository().getUnitTotalScore(sessionActivity.getUnitContentId());
-				Integer lessonCount =  this.getCollectionDao().getCollectionItemCount(sessionActivity.getUnitContentId(), LESSON);
-				Double unitScoreInPercentage = 0.0;
+				double unitTotalScore =  this.getSessionActivityRepository().getUnitTotalScore(sessionActivity);
+				int lessonCount =  this.getCollectionDao().getCollectionItemCount(sessionActivity.getUnitContentId(), LESSON);
+				double unitScoreInPercentage = 0.0;
 				if(lessonCount != 0){
 					unitScoreInPercentage = (unitTotalScore/lessonCount);
 				}
@@ -192,9 +193,9 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 				UserActivityCollectionAssoc userActivityUnitAssoc = this.getSessionActivityRepository().getUserActivityCollectionAssoc(sessionActivity.getUser().getGooruUId(), sessionActivity.getClassId(), sessionActivity.getUnitContentId());
 				this.createOrUpdateUserActivityCollectionAssoc(userActivityUnitAssoc, sessionActivity, sessionActivity.getUnitContentId(), unitTotalScore, unitScoreInPercentage);
 				
-				Double lessonTotalScore =  this.getSessionActivityRepository().getLessonTotalScore(sessionActivity.getLessonContentId());
-				Integer collectionCount =  this.getCollectionDao().getCollectionItemCount(sessionActivity.getUnitContentId(), COLLECTION);
-				Double lessonScoreInPercentage = 0.0;
+				double lessonTotalScore =  this.getSessionActivityRepository().getLessonTotalScore(sessionActivity);
+				int collectionCount =  this.getCollectionDao().getCollectionItemCount(sessionActivity.getUnitContentId(), COLLECTION);
+				double lessonScoreInPercentage = 0.0;
 				if(collectionCount != 0){
 					lessonScoreInPercentage = (lessonTotalScore/collectionCount);
 				}
@@ -308,15 +309,6 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 		return sessionActivityItemAttemptTry;
 	}
 
-
-	@Override
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public File exportClass(String classGooruId) {
-		String query = getSessionActivityRepository().getExportConfig(EXPORT_CLASS_QUERY);
-		List<Object[]> resultSet = getSessionActivityRepository().getClassReport(classGooruId, query);
-		String headers = getSessionActivityRepository().getExportConfig(EXPORT_CLASS_HEADER);
-		return csvBuilderService.generateCSVReport(resultSet, headers.split(COMMA), EXPORT_CLASS_FILENAME);
-	}
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SessionActivityItem updateLastResourceSessionActivityItem(SessionActivityItem sessionActivityItem) {
@@ -328,7 +320,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 		String userId = data.get(USER_ID);
 		rejectIfNull(userId, GL0056, USER);
 		Map<Object, Object> contentIds = this.getContentIds(data.get(CONTENT_GOORU_ID),data.get(COURSE_GOORU_ID),data.get(UNIT_GOORU_ID),data.get(LESSON_GOORU_ID));
-		final Long classId = this.getResourceRepository().getClassId(data.get(CLASS_GOORU_ID));
+		final Long classId = this.getClassRepository().getClassId(data.get(CLASS_GOORU_ID));
 		SessionActivity sessionActivity = this.getSessionActivityRepository().getLastSessionActivity(classId,((Number) contentIds.get(data.get(COURSE_GOORU_ID))).longValue(),((Number) contentIds.get(data.get(UNIT_GOORU_ID))).longValue(),((Number) contentIds.get(data.get(LESSON_GOORU_ID))).longValue(), ((Number) contentIds.get(data.get(CONTENT_GOORU_ID))).longValue(), userId);
 		rejectIfNull(sessionActivity, GL0056, SESSION_ACTIVITY);
 		return createOrUpdateSessionActivityItem(sessionActivityItem, sessionActivity.getSessionActivityId());
@@ -368,14 +360,13 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 	private void createOrUpdateUserActivityCollectionAssoc(UserActivityCollectionAssoc userActivityCollectionAssoc ,SessionActivity sessionActivity,Long collectionId,Double score,Double scoreInPercentage) {
 		if(userActivityCollectionAssoc == null){ 
 			userActivityCollectionAssoc = new UserActivityCollectionAssoc();
-			userActivityCollectionAssoc.setCollectionAttemptCount(1);
 		}
 		userActivityCollectionAssoc.setClassContentId(sessionActivity.getClassId());
 		userActivityCollectionAssoc.setUserUid(sessionActivity.getUser().getGooruUId());
 		userActivityCollectionAssoc.setCollectionId(collectionId);
 		userActivityCollectionAssoc.setScoreInPercentage(scoreInPercentage);
 		userActivityCollectionAssoc.setScore(score);
-		userActivityCollectionAssoc.setCollectionAttemptCount((userActivityCollectionAssoc.getCollectionAttemptCount() + 1));
+		userActivityCollectionAssoc.setCollectionAttemptCount(userActivityCollectionAssoc.getCollectionAttemptCount() == null? 1 : (userActivityCollectionAssoc.getCollectionAttemptCount() + 1));
 		userActivityCollectionAssoc.setLastAccessedTime(new Date());
 		userActivityCollectionAssoc.setTotalTimeSpentInMillis(userActivityCollectionAssoc.getTotalTimeSpentInMillis() == null ? sessionActivity.getTimeSpentInMillis() : (userActivityCollectionAssoc.getTotalTimeSpentInMillis() + sessionActivity.getTimeSpentInMillis()));
 		userActivityCollectionAssoc.setViewsInSession(userActivityCollectionAssoc.getViewsInSession() == null ? sessionActivity.getViewsInSession() : (userActivityCollectionAssoc.getViewsInSession() + sessionActivity.getViewsInSession()));
@@ -416,10 +407,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 	public CollectionDao getCollectionDao() {
 		return collectionDao;
 	}
-public static void main(String args[]){
-	Double n1 = 0.0;
-	Integer n2 = 0;
-	
-System.out.print("value : " + (double)(n1/n2));	
-}	
+	public ClassRepository getClassRepository() {
+		return classRepository;
+	}
 }
