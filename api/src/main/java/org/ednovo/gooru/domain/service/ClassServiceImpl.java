@@ -54,7 +54,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Autowired
 	private CustomTableRepository customTableRepository;
-	
+
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<UserClass> createClass(UserClass userClass, User user) {
@@ -90,6 +90,9 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		}
 		if (newUserClass.getMinimumScore() != null) {
 			userClass.setMinimumScore(newUserClass.getMinimumScore());
+		}
+		if (newUserClass.getGrades() != null) {
+			userClass.setGrades(newUserClass.getGrades());
 		}
 		if (newUserClass.getCourseGooruOid() != null) {
 			Collection collection = this.getCollectionDao().getCollectionByType(newUserClass.getCourseGooruOid(), CollectionType.COURSE.getCollectionType());
