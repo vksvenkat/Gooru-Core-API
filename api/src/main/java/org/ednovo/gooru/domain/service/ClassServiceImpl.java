@@ -11,8 +11,11 @@ import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionType;
+import org.ednovo.gooru.core.api.model.Identity;
+import org.ednovo.gooru.core.api.model.InviteUser;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserClass;
+import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -20,6 +23,9 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -33,7 +39,6 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Autowired
 	private ClassRepository classRepository;
-	
 
 	@Autowired
 	private SettingService settingService;
@@ -41,6 +46,15 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	@Autowired
 	private CollectionDao collectionDao;
 
+	@Autowired
+	private UserRepository userRepository;
+
+	@Autowired
+	private InviteRepository inviteRepository;
+
+	@Autowired
+	private CustomTableRepository customTableRepository;
+	
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<UserClass> createClass(UserClass userClass, User user) {
@@ -176,11 +190,8 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		return errors;
 	}
 
-	public ClassRepository getClassRepository() {
-		return classRepository;
-	}
-
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public UserClass getClassById(String classUid) {
 		return this.getClassRepository().getClassById(classUid);
 	}
@@ -188,19 +199,68 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteUserFromClass(final String classUid, final String userUid, User user) {
-		UserClass userclass = this.getClassRepository().getClassById(classUid);
-		rejectIfNull(userclass, GL0056, CLASS);
-		if (userclass.getUserUid().equals(user.getGooruUId()) || user.getGooruUId().equals(userUid)) {
+		UserClass userClass = this.getClassRepository().getClassById(classUid);
+		rejectIfNull(userClass, GL0056, CLASS);
+		if (userClass.getUserUid().equals(user.getGooruUId()) || user.getGooruUId().equals(userUid)) {
 			this.getClassRepository().deleteUserFromClass(classUid, userUid);
 		} else {
-			throw new AccessDeniedException(generateErrorMessage("GL0089"));
+			throw new AccessDeniedException(generateErrorMessage(GL0089));
 		}
 	}
+
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void deleteClass(String classUId, User user) {
+		UserClass userClass = this.getClassRepository().getClassById(classUId);
+		rejectIfNull(userClass, GL0056, 404, CLASS);
+		if (userClass.getUserUid().equals(user.getGooruUId())) {
+			this.getClassRepository().remove(userClass);
+		} else {
+			throw new AccessDeniedException(generateErrorMessage(GL0089));
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void joinClass(String classUid, User user) {
+		UserClass userClass = this.getClassRepository().getClassById(classUid);
+		rejectIfNull(userClass, GL0056, 404, CLASS);
+		Identity identity = this.getUserRepository().findUserByGooruId(user.getPartyUid());
+		if (identity != null) {
+			UserGroupAssociation userGroupAssociation = this.getUserRepository().getUserGroupMemebrByGroupUid(userClass.getPartyUid(), identity.getUser().getPartyUid());
+			if (userGroupAssociation == null) {
+				userGroupAssociation = new UserGroupAssociation(0, identity.getUser(), new Date(System.currentTimeMillis()), userClass);
+				this.getUserRepository().save(userGroupAssociation);
+				userClass.setLastModifiedOn(new Date(System.currentTimeMillis()));
+				this.getClassRepository().save(userClass);
+				InviteUser inviteUser = this.getInviteRepository().findInviteUserById(identity.getExternalId(), userClass.getPartyUid(), null);
+				if (inviteUser != null) {
+					inviteUser.setStatus(this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, ACTIVE));
+					inviteUser.setJoinedDate(new Date(System.currentTimeMillis()));
+					this.getInviteRepository().save(inviteUser);
+				}
+			}
+		}
+	}
+
 	public CollectionDao getCollectionDao() {
 		return collectionDao;
 	}
 
-	public void setCollectionDao(CollectionDao collectionDao) {
-		this.collectionDao = collectionDao;
+	public ClassRepository getClassRepository() {
+		return classRepository;
 	}
+
+	public UserRepository getUserRepository() {
+		return userRepository;
+	}
+
+	public InviteRepository getInviteRepository() {
+		return inviteRepository;
+	}
+
+	public CustomTableRepository getCustomTableRepository() {
+		return customTableRepository;
+	}
+
 }
