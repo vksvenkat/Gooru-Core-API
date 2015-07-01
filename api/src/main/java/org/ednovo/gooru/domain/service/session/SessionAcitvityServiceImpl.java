@@ -45,7 +45,7 @@ import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.assessment.AssessmentService;
 import org.ednovo.gooru.domain.service.eventlogs.SessionEventLog;
 import org.ednovo.gooru.domain.service.resource.CSVBuilderService;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepositoryHibernate;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.session.SessionActivityRepository;
@@ -81,7 +81,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 	private CollectionDao collectionDao;
 	
 	@Autowired
-	private ClassRepositoryHibernate classRepositoryHibernate;
+	private ClassRepository classRepository;
 
 
 	@Override
@@ -114,7 +114,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 				sessionActivity.setLessonContentId(((Number) contentIds.get(sessionActivity.getLessonGooruId())).longValue());
 				sessionActivity.setUnitContentId(((Number) contentIds.get(sessionActivity.getUnitGooruId())).longValue());
 
-				Map<String, Object> classMap = this.getClassRepositoryHibernate().findStudentAndClassId(sessionActivity.getClassGooruId(), user.getGooruUId());
+				Map<String, Object> classMap = this.getClassRepository().findStudentAndClassId(sessionActivity.getClassGooruId(), user.getGooruUId());
 				if (classMap != null) {
 					sessionActivity.setClassId(((Number) classMap.get(CLASS_ID)).longValue());
 					sessionActivity.setIsStudent(((Boolean) classMap.get(IS_STUDENT)).booleanValue());
@@ -320,7 +320,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 		String userId = data.get(USER_ID);
 		rejectIfNull(userId, GL0056, USER);
 		Map<Object, Object> contentIds = this.getContentIds(data.get(CONTENT_GOORU_ID),data.get(COURSE_GOORU_ID),data.get(UNIT_GOORU_ID),data.get(LESSON_GOORU_ID));
-		final Long classId = this.getClassRepositoryHibernate().getClassId(data.get(CLASS_GOORU_ID));
+		final Long classId = this.getClassRepository().getClassId(data.get(CLASS_GOORU_ID));
 		SessionActivity sessionActivity = this.getSessionActivityRepository().getLastSessionActivity(classId,((Number) contentIds.get(data.get(COURSE_GOORU_ID))).longValue(),((Number) contentIds.get(data.get(UNIT_GOORU_ID))).longValue(),((Number) contentIds.get(data.get(LESSON_GOORU_ID))).longValue(), ((Number) contentIds.get(data.get(CONTENT_GOORU_ID))).longValue(), userId);
 		rejectIfNull(sessionActivity, GL0056, SESSION_ACTIVITY);
 		return createOrUpdateSessionActivityItem(sessionActivityItem, sessionActivity.getSessionActivityId());
@@ -407,7 +407,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 	public CollectionDao getCollectionDao() {
 		return collectionDao;
 	}
-	public ClassRepositoryHibernate getClassRepositoryHibernate() {
-		return classRepositoryHibernate;
+	public ClassRepository getClassRepository() {
+		return classRepository;
 	}
 }
