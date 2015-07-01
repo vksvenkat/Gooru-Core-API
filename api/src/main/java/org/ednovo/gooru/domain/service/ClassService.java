@@ -21,5 +21,7 @@ public interface ClassService {
 	List<Map<String, Object>> getStudyClasses(String gooruUid, int limit, int offset);
 	
 	List<Map<String, Object>> getMember(String classUid, int limit, int offset);
+	
+	List<Map<String, Object>> getClassesByCourse(String courseGooruOid, int limit, int offset);
 
 }

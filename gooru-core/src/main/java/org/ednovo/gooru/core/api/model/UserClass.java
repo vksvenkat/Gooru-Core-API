@@ -23,6 +23,10 @@ public class UserClass extends UserGroup implements Serializable {
 
 	private String uri;
 	
+	private Long classId;
+
+	private String courseGooruOid;
+	
 	public String getDescription() {
 		return description;
 	}
@@ -77,5 +81,20 @@ public class UserClass extends UserGroup implements Serializable {
 
 	public void setUri(String uri) {
 		this.uri = uri;
+	}
+
+	public Long getClassId() {
+		return classId;
+	}
+
+	public void setClassId(Long classId) {
+		this.classId = classId;
+	}
+	public String getCourseGooruOid() {
+		return courseGooruOid;
+	}
+
+	public void setCourseGooruOid(String courseGooruOid) {
+		this.courseGooruOid = courseGooruOid;
 	}
 }

@@ -63,7 +63,6 @@ public class SessionActivityRestV2Controller extends BaseController implements P
 	private SessionActivityService sessionActivityService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "", method = RequestMethod.POST)
 	public ModelAndView createSession(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
@@ -78,7 +77,6 @@ public class SessionActivityRestV2Controller extends BaseController implements P
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	public ModelAndView updateSession(@RequestBody String data, @PathVariable(ID) Long sessionActivityId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		ActionResponseDTO<SessionActivity> sessionActivity = getSessionActivityService().updateSessionActivity(sessionActivityId, this.buildSessionActivityFromInputParameters(data));
@@ -90,7 +88,6 @@ public class SessionActivityRestV2Controller extends BaseController implements P
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	public ModelAndView getSession(@PathVariable(ID) final Long sessionActivityId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(SESSION_INCLUDES, ERROR_INCLUDE);
@@ -98,7 +95,6 @@ public class SessionActivityRestV2Controller extends BaseController implements P
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST, RequestMethod.PUT }, value = "/{id}/item")
 	public ModelAndView createOrUpdateSessionItem(@RequestBody String data, @PathVariable(ID) Long sessionActivityId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		SessionActivityItem sessionActivityItem = null;
@@ -113,7 +109,6 @@ public class SessionActivityRestV2Controller extends BaseController implements P
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/{id}/attempt")
 	public ModelAndView createSessionItemAttemptTry(@RequestBody String data, @PathVariable(ID) Long sessionActivityId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		SessionActivityItemAttemptTry sessionActivityItemAttemptTry = getSessionActivityService().createSessionActivityItemAttemptTry(this.buildSessionItemAttemptFromInputParameters(data), sessionActivityId);
@@ -123,7 +118,6 @@ public class SessionActivityRestV2Controller extends BaseController implements P
 		return toModelAndViewWithIoFilter(sessionActivityItemAttemptTry, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, SESSION_ITEM_ATTEMPT_INCLUDES);
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/export/class/{classGooruId}")
 	public void generateClassReport(@PathVariable("classGooruId") final String classGooruId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final File csvFile = this.getSessionActivityService().exportClass(classGooruId);
@@ -139,7 +133,6 @@ public class SessionActivityRestV2Controller extends BaseController implements P
 	
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/incomplete-session")
 	public ModelAndView getInCompleteSession(@PathVariable(ID) final String gooruOid, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);

@@ -115,6 +115,8 @@ public interface ConstantProperties {
 
 	static final String CONTENT_ID = "contentId";
 
+	static final String IS_STUDENT = "isStudent";
+		
 	static final String ASSESSMENT_INCLUDES[] = { "segments", "segments.segmentQuestions", "segments.segmentQuestions.question.hints", "segments.segmentQuestions.question.answers", "taxonomySet", "segments.segmentQuestions.question.assets", "metaData", "metaData.grades", "metaData.lessons",
 			"metaData.units", "metaData.subjects", "metaData.collaborators", "metaData.topics", "metaData.curriculumCodes", "metaData.curriculumDecs", "metaData.taxonomyMapByCode.*", "metaData.taxonomyLevels.*", "tagSet" };
 
@@ -921,8 +923,6 @@ public interface ConstantProperties {
 
 	final static String CLASS_INCLUDES[] = { "classUid", "classCode", "name", "description", "visibility", "*.minimumScore", "*.memberCount", "user.username", "user.gooruUId", "user.gender", "*.thumbnails", "*.user", "thumbnails.url", "courseGooruOid" };
 
-	final static String IMAGE_PATH = "imagePath";
-
 	final static String UNIT_ID = "unitId";
 
 	final static String LESSON_ID = "lessonId";
@@ -938,4 +938,8 @@ public interface ConstantProperties {
 	final static String DOT = ".";
 
 	final static String REGX_DOT = "\\.";
+	
+	final static String CLASS_ID = "class_id";
+	
+	final static String _CLASS_ID = "classId";
 }
