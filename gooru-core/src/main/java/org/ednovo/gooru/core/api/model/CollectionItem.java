@@ -36,6 +36,7 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 	private Boolean showHints;
 	private Boolean showAnswerEnd;
 	private Integer position;
+	private String uri;
 
 	public Integer getPosition() {
 		return position;
@@ -252,6 +253,14 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 
 	public void setResource(Resource resource) {
 		this.resource = resource;
+	}
+
+	public String getUri() {
+		return uri;
+	}
+
+	public void setUri(String uri) {
+		this.uri = uri;
 	}
 
 }
