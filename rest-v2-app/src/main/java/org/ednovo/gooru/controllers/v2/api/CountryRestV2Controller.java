@@ -183,7 +183,7 @@ public class CountryRestV2Controller extends BaseController implements ConstantP
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/state/{sid}/school-district/{schoolDistrictId}/school" }, method = RequestMethod.GET)
 	public ModelAndView getStateSchoolDistrictSchools(@PathVariable(value = ID) String countryUid, @PathVariable(value = SID) String stateUid, @PathVariable(value = "schoolDistrictId") String schoolDistrictId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request, HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(this.getOrganizationService().getOrganizations(CustomProperties.InstitutionType.SCHOOL.getInstitutionType(), null, stateUid, offset, limit), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, INSTITUTION_INCLUDES_ADD);
+		return toModelAndViewWithIoFilter(this.getOrganizationService().getOrganizations(CustomProperties.InstitutionType.SCHOOL.getInstitutionType(), schoolDistrictId, stateUid, offset, limit), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, INSTITUTION_INCLUDES_ADD);
 	}
 
 	private Country buildCountryFromInputParameters(String data) {
