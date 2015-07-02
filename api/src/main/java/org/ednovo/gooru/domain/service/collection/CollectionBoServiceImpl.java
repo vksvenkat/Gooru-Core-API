@@ -211,7 +211,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		Map<String, Object> filters = new HashMap<String, Object>();
 		String[] collectionTypes = collectionType.split(",");
 		filters.put(COLLECTION_TYPE, collectionTypes);
-		filters.put(PARENT_GOORU_ID, lessonId);
+		filters.put(PARENT_GOORU_OID, lessonId);
 		return this.getCollections(filters, limit, offset);
 	}
 
@@ -394,4 +394,5 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	public CollectionRepository getCollectionRepository() {
 		return collectionRepository;
 	}
+
 }

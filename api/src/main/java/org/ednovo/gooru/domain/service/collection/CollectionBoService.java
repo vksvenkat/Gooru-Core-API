@@ -31,4 +31,5 @@ public interface CollectionBoService extends AbstractCollectionService {
 	ActionResponseDTO<CollectionItem> createQuestion(String collectionId, CollectionItem collectionItem, User user);
 	
 	void updateQuestion(String collectionId, String resourceId, AssessmentQuestion assessmentQuestion, User user);
+	
 }
