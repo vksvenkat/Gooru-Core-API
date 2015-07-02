@@ -2945,4 +2945,6 @@ public interface ParameterProperties {
 	String REFERER = "referer";
 	
 	String GL0012 = "GL0012";
+	
+	String GL0089 = "GL0089";
 }
