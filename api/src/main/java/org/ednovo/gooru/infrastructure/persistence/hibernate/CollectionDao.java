@@ -27,11 +27,4 @@ public interface CollectionDao extends BaseRepository {
 	
 	CollectionItem getCollectionItem(String parentGooruOid, String gooruOid);
 	
-	void deleteCollectionItem(String gooruOid);
-	
-	void deleteLesson(String gooruOid);
-	
-	void deleteUnit(String gooruOid);
-	
-	void deleteCourse(String gooruOid);
 }

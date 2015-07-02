@@ -100,13 +100,13 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 
 
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteUnit(String courseUId, String unitUId) {
 		Collection course = getCollectionDao().getCollectionByType(courseUId, COURSE);
 		rejectIfNull(course, GL0056, COURSE);
 		Collection unit = getCollectionDao().getCollectionByType(unitUId, UNIT);
 		rejectIfNull(unit, GL0056, UNIT);
-		getCollectionDao().deleteCollectionItem(unitUId);
+		this.deleteCheck(unit.getContentId(), UNIT);
 		this.deleteCollection(unitUId);
 		this.updateMetaDataSummary(course.getContentId(), unit.getContentId());
 	}
@@ -133,12 +133,6 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		
 		int lessonCount =  ((Number) summary.get(MetaConstants.LESSON_COUNT)).intValue() -((Number) unitSummary.get(MetaConstants.LESSON_COUNT)).intValue();
 		summary.put(MetaConstants.LESSON_COUNT, lessonCount);
-		
-		int assessmentCount =  ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue() - ((Number) unitSummary.get(MetaConstants.ASSESSMENT_COUNT)).intValue();
-		summary.put(MetaConstants.ASSESSMENT_COUNT, assessmentCount);
-
-		int collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue() - ((Number) unitSummary.get(MetaConstants.COLLECTION_COUNT)).intValue();
-		summary.put(MetaConstants.COLLECTION_COUNT, collectionCount);
 		
 		metaData.put(SUMMARY, summary);
 		updateContentMeta(contentMeta, metaData);

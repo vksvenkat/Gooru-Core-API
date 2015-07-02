@@ -92,7 +92,6 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		rejectIfNull(lesson, GL0056, LESSON);
 		Collection collection = this.getCollectionDao().getCollection(collectionId);
 		rejectIfNull(lesson, GL0056, COLLECTION);
-		getCollectionDao().deleteCollectionItem(collectionId);
 		this.deleteCollection(collectionId);
 		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getCollectionType(), DELETE);
 	}

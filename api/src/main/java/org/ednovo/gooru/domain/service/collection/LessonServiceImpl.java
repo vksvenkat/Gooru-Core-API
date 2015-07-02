@@ -12,6 +12,7 @@ import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentClassificationRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
@@ -74,42 +75,31 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		Collection unit = getCollectionDao().getCollectionByType(unitUId, UNIT);
 		rejectIfNull(unit, GL0056, UNIT);
 		Collection lesson = getCollectionDao().getCollectionByType(lessonUId, LESSON);
-		rejectIfNull(unit, GL0056, LESSON);
-		getCollectionDao().deleteUnit(lessonUId);
+		rejectIfNull(lesson, GL0056, LESSON);
+		this.deleteCheck(lesson.getContentId(), LESSON);
 		this.deleteCollection(lessonUId);
-		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId());
+		this.updateMetaDataSummary(course.getContentId(), unit.getContentId());
 	}
 	
-	private void updateMetaDataSummary(Long courseId, Long unitId, Long lessonId) {
+	private void updateMetaDataSummary(Long courseId, Long unitId) {
 		ContentMeta unitContentMeta = this.getContentRepository().getContentMeta(unitId);
 		ContentMeta courseContentMeta = this.getContentRepository().getContentMeta(courseId);
-		ContentMeta lessonContentMeta = this.getContentRepository().getContentMeta(lessonId);
 		if (unitContentMeta != null) {
-			updateSummaryMeta(unitContentMeta, lessonContentMeta);
+			updateSummaryMeta(unitContentMeta);
 		}
 		if (courseContentMeta != null) {
-			updateSummaryMeta(courseContentMeta, lessonContentMeta);
+			updateSummaryMeta(courseContentMeta);
 		}
 		
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void updateSummaryMeta(ContentMeta contentMeta, ContentMeta lessonContentMeta) {
+	private void updateSummaryMeta(ContentMeta contentMeta) {
 		Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
 		});
 		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
-		Map<String, Object> lessonMetaData = JsonDeserializer.deserialize(lessonContentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
-		});
-		Map<String, Object> lessonSummary = (Map<String, Object>) lessonMetaData.get(SUMMARY);
 		int lessonCount =  ((Number) summary.get(MetaConstants.LESSON_COUNT)).intValue() -1;
 		summary.put(MetaConstants.LESSON_COUNT, lessonCount);
-		
-		int assessmentCount =  ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue() - ((Number) lessonSummary.get(MetaConstants.ASSESSMENT_COUNT)).intValue();
-		summary.put(MetaConstants.ASSESSMENT_COUNT, assessmentCount);
-
-		int collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue() - ((Number) lessonSummary.get(MetaConstants.COLLECTION_COUNT)).intValue();
-		summary.put(MetaConstants.COLLECTION_COUNT, collectionCount);
-		
 		metaData.put(SUMMARY, summary);
 		updateContentMeta(contentMeta, metaData);
 	}

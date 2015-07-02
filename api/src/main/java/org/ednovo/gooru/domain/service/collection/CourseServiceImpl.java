@@ -96,9 +96,11 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCourse(String courseUId) {
 		Collection course = getCollectionDao().getCollectionByType(courseUId, COURSE);
 		rejectIfNull(course, GL0056, COURSE);
+		this.deleteCheck(course.getContentId(), COURSE);
 		this.deleteCollection(courseUId);
 	}
 	
