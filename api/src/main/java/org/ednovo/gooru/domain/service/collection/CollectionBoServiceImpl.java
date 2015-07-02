@@ -185,7 +185,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	public void updateResource(String collectionId, String collectionResourceItemId, CollectionItem newCollectionItem, User user) {
 		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionResourceItemId);
 		rejectIfNull(collectionItem, GL0056, 404, RESOURCE);
-		this.getResourceBoService().updateResource(collectionResourceItemId, newCollectionItem.getResource(), user);
+		this.getResourceBoService().updateResource(collectionItem.getContent().getGooruOid(), newCollectionItem.getResource(), user);
 	}
 
 	@Override
@@ -212,18 +212,35 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		String[] collectionTypes = collectionType.split(",");
 		filters.put(COLLECTION_TYPE, collectionTypes);
 		filters.put(PARENT_GOORU_OID, lessonId);
-		return this.getCollections(filters, limit, offset);
+		List<Map<String, Object>> results = this.getCollections(filters, limit, offset);
+		List<Map<String, Object>> collections = new ArrayList<Map<String, Object>>();
+		for (Map<String, Object> collection : results) {
+			collections.add(mergeMetaData(collection));
+		}
+		return collections;
 	}
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public List<Map<String, Object>> getCollectionItem(String collectionId, int limit, int offset) {
-		List<Map<String, Object>> collectionItems = this.getCollectionDao().getCollectionItem(collectionId, null, limit, offset);
+	public List<Map<String, Object>> getCollectionItems(String collectionId, int limit, int offset) {
+		Map<String, Object> filters = new HashMap<String, Object>();
+		filters.put(COLLECTION_ID, collectionId);
+		List<Map<String, Object>> collectionItems = this.getCollectionDao().getCollectionItem(filters, limit, offset);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> item : collectionItems) {
 			items.add(mergeCollectionItemMetaData(item));
 		}
 		return items;
+	}
+
+	@Override
+	public Map<String, Object> getCollectionItem(String collectionId, String collectionItemId) {
+		Map<String, Object> filters = new HashMap<String, Object>();
+		filters.put(COLLECTION_ID, collectionId);
+		filters.put(COLLECTION_ITEM_ID, collectionItemId);
+		List<Map<String, Object>> collectionItems = this.getCollectionDao().getCollectionItem(filters, 1, 0);
+		rejectIfNull(((collectionItems == null || collectionItems.size() == 0) ? null : collectionItems.get(0)), GL0056, _COLLECTION_ITEM);
+		return mergeCollectionItemMetaData(collectionItems.get(0));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -310,6 +327,21 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 			});
 			content.putAll(metaData);
 		}
+		Map<String, Object> resourceFormat = new HashMap<String, Object>();
+		resourceFormat.put(VALUE, content.get(VALUE));
+		resourceFormat.put(DISPLAY_NAME, content.get(DISPLAY_NAME));
+		content.put(RESOURCEFORMAT, resourceFormat);
+		Object ratingAverage = content.get(AVERAGE);
+		if (ratingAverage != null) {
+			Map<String, Object> rating = new HashMap<String, Object>();
+			rating.put(AVERAGE, content.get(AVERAGE));
+			rating.put(COUNT, content.get(COUNT));
+			content.put(RATING, rating);
+		}
+		content.remove(VALUE);
+		content.remove(DISPLAY_NAME);
+		content.remove(AVERAGE);
+		content.remove(COUNT);
 		return content;
 	}
 

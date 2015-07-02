@@ -37,20 +37,7 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 	private Boolean showAnswerEnd;
 	private Integer position;
 	private String uri;
-
-	public Integer getPosition() {
-		return position;
-	}
-
-	public void setPosition(Integer position) {
-		this.position = position;
-	}
-
-	/**
-	 * 
-	 */
-	public CollectionItem() {
-	}
+	private String title;
 
 	public String getCollectionItemId() {
 		return collectionItemId;
@@ -255,12 +242,28 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 		this.resource = resource;
 	}
 
+	public Integer getPosition() {
+		return position;
+	}
+
+	public void setPosition(Integer position) {
+		this.position = position;
+	}
+
 	public String getUri() {
 		return uri;
 	}
 
 	public void setUri(String uri) {
 		this.uri = uri;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 }

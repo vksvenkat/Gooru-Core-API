@@ -97,8 +97,6 @@ public class Collection extends Content implements Versionable {
 
 	private String lastAccessedTime;
 
-	private String uri;
-
 	private String mediaFilename;
 
 	private List<Integer> taxonomyCourseIds;
@@ -398,14 +396,6 @@ public class Collection extends Content implements Versionable {
 			thumbnails.put(URL, url.toString());
 		}
 		return thumbnails;
-	}
-
-	public String getUri() {
-		return uri;
-	}
-
-	public void setUri(String uri) {
-		this.uri = uri;
 	}
 	
 	public String getType() {
