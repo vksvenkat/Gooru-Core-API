@@ -193,12 +193,7 @@ public class Constants implements ParameterProperties {
 	public static final Map<Object, String> COLLECTION_TYPES;
 	static {
 		Map<Object, String> collectionType = new HashMap<Object, String>();
-		collectionType.put(LESSON, COLLECTION_TYPE);
-		collectionType.put(SHELF, COLLECTION_TYPE);
 		collectionType.put(COLLECTION, COLLECTION_TYPE);
-		collectionType.put(QUIZ, COLLECTION_TYPE);
-		collectionType.put(FOLDER, COLLECTION_TYPE);
-		collectionType.put(ASSIGNMENT, COLLECTION_TYPE);
 		collectionType.put(ASSESSMENT, COLLECTION_TYPE);
 		collectionType.put(ASSESSMENT_URL, COLLECTION_TYPE);
 		collectionType.put(CollectionType.STORY.getCollectionType(), COLLECTION_TYPE);
