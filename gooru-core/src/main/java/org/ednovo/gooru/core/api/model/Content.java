@@ -86,6 +86,8 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 
 	private Long viewCount;
 
+	private String uri;
+
 	public Long getContentId() {
 		return contentId;
 	}
@@ -320,6 +322,14 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 
 	public void setViewCount(Long viewCount) {
 		this.viewCount = viewCount;
+	}
+
+	public String getUri() {
+		return uri;
+	}
+
+	public void setUri(String uri) {
+		this.uri = uri;
 	}
 
 	public static final String buildResourceFolder(Long contentId) {

@@ -19,8 +19,6 @@ public interface AbstractCollectionService {
 
 	Map<String, Object> getCollection(String collectionId, String collectionType);
 
-	List<Map<String, Object>> getCollectionItem(String collectionId, String[] sharing, int limit, int offset);
-
 	void deleteCollection(String collectionId);
 
 	CollectionItem createCollectionItem(CollectionItem collectionItem, Collection parentContent, Content content, User user);

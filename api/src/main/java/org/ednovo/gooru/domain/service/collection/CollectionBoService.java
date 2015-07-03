@@ -7,7 +7,6 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
-import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.User;
 
 public interface CollectionBoService extends AbstractCollectionService {
@@ -16,21 +15,23 @@ public interface CollectionBoService extends AbstractCollectionService {
 	ActionResponseDTO<Collection> createCollection(String courseId, String unitId, String lessonId, User user, Collection collection);
 
 	void updateCollection(String collectionId, Collection newCollection, User user);
-	
-	void updateCollectionItem(String collectionItemId,String collectionId, CollectionItem newCollectionItem, User user);
+
+	void updateCollectionItem(String collectionId, String collectionItemId, CollectionItem newCollectionItem, User user);
 
 	Map<String, Object> getCollection(String collectionId, String collectionType);
 
 	List<Map<String, Object>> getCollections(String lessonId, String collectionType, int limit, int offset);
 
-	List<Map<String, Object>> getCollectionItem(String collectionId, int limit, int offset);
+	List<Map<String, Object>> getCollectionItems(String collectionId, int limit, int offset);
 
-	ActionResponseDTO<Resource> createResource(String collectionId, Resource resource, User user);
+	ActionResponseDTO<CollectionItem> createResource(String collectionId, CollectionItem collectionItem, User user);
 
-	void updateResource(String collectionId, String resourceId, Resource newResource, User user);
-	
-	ActionResponseDTO<AssessmentQuestion> createQuestion(String collectionId, AssessmentQuestion assessmentQuestion, User user);
-	
+	void updateResource(String collectionId, String resourceId, CollectionItem newCollectionItem, User user);
+
+	ActionResponseDTO<CollectionItem> createQuestion(String collectionId, CollectionItem collectionItem, User user);
+
 	void updateQuestion(String collectionId, String resourceId, AssessmentQuestion assessmentQuestion, User user);
-	
+
+	Map<String, Object> getCollectionItem(String collectionId, String collectionItemId);
+
 }

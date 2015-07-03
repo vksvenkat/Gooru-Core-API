@@ -201,11 +201,6 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 	}
 
 	@Override
-	public List<Map<String, Object>> getCollectionItem(String collectionId, String[] sharing, int limit, int offset) {
-		return getCollectionDao().getCollectionItem(collectionId, sharing, limit, offset);
-	}
-
-	@Override
 	public void deleteCollection(String collectionId) {
 		Collection collection = getCollectionDao().getCollection(collectionId);
 		rejectIfNull(collection, GL0056, COLLECTION);
