@@ -59,6 +59,7 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateCourse(String courseId, Collection newCollection, User user) {
 		Collection collection = this.getCollectionDao().getCollection(courseId);
+		Collection parentCollection = getCollectionDao().getCollection(user.getPartyUid(), CollectionType.SHElf.getCollectionType());
 		rejectIfNull(collection, GL0056, COURSE);
 		Map<String, Object> data = generateCourseMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {
@@ -67,7 +68,7 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		}
 		this.updateCollection(collection, newCollection, user);
 		if(newCollection.getPosition() != null){
-			this.resetSequence(courseId, collection.getGooruOid() , newCollection.getPosition());
+			this.resetSequence(parentCollection.getGooruOid(), collection.getGooruOid() , newCollection.getPosition());
 		}
 	}
 

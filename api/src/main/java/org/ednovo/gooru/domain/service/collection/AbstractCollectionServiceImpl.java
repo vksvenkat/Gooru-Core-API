@@ -138,25 +138,27 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		List<CollectionItem> resetCollectionSequence = null;
 			int displaySequence;
 			CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(parentGooruOid, gooruOid);
-			int oldSequence = collectionItem.getItemSequence();
-			if(newSequence > oldSequence){
-				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(),oldSequence, newSequence);
-				displaySequence = oldSequence;
-			}
-			else{
-				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), newSequence, oldSequence);
-				displaySequence = newSequence +1;
-			}
-			if(resetCollectionSequence != null){
-				for(CollectionItem collectionSequence : resetCollectionSequence){
-					if(collectionSequence.getContent().getGooruOid() != gooruOid){
-						collectionSequence.setItemSequence(displaySequence++);
-					}
-					else{
-						collectionSequence.setItemSequence(newSequence);
-					}
+			if(collectionItem != null){
+				int oldSequence = collectionItem.getItemSequence();
+				if(newSequence > oldSequence){
+					resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(),oldSequence, newSequence);
+					displaySequence = oldSequence;
 				}
-				this.getCollectionDao().saveAll(resetCollectionSequence);
+				else{
+					resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), newSequence, oldSequence);
+					displaySequence = newSequence +1;
+				}
+				if(resetCollectionSequence != null){
+					for(CollectionItem collectionSequence : resetCollectionSequence){
+						if(collectionSequence.getContent().getGooruOid() != gooruOid){
+							collectionSequence.setItemSequence(displaySequence++);
+						}
+						else{
+							collectionSequence.setItemSequence(newSequence);
+						}
+					}
+					this.getCollectionDao().saveAll(resetCollectionSequence);
+				}
 			}
 	}
 
