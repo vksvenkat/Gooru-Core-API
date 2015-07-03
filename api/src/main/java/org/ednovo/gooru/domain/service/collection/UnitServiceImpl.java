@@ -56,11 +56,11 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void updateUnit(String courseUId,String unitId, Collection newCollection, User user) {
+	public void updateUnit(String courseId,String unitId, Collection newCollection, User user) {
 		Collection collection = this.getCollectionDao().getCollection(unitId);
 		rejectIfNull(collection, GL0056, UNIT);
 		if(newCollection.getPosition() != null){
-			this.resetSequence(courseUId, collection.getGooruOid() , newCollection.getPosition());
+			this.resetSequence(courseId, collection.getGooruOid() , newCollection.getPosition());
 		}
 		this.updateCollection(collection, newCollection, user);
 		Map<String, Object> data = generateUnitMetaData(collection, newCollection, user);
@@ -93,15 +93,15 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void deleteUnit(String courseUId, String unitUId, User user) {
-		Collection unit = getCollectionDao().getCollectionByType(unitUId, UNIT);
+	public void deleteUnit(String courseId, String unitId, User user) {
+		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT);
 		rejectIfNull(unit, GL0056, UNIT);
-		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(unitUId, user), GL0099, 403, UNIT);
-		Collection course = getCollectionDao().getCollectionByType(courseUId, COURSE);
+		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(unitId, user), GL0099, 403, UNIT);
+		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE);
 		rejectIfNull(course, GL0056, COURSE);
 		this.deleteValidation(unit.getContentId(), UNIT);
-		this.resetSequence(courseUId, unit.getGooruOid());
-		this.deleteCollection(unitUId);
+		this.resetSequence(courseId, unit.getGooruOid());
+		this.deleteCollection(unitId);
 		this.updateMetaDataSummary(course.getContentId(), unit.getContentId());
 	}
 	

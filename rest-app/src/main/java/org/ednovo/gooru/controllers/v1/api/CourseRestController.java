@@ -53,15 +53,15 @@ public class CourseRestController extends BaseController implements ConstantProp
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.PUT)
-	public void updateCourse(@PathVariable(value = ID) final String courseUId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
+	public void updateCourse(@PathVariable(value = ID) final String courseId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		this.getCourseService().updateCourse(courseUId, buildCourse(data), user);
+		this.getCourseService().updateCourse(courseId, buildCourse(data), user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.GET)
-	public ModelAndView getCourse(@PathVariable(value = ID) final String courseUId, final HttpServletRequest request, final HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(this.getCourseService().getCourse(courseUId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
+	public ModelAndView getCourse(@PathVariable(value = ID) final String courseId, final HttpServletRequest request, final HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(this.getCourseService().getCourse(courseId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
@@ -79,9 +79,9 @@ public class CourseRestController extends BaseController implements ConstantProp
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.DELETE)
-	public void deleteCourse(@PathVariable(value = ID) final String courseUId, final HttpServletRequest request, final HttpServletResponse response) {
+	public void deleteCourse(@PathVariable(value = ID) final String courseId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		this.getCourseService().deleteCourse(courseUId, user);
+		this.getCourseService().deleteCourse(courseId, user);
 	}
 
 	private Collection buildCourse(final String data) {
