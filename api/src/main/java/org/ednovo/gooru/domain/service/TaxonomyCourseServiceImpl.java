@@ -62,7 +62,7 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 		if (!errors.hasErrors()) {
 			Subject subject = this.getSubjectRepository().getSubject(course.getSubjectId());
 			rejectIfNull(subject, GL0056, 404, SUBJECT);
-			reject((subject.getActiveFlag() == 1), GL0107, SUBJECT);
+			reject((subject.getActiveFlag() == 1), GL0107,400, SUBJECT);
 			TaxonomyCourse courseCode = this.getTaxonomyCourseRepository().getCourseCode(course.getCourseCode());
 			rejectIfAlreadyExist(courseCode, GL0101, COURSE);
 			course.setCreatorUid(user);
@@ -81,7 +81,7 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 		TaxonomyCourse course = this.getTaxonomyCourseRepository().getCourse(courseId);
 		rejectIfNull(course, GL0056, 404, COURSE);
 		if (newCourse.getActiveFlag() != null) {
-			reject((newCourse.getActiveFlag() == 0 || newCourse.getActiveFlag() == 1), GL0007, ACTIVE_FLAG);
+			reject((newCourse.getActiveFlag() == 0 || newCourse.getActiveFlag() == 1), GL0007, 400, ACTIVE_FLAG);
 			course.setActiveFlag(newCourse.getActiveFlag());
 		}
 		if (newCourse.getName() != null) {
@@ -109,7 +109,7 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 	public TaxonomyCourse getTaxonomyCourse(Integer courseId) {
 		TaxonomyCourse course = this.getTaxonomyCourseRepository().getCourse(courseId);
 		rejectIfNull(course, GL0056, 404, COURSE);
-		reject((course.getActiveFlag() == 1), GL0107, COURSE);
+		reject((course.getActiveFlag() == 1), GL0107, 400, COURSE);
 		if (course.getImagePath() != null) {
 			course.setThumbnails(GooruImageUtil.getThumbnails(course.getImagePath()));
 		}

@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
+import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.springframework.validation.Errors;
 
 public class ServerValidationUtils {
@@ -136,8 +137,11 @@ public class ServerValidationUtils {
 		}
 	}
 
-	public static void reject(Boolean data,String code, String... message){
+	public static void reject(Boolean data,String code,int errorCode, String... message){
 		if(!data){
+			if(errorCode == 403){
+				throw new UnauthorizedException(generateErrorMessage(code, message));
+			}
 			throw new BadRequestException(generateErrorMessage(code, message), code);
 		}
 	}

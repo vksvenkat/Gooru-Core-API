@@ -96,6 +96,18 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		return getCourses(filters, limit, offset);
 	}
 
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void deleteCourse(String courseUId, User user) {
+		Collection course = getCollectionDao().getCollectionByType(courseUId, COURSE);
+		rejectIfNull(course, GL0056, COURSE);
+		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(courseUId, user), GL0099, 403, COURSE);
+		this.deleteValidation(course.getContentId(), COURSE);
+		Collection parentCollection = getCollectionDao().getCollection(user.getPartyUid(), CollectionType.SHElf.getCollectionType());
+		this.resetSequence(parentCollection.getGooruOid(), course.getGooruOid());
+		this.deleteCollection(courseUId);
+	}
+	
 	private List<Map<String, Object>> getCourses(Map<String, Object> filters, int limit, int offset) {
 		List<Map<String, Object>> results = this.getCollections(filters, limit, offset);
 		List<Map<String, Object>> courses = new ArrayList<Map<String, Object>>();
@@ -151,4 +163,5 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 	public TaxonomyCourseRepository getTaxonomyCourseRepository() {
 		return taxonomyCourseRepository;
 	}
+
 }
