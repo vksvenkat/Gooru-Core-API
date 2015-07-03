@@ -806,6 +806,8 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		indexHandler.setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		return question;
 	}
+	
+
 
 	@Override
 	public AssessmentQuestion updateQuestionVideoAssest(String gooruQuestionId, String assetKeys) throws Exception {
