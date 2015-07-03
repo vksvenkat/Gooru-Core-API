@@ -24,9 +24,11 @@ import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentClassificationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
+import org.ednovo.gooru.security.OperationAuthorizer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -42,6 +44,12 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	@Autowired
 	private ContentClassificationRepository contentClassificationRepository;
+
+	@Autowired
+	private IndexHandler indexHandler;
+
+	@Autowired
+	private OperationAuthorizer operationAuthorizer;
 
 	public Collection createCollection(Collection collection, User user) {
 		collection.setGooruOid(UUID.randomUUID().toString());
@@ -176,7 +184,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put(GOORU_OID, collectionId);
 		List<Map<String, Object>> collection = getCollectionDao().getCollections(filters, 1, 0);
-		rejectIfNull(collection, GL0056, collectionType);
+		rejectIfNull((collection == null ||  collection.size() == 0 ? null : collection) , GL0056, collectionType);
 		return mergeMetaData(collection.get(0));
 	}
 
@@ -204,11 +212,6 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		content.remove(DATA);
 		content.remove(META_DATA);
 		return content;
-	}
-
-	@Override
-	public List<Map<String, Object>> getCollectionItem(String collectionId, String[] sharing, int limit, int offset) {
-		return getCollectionDao().getCollectionItem(collectionId, sharing, limit, offset);
 	}
 
 	@Override
@@ -320,6 +323,14 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
+	}
+
+	public IndexHandler getIndexHandler() {
+		return indexHandler;
+	}
+
+	public OperationAuthorizer getOperationAuthorizer() {
+		return operationAuthorizer;
 	}
 
 }

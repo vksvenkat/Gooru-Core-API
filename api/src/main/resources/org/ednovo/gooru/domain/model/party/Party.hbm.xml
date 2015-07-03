@@ -55,6 +55,7 @@
 				<key column="class_uid" />
 				<property name="description" column="description" not-null="false" />
 				<property name="imagePath" column="image_path" not-null="false" />
+				<property name="grades" column="grades" not-null="false" />
 				<property name="courseContentId" column="course_content_id"
 					not-null="false" />
 				<property name="minimumScore" column="minimum_score"

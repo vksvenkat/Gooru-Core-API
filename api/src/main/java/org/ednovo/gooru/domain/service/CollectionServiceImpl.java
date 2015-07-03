@@ -689,7 +689,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 							if (userSummary.getCollections() == null || userSummary.getCollections() == 0) {
 								final PartyCustomField partyCustomField = new PartyCustomField(USER_META, SHOW_PROFILE_PAGE, TRUE);
 								this.getPartyService().updatePartyCustomField(scollection.getUser().getPartyUid(), partyCustomField, scollection.getUser());
-							}
+							} 
 							if (userSummary.getGooruUid() == null) {
 								userSummary.setGooruUid(scollection.getUser().getPartyUid());
 							}

@@ -7,6 +7,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.RequestMappingUri;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -57,19 +58,82 @@ public class CollectionRestController extends BaseController implements Constant
 		this.getCollectionBoService().updateCollection(collectionId, buildCollection(data), user);
 	}
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
+	@RequestMapping(value = { RequestMappingUri.LESSON_CREATE_RESOURCE }, method = RequestMethod.POST)
+	public ModelAndView createResource(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @PathVariable(value = ID) final String collectionId, @RequestBody final String data,
+			final HttpServletRequest request, final HttpServletResponse response) {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final ActionResponseDTO<CollectionItem> responseDTO = this.getCollectionBoService().createResource(collectionId, buildCollectionItem(data), user);
+		if (responseDTO.getErrors().getErrorCount() > 0) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		} else {
+			response.setStatus(HttpServletResponse.SC_CREATED);
+			responseDTO.getModel().setUri(generateUri(request.getRequestURI(), responseDTO.getModel().getCollectionItemId()));
+			responseDTO.getModel().setTitle(responseDTO.getModel().getResource().getTitle());
+		}
+		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
+	@RequestMapping(value = { RequestMappingUri.LESSON_UPDATE_RESOURCE }, method = RequestMethod.PUT)
+	public void updateResource(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @PathVariable(value = COLLECTION_ID) final String collectionId,
+			@PathVariable(value = ID) final String collectionItemId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
+		final User user = (User) request.getAttribute(Constants.USER);
+		this.getCollectionBoService().updateResource(collectionId, collectionItemId, buildCollectionItem(data), user);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
+	@RequestMapping(value = { RequestMappingUri.LESSON_COLLECTION_ITEM_ID }, method = RequestMethod.PUT)
+	public void updateCollectionItem(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @PathVariable(value = COLLECTION_ID) final String collectionId,
+			@PathVariable(value = ID) final String collectionItemId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
+		final User user = (User) request.getAttribute(Constants.USER);
+		this.getCollectionBoService().updateCollectionItem(collectionId, collectionItemId, buildCollectionItem(data), user);
+	}
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(value = { RequestMappingUri.LESSON_COLLECTION_ID }, method = RequestMethod.GET)
 	public ModelAndView getCollection(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @PathVariable(value = ID) final String collectionId, final HttpServletRequest request,
 			final HttpServletResponse response) {
 		return toModelAndViewWithIoFilter(this.getCollectionBoService().getCollection(collectionId, COLLECTION), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
-	
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(value = { RequestMappingUri.LESSON_COLLECTION }, method = RequestMethod.GET)
 	public ModelAndView getCollections(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset,
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, @RequestParam(value = COLLECTION_TYPE, required = false, defaultValue = COLLECTION_TYPES) String collectionTypes, final HttpServletRequest request, final HttpServletResponse response) {
 		return toModelAndViewWithIoFilter(this.getCollectionBoService().getCollections(lessonUId, collectionTypes, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@RequestMapping(value = { RequestMappingUri.LESSON_COLLECTION_ITEM }, method = RequestMethod.GET)
+	public ModelAndView getCollectionItems(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @PathVariable(value = ID) final String collectionId,
+			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request, final HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(this.getCollectionBoService().getCollectionItems(collectionId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@RequestMapping(value = { RequestMappingUri.LESSON_UPDATE_RESOURCE, RequestMappingUri.LESSON_UPDATE_QUESTION }, method = RequestMethod.GET)
+	public ModelAndView getResource(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @PathVariable(value = COLLECTION_ID) final String collectionId,
+			@PathVariable(value = ID) final String collectionItemId,  final HttpServletRequest request, final HttpServletResponse response) {
+		this.getCollectionBoService().getCollectionItem(collectionId, collectionItemId);
+		return toModelAndViewWithIoFilter(this.getCollectionBoService().getCollectionItem(collectionId, collectionItemId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
+	@RequestMapping(value = { RequestMappingUri.LESSON_CREATE_QUESTION }, method = RequestMethod.POST)
+	public ModelAndView createQuestion(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @PathVariable(value = ID) final String resourceId, @RequestBody final String data,
+			final HttpServletRequest request, final HttpServletResponse response) {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final ActionResponseDTO<Collection> responseDTO = this.getCollectionBoService().createCollection(courseUId, unitUId, lessonUId, user, buildCollection(data));
+		if (responseDTO.getErrors().getErrorCount() > 0) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		} else {
+			response.setStatus(HttpServletResponse.SC_CREATED);
+			responseDTO.getModel().setUri(generateUri(request.getRequestURI(), responseDTO.getModel().getGooruOid()));
+		}
+		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_DELETE })
@@ -100,4 +164,9 @@ public class CollectionRestController extends BaseController implements Constant
 	private Collection buildCollection(final String data) {
 		return JsonDeserializer.deserialize(data, Collection.class);
 	}
+
+	private CollectionItem buildCollectionItem(final String data) {
+		return JsonDeserializer.deserialize(data, CollectionItem.class);
+	}
+
 }

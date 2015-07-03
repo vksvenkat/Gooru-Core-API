@@ -9,6 +9,8 @@ public interface ClassRepository extends BaseRepository {
 
 	UserClass getClassById(String classUid);
 
+	void deleteUserFromClass(String classUid, String userUid);
+
 	List<Map<String, Object>> getClasses(int limit, int offset);
 
 	List<Map<String, Object>> getClasses(String gooruUid, int limit, int offset);
@@ -18,5 +20,11 @@ public interface ClassRepository extends BaseRepository {
 	List<Map<String, Object>> getStudyClasses(String gooruUid, int limit, int offset);
 	
 	List<Map<String, Object>>  getMember(String classUid, int limit, int offset);
+		
+	Map<String, Object> findStudentAndClassId(String classContentId, String gooruUId);
+
+	Long getClassId(String classGooruId);
+	
+	List<Map<String, Object>> getClassesByCourse(String courseGooruOid, int limit, int offset);
 	
 }

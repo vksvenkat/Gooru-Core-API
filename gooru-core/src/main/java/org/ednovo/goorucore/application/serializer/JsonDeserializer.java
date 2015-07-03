@@ -21,7 +21,7 @@ public class JsonDeserializer extends JsonProcessor {
 		try {
 			return new JSONDeserializer<T>().use(null, clazz).deserialize(json);
 		} catch (Exception e) {
-			throw new BadRequestException("Input JSON parse failed!");
+			throw new BadRequestException("Input JSON parse failed!", e);
 		}
 	}
 	

@@ -29,6 +29,7 @@ import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentAssociation;
 import org.ednovo.gooru.core.api.model.ContentMeta;
+import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.ContentProvider;
 import org.ednovo.gooru.core.api.model.ContentProviderAssociation;
@@ -92,5 +93,7 @@ public interface ContentRepository extends BaseRepository {
 	void deleteContentMetaAssoc(Long contentId, String key);
 	
 	void deleteContentDomainAssoc(Long contentId);
+	
+	List<ContentMetaAssociation> getContentMetaAssociation(String gooruOid, String key);
 
 }

@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -276,6 +278,26 @@ public class BaseUtil {
 		} catch (UnsupportedEncodingException e) {
 			throw new IllegalStateException("UTF-8 encoding not available.  Fatal (should be in the JDK).");
 		}
+	}
+	
+	public static boolean checkUrlHasHttpSupport(String domainName) {
+		if (domainName != null) {
+			try {
+				URL url = new URL("https://" + domainName);
+				if ((HttpURLConnection) url.openConnection() != null) {
+					int responseCode = ((HttpURLConnection) url.openConnection()).getResponseCode();
+					if (responseCode == 200) {
+						return true;
+					} else {
+						return false;
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
+
 	}
 
 }

@@ -2925,6 +2925,16 @@ public interface ParameterProperties {
 	String EXPORT_CLASS_FILENAME = "reports.csv";
 
 	String CLASS_GOORU_ID = "classGooruId";
+	
+	String COURSE_GOORU_ID = "courseGooruId";
+	
+	String UNIT_GOORU_ID = "unitGooruId";
+	
+	String LESSON_GOORU_ID = "lesonGooruId";
+	
+	String SCORE_IN_PERCENTAGE = "scoreInPerCentage";
+
+	String IMAGE_PATH = "imagePath";
 
 	String GL0107 = "GL0107";
 
@@ -2933,4 +2943,8 @@ public interface ParameterProperties {
 	String HOST = "host";
 
 	String REFERER = "referer";
+	
+	String GL0012 = "GL0012";
+	
+	String GL0089 = "GL0089";
 }

@@ -31,6 +31,7 @@ import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentAssociation;
 import org.ednovo.gooru.core.api.model.ContentMeta;
+import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.ContentProvider;
 import org.ednovo.gooru.core.api.model.ContentProviderAssociation;
@@ -61,6 +62,8 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	private final static String GET_CONTENT_META_DATA = "FROM ContentMeta where content.contentId=:contentId";
 
 	private final static String DELETE_CONTENT_TAXONOMY_COURSE_ASSOC = "DELETE FROM ContentTaxonomyCourseAssoc where content.contentId =:contentId";
+
+	private final static String GET_CONTENT_META_ASSOCATION = "FROM ContentMetaAssociation where content.gooruOid =:gooruOid and  typeId.customTable.name =:key";
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -204,21 +207,6 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		return query.list();
 	}
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public List getIdsByUserUId(String userUId, String typeName, Integer pageNo, Integer pageSize) {
-		Session session = getSession();
-		String sql = "SELECT c.content_id,c.gooru_oid, r.type_name FROM content c INNER JOIN resource r ON (r.content_id=c.content_id) WHERE c.user_uid = '" + userUId + "' OR c.creator_uid = '" + userUId + "'";
-		if (typeName != null) {
-			sql += " and r.type_name in ('" + typeName + "')";
-		}
-		if (pageNo != null && pageSize != null) {
-			sql += " limit " + pageNo + " , " + pageSize;
-		}
-		SQLQuery query = session.createSQLQuery(sql);
-		return query.list();
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ContentProvider> getContentProvider(Integer offset, Integer limit) {
@@ -275,6 +263,21 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		return query.list();
 	}
 
+	@SuppressWarnings("rawtypes")
+    @Override
+    public List getIdsByUserUId(String userUId, String typeName, Integer pageNo, Integer pageSize) {
+            Session session = getSession();
+            String sql = "SELECT c.content_id,c.gooru_oid, r.type_name FROM content c INNER JOIN resource r ON (r.content_id=c.content_id) WHERE c.user_uid = '" + userUId + "' OR c.creator_uid = '" + userUId + "'";
+            if (typeName != null) {
+                    sql += " and r.type_name in ('" + typeName + "')";
+            }
+            if (pageNo != null && pageSize != null) {
+                    sql += " limit " + pageNo + " , " + pageSize;
+            }
+            SQLQuery query = session.createSQLQuery(sql);
+            return query.list();
+    }
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Object[]> getResourceContentTagList(String gooruOid, Integer limit, Integer offset) {
@@ -338,5 +341,13 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		Query query = getSession().createQuery(DELETE_CONTENT_DOMAIN_ASSOC);
 		query.setParameter(CONTENT_ID, contentId);
 		query.executeUpdate();
+	}
+
+	@Override
+	public List<ContentMetaAssociation> getContentMetaAssociation(String gooruOid, String key) {
+		Query query = getSession().createQuery(GET_CONTENT_META_ASSOCATION);
+		query.setParameter(GOORU_OID, gooruOid);
+		query.setParameter(KEY, key);
+		return list(query);
 	}
 }

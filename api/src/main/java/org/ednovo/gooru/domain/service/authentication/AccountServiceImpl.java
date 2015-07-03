@@ -23,7 +23,6 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.authentication;
 
-import java.io.File;
 import java.util.Date;
 import java.util.Random;
 
@@ -181,7 +180,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				throw new BadRequestException(generateErrorMessage(GL0061, "Password"), GL0061);
 			}
 			
-			String apiKey = request.getParameter(API_KEY);
+			String apiKey = request.getHeader(Constants.GOORU_API_KEY) != null ? request.getHeader(Constants.GOORU_API_KEY) : request.getParameter(API_KEY);
 			String sessionToken = null;
 			Application application = null;
 			

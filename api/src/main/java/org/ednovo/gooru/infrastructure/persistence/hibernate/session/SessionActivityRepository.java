@@ -23,11 +23,12 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.infrastructure.persistence.hibernate.session;
 
-import java.util.List;
 import java.util.Map;
+
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.SessionActivity;
 import org.ednovo.gooru.core.api.model.SessionActivityItem;
+import org.ednovo.gooru.core.api.model.UserActivityCollectionAssoc;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface SessionActivityRepository extends BaseRepository {
@@ -37,10 +38,6 @@ public interface SessionActivityRepository extends BaseRepository {
 	SessionActivityItem getSessionActivityItem(Long sessionActivityId, Long resourceId);
 		
 	Integer getSessionActivityItemAttemptCount(Long sessionActivityId, Long resourceId);
-
-	List<Object[]> getClassReport(String classGooruId,String query);
-
-	String getExportConfig(String key);
 	
 	Integer getSessionActivityReactionCount(Long sessionActivityId);
 	
@@ -52,10 +49,21 @@ public interface SessionActivityRepository extends BaseRepository {
 	
 	AssessmentQuestion getQuestion(String gooruOid);
 	
-	SessionActivity getLastSessionActivity(Long parentId, Long collectionId, String userUid);
-
-	Integer getSessionActivityCount(Long collectionId, Long classContentId, Long unitContentId, Long lessonContentId, String gooruUId);
+	SessionActivity getLastSessionActivity(Long classId,Long courseId,Long unitId,Long lessionId, Long collectionId, String userUid);
 	
     Map<String, Object> getSessionActivityByCollectionId(String gooruOid, String user);
+
+	Integer getClassSessionActivityCount(SessionActivity sessionActivity);
+
+	Integer getCollectionSessionActivityCount(SessionActivity sessionActivity);
+
+	void updateOldSessions(SessionActivity sessionActivity);
+
+	Double getUnitTotalScore(SessionActivity sessionActivity);
+
+	Double getLessonTotalScore(SessionActivity sessionActivity);
+
+	UserActivityCollectionAssoc getUserActivityCollectionAssoc(String userUid, Long classContentId, Long collectionId);
+
 	
 }
