@@ -22,11 +22,9 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
-import org.ednovo.gooru.security.OperationAuthorizer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,12 +48,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 
 	@Autowired
 	private ResourceBoService resourceBoService;
-	
-	@Autowired
-	private CollectionRepository CollectionRepository;
-	
-	@Autowired
-	private OperationAuthorizer operationAuthorizer;
+
 	
 	@Autowired
 	private CollectionRepository collectionRepository;
@@ -87,22 +80,18 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollection(String courseId, String unitId, String lessonId, String collectionId, User user) {
+		Collection collection = this.getCollectionDao().getCollection(collectionId);
+		rejectIfNull(collection, GL0056, COLLECTION);
+		reject(!this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user), GL0099, 403, COLLECTION);
+		Collection lesson = getCollectionDao().getCollectionByType(lessonId, LESSON);
+		rejectIfNull(lesson, GL0056, LESSON);
 		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE);
 		rejectIfNull(course, GL0056, COURSE);
-		if (this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user)) {
-			Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT);
-			rejectIfNull(unit, GL0056, UNIT);
-			Collection lesson = getCollectionDao().getCollectionByType(lessonId, LESSON);
-			rejectIfNull(lesson, GL0056, LESSON);
-			Collection collection = this.getCollectionDao().getCollection(collectionId);
-			rejectIfNull(lesson, GL0056, COLLECTION);
-			this.resetSequence(lessonId, collection.getGooruOid());
-			this.deleteCollection(collectionId);
-			this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getCollectionType(), DELETE);
-		}
-		else{
-			throw new UnauthorizedException(generateErrorMessage(GL0099, COLLECTION));
-		}
+		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT);
+		rejectIfNull(unit, GL0056, UNIT);
+		this.resetSequence(lessonId, collection.getGooruOid());
+		this.deleteCollection(collectionId);
+		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getCollectionType(), DELETE);
 	}
 
 	@Override

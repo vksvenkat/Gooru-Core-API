@@ -280,13 +280,14 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void deleteCheck(Long contentId, String collectionType){
+	public void deleteValidation(Long contentId, String collectionType){
 		ContentMeta contentMeta = this.getContentRepository().getContentMeta(contentId);
-		Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
-		});
+		Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {});
 		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
-		if((((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue()) >0 || (((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue()) >0){
-			throw new BadRequestException(generateErrorMessage("GL0110", collectionType, COLLECTION, ASSESSMENT), "GL0110");
+		int assessmentCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue();
+		int collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue();
+		if( assessmentCount>0 ||  collectionCount>0){
+			throw new BadRequestException(generateErrorMessage(GL0110, collectionType), GL0110);
 		}
 	}
 

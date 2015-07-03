@@ -919,6 +919,8 @@ public interface ConstantProperties {
 
 	final static String SUBJECT_ID = "subjectId";
 
+	final static String GL0110 ="GL0110";
+	
 	final static String SUBDOMAIN_ID = "subdomainId";
 
 	final static String CLASS_INCLUDES[] = { "classUid", "classCode", "name", "description", "visibility", "*.minimumScore", "*.memberCount", "user.username", "user.gooruUId", "user.gender", "*.thumbnails", "*.user", "thumbnails.url", "courseGooruOid" };
