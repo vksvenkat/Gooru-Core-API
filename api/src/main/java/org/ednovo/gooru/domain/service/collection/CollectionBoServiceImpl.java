@@ -300,20 +300,20 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		});
 		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
 		if (collectionType.equalsIgnoreCase(CollectionType.ASSESSMENT.getCollectionType())) {
-			int assessmentCount = 0;
+			int assessmentCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue();
 			if(action.equalsIgnoreCase(DELETE)){
-				assessmentCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue() - 1;
+				assessmentCount -= 1;
 			}else if(action.equalsIgnoreCase(ADD)){
-				assessmentCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue() + 1;
+				assessmentCount += 1;
 			}
 			summary.put(MetaConstants.ASSESSMENT_COUNT, assessmentCount);
 		}
 		if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
-			int collectionCount = 0;
+			int collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue();
 			if(action.equalsIgnoreCase(DELETE)){
-				collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue() - 1;
+				collectionCount -= 1;
 			}else if(action.equalsIgnoreCase(ADD)){
-				collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue() + 1;
+				collectionCount += 1;
 			}
 			summary.put(MetaConstants.COLLECTION_COUNT, collectionCount);
 		}
