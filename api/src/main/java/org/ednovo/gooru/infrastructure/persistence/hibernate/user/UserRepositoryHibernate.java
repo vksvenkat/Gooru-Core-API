@@ -827,10 +827,10 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	public List<User> findUsersByOrganization(String organizationUid, String parentOrganizationUid, Integer offset, Integer limit) {
 		String hql = "from User u where  1=1 ";
 		if (organizationUid != null) {
-			hql += "AND u.schoolDistrict =:organizationUid ";
+			hql += " AND u.schoolDistrict =:organizationUid ";
 		}
 		if (parentOrganizationUid != null) {
-			hql += "AND u.school =:parentOrganizationUid";		
+			hql += " AND u.school =:parentOrganizationUid ";		
 		}
 
 		Query query = getSession().createQuery(hql);
