@@ -219,7 +219,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		Map<String, Object> filters = new HashMap<String, Object>();
 		String[] collectionTypes = collectionType.split(",");
 		filters.put(COLLECTION_TYPE, collectionTypes);
-		filters.put(PARENT_GOORU_ID, lessonId);
+		filters.put(PARENT_GOORU_OID, lessonId);
 		return this.getCollections(filters, limit, offset);
 	}
 
@@ -326,17 +326,6 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		getResourceBoService().updateResource(resourceId, newResource, user);
 	}
 
-	@Override
-	public ActionResponseDTO<AssessmentQuestion> createQuestion(String lessonId, AssessmentQuestion assessmentQuestion, User user) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void updateQuestion(String lessonId, String resourceId, AssessmentQuestion assessmentQuestion, User user) {
-		// TODO Auto-generated method stub
-	}
-
 	private Errors validateCollection(final Collection collection) {
 		final Errors errors = new BindException(collection, COLLECTION);
 		if (collection != null) {
@@ -347,6 +336,19 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 			}
 		}
 		return errors;
+	}
+	
+
+	@Override
+	public ActionResponseDTO<AssessmentQuestion> createQuestion(String collectionId, AssessmentQuestion assessmentQuestion, User user) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void updateQuestion(String collectionId, String resourceId, AssessmentQuestion assessmentQuestion, User user) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	private Errors validateResource(final Resource resource) {
@@ -372,4 +374,5 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	public CollectionRepository getCollectionRepository() {
 		return collectionRepository;
 	}
+
 }
