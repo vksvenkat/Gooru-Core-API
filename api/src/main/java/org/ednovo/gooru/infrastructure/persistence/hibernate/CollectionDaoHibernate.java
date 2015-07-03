@@ -38,7 +38,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	private static final String GET_COLLECTION_SEQUENCE = "FROM CollectionItem ci where ci.collection.gooruOid=:gooruOid and ci.itemSequence between :parameterOne and :parameterTwo order by ci.itemSequence";
 
 	private static final String GET_COLLECTIONITEM_BY_GOORUOID = "FROM CollectionItem where content.gooruOid=:gooruOid and collection.gooruOid=:parentGooruOid";
-
+	
 	@Override
 	public Collection getCollection(String collectionId) {
 		Query query = getSession().createQuery(GET_COLLECTION);
@@ -167,7 +167,6 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 		Query query = getSession().createQuery(GET_COLLECTIONITEM_BY_GOORUOID);
 		query.setParameter(GOORU_OID, gooruOid);
 		query.setParameter(PARENT_GOORU_OID, parentGooruOid);
-		return (CollectionItem) query.list().get(0);
+		return (query.list().size() > 0) ? (CollectionItem) query.list().get(0) : null;
 	}
-
 }
