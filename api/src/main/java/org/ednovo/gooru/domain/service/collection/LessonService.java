@@ -10,13 +10,12 @@ import org.ednovo.gooru.core.api.model.User;
 public interface LessonService extends AbstractCollectionService {
 	ActionResponseDTO<Collection> createLesson(String courseId, String unitId, Collection collection, User user);
 
-	public void updateLesson(String courseUId, String lessonId, Collection newCollection, User user);
+	public void updateLesson(String courseId, String lessonId, Collection newCollection, User user);
 
 	Map<String, Object> getLesson(String lessonId);
 
 	List<Map<String, Object>> getLessons(String unitId, int limit, int offset);
 	
-	void deleteLesson(String courseUId, String unitUId, String lessonUId,
-			User user);
+	void deleteLesson(String courseId, String unitId, String lessonId, User user);
 
 }
