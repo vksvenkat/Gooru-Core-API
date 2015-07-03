@@ -13,8 +13,10 @@ import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.exception.BadRequestException;
+import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentClassificationRepository;
+import org.ednovo.gooru.security.OperationAuthorizer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 public class LessonServiceImpl extends AbstractCollectionServiceImpl implements LessonService {
 
 	private static final String[] LESSON_TYPE = { "lesson" };
+
+	@Autowired
+	private OperationAuthorizer operationAuthorizer;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -69,16 +74,22 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 	
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void deleteLesson(String courseUId, String unitUId, String lessonUId) {
+	public void deleteLesson(String courseUId, String unitUId, String lessonUId, User user) {
 		Collection course = getCollectionDao().getCollectionByType(courseUId, COURSE);
 		rejectIfNull(course, GL0056, COURSE);
-		Collection unit = getCollectionDao().getCollectionByType(unitUId, UNIT);
-		rejectIfNull(unit, GL0056, UNIT);
-		Collection lesson = getCollectionDao().getCollectionByType(lessonUId, LESSON);
-		rejectIfNull(lesson, GL0056, LESSON);
-		this.deleteCheck(lesson.getContentId(), LESSON);
-		this.deleteCollection(lessonUId);
-		this.updateMetaDataSummary(course.getContentId(), unit.getContentId());
+		if (this.getOperationAuthorizer().hasUnrestrictedContentAccess(courseUId, user)) {
+			Collection unit = getCollectionDao().getCollectionByType(unitUId, UNIT);
+			rejectIfNull(unit, GL0056, UNIT);
+			Collection lesson = getCollectionDao().getCollectionByType(lessonUId, LESSON);
+			rejectIfNull(lesson, GL0056, LESSON);
+			this.deleteCheck(lesson.getContentId(), LESSON);
+			this.resetSequence(unitUId, lesson.getGooruOid());
+			this.deleteCollection(lessonUId);
+			this.updateMetaDataSummary(course.getContentId(), unit.getContentId());
+		}
+		else{
+			throw new UnauthorizedException(generateErrorMessage(GL0099, LESSON));
+		}
 	}
 	
 	private void updateMetaDataSummary(Long courseId, Long unitId) {
@@ -165,5 +176,11 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		}
 		return errors;
 	}
+	
+	
+	public OperationAuthorizer getOperationAuthorizer() {
+		return operationAuthorizer;
+	}
+
 
 }

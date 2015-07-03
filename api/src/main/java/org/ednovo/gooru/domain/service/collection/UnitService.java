@@ -17,5 +17,5 @@ public interface UnitService extends AbstractCollectionService {
 	
 	List<Map<String, Object>> getUnits(String courseId, int limit, int offset);
 	
-	void deleteUnit(String courseId,String unitId);
+	void deleteUnit(String courseId,String unitId, User user);
 }

@@ -75,7 +75,8 @@ public class CollectionRestController extends BaseController implements Constant
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_DELETE })
 	@RequestMapping(value = { RequestMappingUri.LESSON_COLLECTION_ID }, method = RequestMethod.DELETE)
 	public void deleteCollection(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @PathVariable(value = ID) final String collectionId, final HttpServletRequest request, final HttpServletResponse response) {
-		this.getCollectionBoService().deleteCollection(courseUId, unitUId, lessonUId, collectionId);
+		final User user = (User) request.getAttribute(Constants.USER);
+		this.getCollectionBoService().deleteCollection(courseUId, unitUId, lessonUId, collectionId, user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_COPY })

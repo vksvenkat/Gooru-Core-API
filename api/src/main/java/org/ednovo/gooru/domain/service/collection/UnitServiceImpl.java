@@ -17,8 +17,10 @@ import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.DomainRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
+import org.ednovo.gooru.security.OperationAuthorizer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,13 +38,9 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 
 	@Autowired
 	private DomainRepository domainRepository;
-	
-	@Autowired
-	private CollectionRepository collectionRepository;
 
-	public CollectionRepository getCollectionRepository() {
-		return collectionRepository;
-	}
+	@Autowired
+	private OperationAuthorizer operationAuthorizer;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -101,14 +99,20 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void deleteUnit(String courseUId, String unitUId) {
+	public void deleteUnit(String courseUId, String unitUId, User user) {
 		Collection course = getCollectionDao().getCollectionByType(courseUId, COURSE);
 		rejectIfNull(course, GL0056, COURSE);
-		Collection unit = getCollectionDao().getCollectionByType(unitUId, UNIT);
-		rejectIfNull(unit, GL0056, UNIT);
-		this.deleteCheck(unit.getContentId(), UNIT);
-		this.deleteCollection(unitUId);
-		this.updateMetaDataSummary(course.getContentId(), unit.getContentId());
+		if (this.getOperationAuthorizer().hasUnrestrictedContentAccess(courseUId, user)) {
+			Collection unit = getCollectionDao().getCollectionByType(unitUId, UNIT);
+			rejectIfNull(unit, GL0056, UNIT);
+			this.deleteCheck(unit.getContentId(), UNIT);
+			this.resetSequence(courseUId, unit.getGooruOid());
+			this.deleteCollection(unitUId);
+			this.updateMetaDataSummary(course.getContentId(), unit.getContentId());
+		}
+		else{
+			throw new UnauthorizedException(generateErrorMessage(GL0099, UNIT));
+		}
 	}
 	
 	private void updateMetaDataSummary(Long courseId, Long unitId) {
@@ -193,6 +197,10 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 
 	public DomainRepository getDomainRepository() {
 		return domainRepository;
+	}
+
+	public OperationAuthorizer getOperationAuthorizer() {
+		return operationAuthorizer;
 	}
 
 }

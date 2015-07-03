@@ -128,6 +128,18 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	}
 	
+	public void resetSequence(String parentGooruOid, String gooruOid){
+		CollectionItem itemSequence = this.getCollectionDao().getCollectionItem(parentGooruOid, gooruOid);
+		int sequence = itemSequence.getItemSequence();
+		List<CollectionItem> resetCollectionSequence = this.getCollectionDao().getCollectionItems(parentGooruOid, sequence);
+		if(resetCollectionSequence != null){
+			for(CollectionItem collectionItem : resetCollectionSequence){
+				collectionItem.setItemSequence(sequence++);
+			}
+			 this.getCollectionDao().saveAll(resetCollectionSequence);
+		}
+	}
+	
 	public void resetSequence(String parentGooruOid, String gooruOid, Integer newSequence){
 		List<CollectionItem> resetCollectionSequence = null;
 			int displaySequence;
@@ -146,7 +158,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 					if(collectionSequence.getContent().getGooruOid() != gooruOid){
 						collectionSequence.setItemSequence(displaySequence++);
 					}
-					else{
+					else if(collectionSequence.getContent().getGooruOid().equalsIgnoreCase(gooruOid)){
 						collectionSequence.setItemSequence(newSequence);
 					}
 				}

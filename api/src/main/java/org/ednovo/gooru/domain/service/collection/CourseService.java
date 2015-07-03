@@ -18,5 +18,5 @@ public interface CourseService extends AbstractCollectionService {
 	
 	List<Map<String, Object>> getCourses(String gooruUId, int limit, int offset);
 
-	void deleteCourse(String courseUId);
+	void deleteCourse(String courseUId, User user);
 	}

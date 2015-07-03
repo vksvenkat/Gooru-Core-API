@@ -15,7 +15,10 @@ import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.TaxonomyCourseRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
+import org.ednovo.gooru.security.OperationAuthorizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -29,6 +32,9 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 	private static final String[] COURSE_TYPE = { "course" };
 
 	private final static String TAXONOMY_COURSE = "taxonomyCourse";
+
+	@Autowired
+	private OperationAuthorizer operationAuthorizer;
 
 	@Autowired
 	private TaxonomyCourseRepository taxonomyCourseRepository;
@@ -97,11 +103,18 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void deleteCourse(String courseUId) {
+	public void deleteCourse(String courseUId, User user) {
 		Collection course = getCollectionDao().getCollectionByType(courseUId, COURSE);
 		rejectIfNull(course, GL0056, COURSE);
-		this.deleteCheck(course.getContentId(), COURSE);
-		this.deleteCollection(courseUId);
+		if (this.getOperationAuthorizer().hasUnrestrictedContentAccess(courseUId, user)) {
+			this.deleteCheck(course.getContentId(), COURSE);
+			Collection parentCollection = getCollectionDao().getCollection(user.getPartyUid(), CollectionType.SHElf.getCollectionType());
+			this.resetSequence(parentCollection.getGooruOid(), course.getGooruOid());
+			this.deleteCollection(courseUId);
+		}
+		else{
+			throw new UnauthorizedException(generateErrorMessage(GL0099, COURSE));
+		}
 	}
 	
 	private List<Map<String, Object>> getCourses(Map<String, Object> filters, int limit, int offset) {
@@ -160,5 +173,9 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		return taxonomyCourseRepository;
 	}
 
+	
+	public OperationAuthorizer getOperationAuthorizer() {
+		return operationAuthorizer;
+	}
 
 }

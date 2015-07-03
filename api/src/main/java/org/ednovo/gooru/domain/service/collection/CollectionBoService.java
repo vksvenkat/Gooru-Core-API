@@ -18,6 +18,6 @@ public interface CollectionBoService extends AbstractCollectionService {
 
 	List<Map<String, Object>> getCollections(String lessonId, String collectionType, int limit, int offset);
 	
-	void deleteCollection(String courseUId, String unitUId, String lessonUId, String collectionId);
+	void deleteCollection(String courseUId, String unitUId, String lessonUId, String collectionId, User user);
 
 }

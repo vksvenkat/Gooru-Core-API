@@ -18,6 +18,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
@@ -83,17 +84,23 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void deleteCollection(String courseId, String unitId, String lessonId, String collectionId) {
+	public void deleteCollection(String courseId, String unitId, String lessonId, String collectionId, User user) {
 		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE);
 		rejectIfNull(course, GL0056, COURSE);
-		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT);
-		rejectIfNull(unit, GL0056, UNIT);
-		Collection lesson = getCollectionDao().getCollectionByType(lessonId, LESSON);
-		rejectIfNull(lesson, GL0056, LESSON);
-		Collection collection = this.getCollectionDao().getCollection(collectionId);
-		rejectIfNull(lesson, GL0056, COLLECTION);
-		this.deleteCollection(collectionId);
-		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getCollectionType(), DELETE);
+		if (this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user)) {
+			Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT);
+			rejectIfNull(unit, GL0056, UNIT);
+			Collection lesson = getCollectionDao().getCollectionByType(lessonId, LESSON);
+			rejectIfNull(lesson, GL0056, LESSON);
+			Collection collection = this.getCollectionDao().getCollection(collectionId);
+			rejectIfNull(lesson, GL0056, COLLECTION);
+			this.resetSequence(lessonId, collection.getGooruOid());
+			this.deleteCollection(collectionId);
+			this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getCollectionType(), DELETE);
+		}
+		else{
+			throw new UnauthorizedException(generateErrorMessage(GL0099, COLLECTION));
+		}
 	}
 
 	@Override
@@ -229,8 +236,17 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		ContentMeta courseContentMeta = this.getContentRepository().getContentMeta(courseId);
 		ContentMeta lessonContentMeta = this.getContentRepository().getContentMeta(lessonId);
 		if (lessonContentMeta != null) {
-			int assessmentCount = this.getCollectionDao().getCollectionItemCount(lessonId, CollectionType.ASSESSMENT.getCollectionType());
-			int collectionCount = this.getCollectionDao().getCollectionItemCount(lessonId, CollectionType.COLLECTION.getCollectionType());
+				int assessmentCount = this.getCollectionDao().getCollectionItemCount(lessonId, CollectionType.ASSESSMENT.getCollectionType());
+				int collectionCount = this.getCollectionDao().getCollectionItemCount(lessonId, CollectionType.COLLECTION.getCollectionType());
+			if(action.equalsIgnoreCase(DELETE)){
+				if(collectionType.equalsIgnoreCase(COLLECTION)){
+					collectionCount -= 1;
+				}
+				if(collectionType.equalsIgnoreCase(ASSESSMENT)){
+					assessmentCount -= 1;
+				}
+				
+			}
 			Map<String, Object> metaData = JsonDeserializer.deserialize(lessonContentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
 			});
 			Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
@@ -239,14 +255,12 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 			metaData.put(SUMMARY, summary);
 			updateContentMeta(lessonContentMeta, metaData);
 		}
-
 		if (unitContentMeta != null) {
 			updateSummaryMeta(collectionType, unitContentMeta, action);
 		}
 		if (courseContentMeta != null) {
 			updateSummaryMeta(collectionType, courseContentMeta, action);
 		}
-
 	}
 
 	@SuppressWarnings("unchecked")

@@ -16,6 +16,7 @@ public interface LessonService extends AbstractCollectionService {
 
 	List<Map<String, Object>> getLessons(String unitId, int limit, int offset);
 	
-	void deleteLesson(String courseUId,String unitUId,String lessonUId);
+	void deleteLesson(String courseUId, String unitUId, String lessonUId,
+			User user);
 
 }
