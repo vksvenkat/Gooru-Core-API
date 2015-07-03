@@ -287,9 +287,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
 		int assessmentCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue();
 		int collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue();
-		if( assessmentCount>0 ||  collectionCount>0){
-			throw new BadRequestException(generateErrorMessage(GL0110, collectionType), GL0110);
-		}
+		reject((assessmentCount == 0 && collectionCount == 0), GL0110, 400, collectionType);
 	}
 
 	public List<Map<String, Object>> updateContentCode(Content content, List<Integer> codeIds, Short typeId) {

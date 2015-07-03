@@ -82,7 +82,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	public void deleteCollection(String courseId, String unitId, String lessonId, String collectionId, User user) {
 		Collection collection = this.getCollectionDao().getCollection(collectionId);
 		rejectIfNull(collection, GL0056, COLLECTION);
-		reject(!this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user), GL0099, 403, COLLECTION);
+		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user), GL0099, 403, COLLECTION);
 		Collection lesson = getCollectionDao().getCollectionByType(lessonId, LESSON);
 		rejectIfNull(lesson, GL0056, LESSON);
 		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE);
