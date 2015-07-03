@@ -16,7 +16,7 @@ public interface CollectionBoService extends AbstractCollectionService {
 
 	void updateCollection(String collectionId, Collection newCollection, User user);
 
-	void updateCollectionItem(String collectionItemId, String collectionId, CollectionItem newCollectionItem, User user);
+	void updateCollectionItem(String collectionId, String collectionItemId, CollectionItem newCollectionItem, User user);
 
 	Map<String, Object> getCollection(String collectionId, String collectionType);
 

@@ -146,7 +146,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void updateCollectionItem(final String collectionItemId, String collectionId, CollectionItem newCollectionItem, User user) {
+	public void updateCollectionItem(String collectionId, final String collectionItemId, CollectionItem newCollectionItem, User user) {
 		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, _COLLECTION_ITEM);
 		if (newCollectionItem.getNarration() != null) {
