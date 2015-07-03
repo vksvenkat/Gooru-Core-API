@@ -152,6 +152,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		List<CollectionItem> resetCollectionSequence = null;
 			int displaySequence;
 			CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(parentGooruOid, gooruOid);
+		if(collectionItem != null){
 			int oldSequence = collectionItem.getItemSequence();
 			if(newSequence > oldSequence){
 				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(),oldSequence, newSequence);
@@ -168,12 +169,12 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 					}
 					else if(collectionSequence.getContent().getGooruOid().equalsIgnoreCase(gooruOid)){
 						collectionSequence.setItemSequence(newSequence);
+						}
 					}
-				}
-				this.getCollectionDao().saveAll(resetCollectionSequence);
+					this.getCollectionDao().saveAll(resetCollectionSequence);
 			}
+		}
 	}
-
 	@Override
 	public List<Map<String, Object>> getCollections(Map<String, Object> filters, int limit, int offset) {
 		return getCollectionDao().getCollections(filters, limit, offset);
