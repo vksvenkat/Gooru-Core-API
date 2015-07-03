@@ -139,13 +139,6 @@ public class ResourceBoServiceImpl extends AbstractResourceServiceImpl implement
 		if (newResource.getDescription() != null) {
 			resource.setDescription(newResource.getDescription());
 		}
-		if (newResource.getCategory() != null) {
-			resource.setCategory(newResource.getCategory().toLowerCase());
-		}
-		if (newResource.getInstructional() != null) {
-			final CustomTableValue resourceCategory = this.getCustomTableRepository().getCustomTableValue(RESOURCE_INSTRUCTIONAL_USE, newResource.getInstructional().getValue());
-			resource.setInstructional(resourceCategory);
-		}
 		if (newResource.getResourceFormat() != null) {
 			final CustomTableValue resourcetype = this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, newResource.getResourceFormat().getValue());
 			resource.setResourceFormat(resourcetype);

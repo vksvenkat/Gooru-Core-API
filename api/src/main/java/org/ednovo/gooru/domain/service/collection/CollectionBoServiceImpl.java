@@ -48,7 +48,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 
 	@Autowired
 	private ResourceBoService resourceBoService;
-	
+
 	@Autowired
 	private CollectionRepository collectionRepository;
 
@@ -143,10 +143,10 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 			updateContentMeta(contentMeta, data);
 		}
 	}
-	
+
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void updateCollectionItem(final String collectionItemId,String collectionId,CollectionItem newCollectionItem, User user) {
+	public void updateCollectionItem(final String collectionItemId, String collectionId, CollectionItem newCollectionItem, User user) {
 		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, _COLLECTION_ITEM);
 		if (newCollectionItem.getNarration() != null) {
@@ -157,54 +157,46 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		}
 		if (newCollectionItem.getStop() != null) {
 			collectionItem.setStop(newCollectionItem.getStop());
-        }
-		if (newCollectionItem.getPosition() != null){
-			this.resetSequence(collectionId, collectionItem.getContent().getGooruOid(),newCollectionItem.getPosition());
 		}
-	    this.getCollectionRepository().save(collectionItem);
-    }
-	
-	private Collection createCollection(User user, Collection collection, Collection parentCollection) {
-		createCollection(collection, parentCollection, user);
-		if (collection.getSharing() != null && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && collection.getSharing().equalsIgnoreCase(PUBLIC)) {
-			collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
+		if (newCollectionItem.getPosition() != null) {
+			this.resetSequence(collectionId, collectionItem.getContent().getGooruOid(), newCollectionItem.getPosition());
 		}
-		if (collection.getSharing() != null && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && collection.getSharing().equalsIgnoreCase(PUBLIC)) {
-			collection.setPublishStatusId(Constants.PUBLISH_PENDING_STATUS_ID);
-			collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
-		}
-		createCollectionSettings(collection);
-		if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())) {
-			getIndexHandler().setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
-		}
-		return collection;
+		this.getCollectionRepository().save(collectionItem);
 	}
 
-	private void createCollectionSettings(Collection collection) {
-		final ContentSettings contentSetting = new ContentSettings();
-		if (collection.getSettings() == null || collection.getSettings().size() == 0) {
-			collection.setSettings(Constants.COLLECTION_DEFAULT_SETTINGS);
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public ActionResponseDTO<CollectionItem> createResource(String collectionId, CollectionItem collectionItem, User user) {
+		Resource resource = collectionItem.getResource();
+		final Errors errors = validateResource(resource);
+		if (!errors.hasErrors()) {
+			Collection collection = getCollectionDao().getCollectionByType(collectionId, COLLECTION);
+			rejectIfNull(collection, GL0056, 404, COLLECTION);
+			resource = getResourceBoService().createResource(resource, user);
+			collectionItem.setItemType(ADDED);
+			collectionItem = createCollectionItem(collectionItem, collection, resource, user);
+			updateCollectionMetaDataSummary(collection.getContentId(), RESOURCE);
 		}
-		contentSetting.setContent(collection);
-		contentSetting.setData(new JSONSerializer().exclude(EXCLUDE).serialize(collection.getSettings()));
-		getCollectionDao().save(contentSetting);
+		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
-	private void updateCollectionSettings(Collection collection, Collection newCollection) {
-		ContentSettings contentSettings = null;
-		final Map<String, String> settings = new HashMap<String, String>();
-		if (collection.getContentSettings() != null && collection.getContentSettings().size() > 0) {
-			contentSettings = collection.getContentSettings().iterator().next();
-			final Map<String, String> contentSettingsMap = JsonDeserializer.deserialize(contentSettings.getData(), new TypeReference<Map<String, String>>() {
-			});
-			settings.putAll(contentSettingsMap);
-		}
-		settings.putAll(newCollection.getSettings());
-		newCollection.setSettings(settings);
-		ContentSettings contentSetting = contentSettings == null ? new ContentSettings() : contentSettings;
-		contentSetting.setContent(collection);
-		contentSetting.setData(new JSONSerializer().exclude(EXCLUDE).serialize(newCollection.getSettings()));
-		this.getCollectionDao().save(contentSetting);
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void updateResource(String collectionId, String collectionResourceItemId, CollectionItem newCollectionItem, User user) {
+		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionResourceItemId);
+		rejectIfNull(collectionItem, GL0056, 404, RESOURCE);
+		this.getResourceBoService().updateResource(collectionItem.getContent().getGooruOid(), newCollectionItem.getResource(), user);
+	}
+
+	@Override
+	public ActionResponseDTO<CollectionItem> createQuestion(String collectionId, CollectionItem collectionItem, User user) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void updateQuestion(String lessonId, String resourceId, AssessmentQuestion assessmentQuestion, User user) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -220,7 +212,35 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		String[] collectionTypes = collectionType.split(",");
 		filters.put(COLLECTION_TYPE, collectionTypes);
 		filters.put(PARENT_GOORU_OID, lessonId);
-		return this.getCollections(filters, limit, offset);
+		List<Map<String, Object>> results = this.getCollections(filters, limit, offset);
+		List<Map<String, Object>> collections = new ArrayList<Map<String, Object>>();
+		for (Map<String, Object> collection : results) {
+			collections.add(mergeMetaData(collection));
+		}
+		return collections;
+	}
+
+	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public List<Map<String, Object>> getCollectionItems(String collectionId, int limit, int offset) {
+		Map<String, Object> filters = new HashMap<String, Object>();
+		filters.put(COLLECTION_ID, collectionId);
+		List<Map<String, Object>> collectionItems = this.getCollectionDao().getCollectionItem(filters, limit, offset);
+		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
+		for (Map<String, Object> item : collectionItems) {
+			items.add(mergeCollectionItemMetaData(item));
+		}
+		return items;
+	}
+
+	@Override
+	public Map<String, Object> getCollectionItem(String collectionId, String collectionItemId) {
+		Map<String, Object> filters = new HashMap<String, Object>();
+		filters.put(COLLECTION_ID, collectionId);
+		filters.put(COLLECTION_ITEM_ID, collectionItemId);
+		List<Map<String, Object>> collectionItems = this.getCollectionDao().getCollectionItem(filters, 1, 0);
+		rejectIfNull(((collectionItems == null || collectionItems.size() == 0) ? null : collectionItems.get(0)), GL0056, _COLLECTION_ITEM);
+		return mergeCollectionItemMetaData(collectionItems.get(0));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -283,15 +303,21 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		return data;
 	}
 
-	@Override
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public List<Map<String, Object>> getCollectionItem(String collectionId, int limit, int offset) {
-		List<Map<String, Object>> collectionItems = this.getCollectionDao().getCollectionItem(collectionId, null, limit, offset);
-		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
-		for (Map<String, Object> item : collectionItems) {
-			items.add(mergeCollectionItemMetaData(item));
+	private void updateCollectionSettings(Collection collection, Collection newCollection) {
+		ContentSettings contentSettings = null;
+		final Map<String, String> settings = new HashMap<String, String>();
+		if (collection.getContentSettings() != null && collection.getContentSettings().size() > 0) {
+			contentSettings = collection.getContentSettings().iterator().next();
+			final Map<String, String> contentSettingsMap = JsonDeserializer.deserialize(contentSettings.getData(), new TypeReference<Map<String, String>>() {
+			});
+			settings.putAll(contentSettingsMap);
 		}
-		return items;
+		settings.putAll(newCollection.getSettings());
+		newCollection.setSettings(settings);
+		ContentSettings contentSetting = contentSettings == null ? new ContentSettings() : contentSettings;
+		contentSetting.setContent(collection);
+		contentSetting.setData(new JSONSerializer().exclude(EXCLUDE).serialize(newCollection.getSettings()));
+		this.getCollectionDao().save(contentSetting);
 	}
 
 	private Map<String, Object> mergeCollectionItemMetaData(Map<String, Object> content) {
@@ -301,29 +327,76 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 			});
 			content.putAll(metaData);
 		}
+		Map<String, Object> resourceFormat = new HashMap<String, Object>();
+		resourceFormat.put(VALUE, content.get(VALUE));
+		resourceFormat.put(DISPLAY_NAME, content.get(DISPLAY_NAME));
+		content.put(RESOURCEFORMAT, resourceFormat);
+		Object ratingAverage = content.get(AVERAGE);
+		if (ratingAverage != null) {
+			Map<String, Object> rating = new HashMap<String, Object>();
+			rating.put(AVERAGE, content.get(AVERAGE));
+			rating.put(COUNT, content.get(COUNT));
+			content.put(RATING, rating);
+		}
+		content.remove(VALUE);
+		content.remove(DISPLAY_NAME);
+		content.remove(AVERAGE);
+		content.remove(COUNT);
 		return content;
 	}
 
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ActionResponseDTO<Resource> createResource(String collectionId, Resource resource, User user) {
-		final Errors errors = validateResource(resource);
-		if (!errors.hasErrors()) {
-			Collection collection = getCollectionDao().getCollectionByType(collectionId, COLLECTION);
-			rejectIfNull(collection, GL0056, COLLECTION);
-			getResourceBoService().createResource(resource, user);
-			CollectionItem collectionItem = new CollectionItem();
-			collectionItem.setItemType(ADDED);
-			createCollectionItem(collectionItem, collection, resource, user);
+	private Collection createCollection(User user, Collection collection, Collection parentCollection) {
+		createCollection(collection, parentCollection, user);
+		if (collection.getSharing() != null && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && collection.getSharing().equalsIgnoreCase(PUBLIC)) {
+			collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
 		}
-		return new ActionResponseDTO<Resource>(resource, errors);
+		if (collection.getSharing() != null && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && collection.getSharing().equalsIgnoreCase(PUBLIC)) {
+			collection.setPublishStatusId(Constants.PUBLISH_PENDING_STATUS_ID);
+			collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
+		}
+		createCollectionSettings(collection);
+		if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())) {
+			getIndexHandler().setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
+		}
+		return collection;
 	}
 
-	@Override
-	public void updateResource(String collectionId, String resourceId, Resource newResource, User user) {
-		Collection collection = getCollectionDao().getCollectionByType(collectionId, COLLECTION);
-		rejectIfNull(collection, GL0056, COLLECTION);
-		getResourceBoService().updateResource(resourceId, newResource, user);
+	private void createCollectionSettings(Collection collection) {
+		final ContentSettings contentSetting = new ContentSettings();
+		if (collection.getSettings() == null || collection.getSettings().size() == 0) {
+			collection.setSettings(Constants.COLLECTION_DEFAULT_SETTINGS);
+		}
+		contentSetting.setContent(collection);
+		contentSetting.setData(new JSONSerializer().exclude(EXCLUDE).serialize(collection.getSettings()));
+		getCollectionDao().save(contentSetting);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void updateCollectionMetaDataSummary(Long collectionId, String type) {
+		ContentMeta lessonContentMeta = this.getContentRepository().getContentMeta(collectionId);
+		if (lessonContentMeta != null) {
+			Map<String, Object> metaData = JsonDeserializer.deserialize(lessonContentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
+			});
+			Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
+			if (type.equalsIgnoreCase(RESOURCE)) {
+				int resourceCount = ((Number) summary.get(MetaConstants.RESOURCE_COUNT)).intValue() + 1;
+				summary.put(MetaConstants.RESOURCE_COUNT, resourceCount);
+			}
+			if (type.equalsIgnoreCase(QUESTION)) {
+				int questionCount = ((Number) summary.get(MetaConstants.QUESTION_COUNT)).intValue() + 1;
+				summary.put(MetaConstants.QUESTION_COUNT, questionCount);
+			}
+			metaData.put(SUMMARY, summary);
+			updateContentMeta(lessonContentMeta, metaData);
+		}
+	}
+
+	private Errors validateResource(final Resource resource) {
+		final Errors errors = new BindException(resource, RESOURCE);
+		if (resource != null) {
+			rejectIfNullOrEmpty(errors, resource.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
+		}
+		return errors;
 	}
 
 	private Errors validateCollection(final Collection collection) {
@@ -334,27 +407,6 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 			if (collection.getPublishStatusId() != null) {
 				rejectIfInvalidType(errors, collection.getPublishStatusId(), PUBLISH_STATUS, GL0007, generateErrorMessage(GL0007, PUBLISH_STATUS), Constants.PUBLISH_STATUS);
 			}
-		}
-		return errors;
-	}
-	
-
-	@Override
-	public ActionResponseDTO<AssessmentQuestion> createQuestion(String collectionId, AssessmentQuestion assessmentQuestion, User user) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void updateQuestion(String collectionId, String resourceId, AssessmentQuestion assessmentQuestion, User user) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private Errors validateResource(final Resource resource) {
-		final Errors errors = new BindException(resource, RESOURCE);
-		if (resource != null) {
-			rejectIfNullOrEmpty(errors, resource.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 		}
 		return errors;
 	}
@@ -370,7 +422,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	public ResourceBoService getResourceBoService() {
 		return resourceBoService;
 	}
-	
+
 	public CollectionRepository getCollectionRepository() {
 		return collectionRepository;
 	}

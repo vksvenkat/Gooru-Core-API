@@ -25,7 +25,9 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Map;
 
+import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 
 /**
@@ -68,6 +70,16 @@ public class BaseRepositoryHibernate extends AbstractRepositoryHibernate impleme
 		return query; 
 	}
 	
+	protected void  setQueryParamter(Map<String, Object> filters, Query query) { 
+		for (Map.Entry<String, Object> data : filters.entrySet()) {
+			if (data.getValue() instanceof String[]) {
+				query.setParameterList(data.getKey(), (String[]) data.getValue());
+			} else {
+				query.setParameter(data.getKey(), data.getValue());
+			}
+		}
+	}
+	
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
 	}
@@ -75,5 +87,6 @@ public class BaseRepositoryHibernate extends AbstractRepositoryHibernate impleme
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+	
 	
 }
