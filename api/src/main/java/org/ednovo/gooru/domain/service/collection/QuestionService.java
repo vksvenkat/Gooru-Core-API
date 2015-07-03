@@ -5,7 +5,11 @@ import org.ednovo.gooru.core.api.model.User;
 
 public interface QuestionService extends AbstractResourceService {
 
-	AssessmentQuestion createQuestion(AssessmentQuestion question, User user);
+	AssessmentQuestion createQuestion(String data, User user);
 
-	void updateQuestion(String questionId, AssessmentQuestion assessmentQuestion, User user);
+	void updateQuestion(String questionId, String data, User user);
+
+	AssessmentQuestion getQuestion(String questionId);
+
+	AssessmentQuestion copyQuestion(String questionId, User user);
 }

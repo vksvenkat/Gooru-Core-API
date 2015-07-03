@@ -72,6 +72,7 @@ public class ResourceBoServiceImpl extends AbstractResourceServiceImpl implement
 				} else if (newResource.getUrl() != null && newResource.getUrl().contains("vimeo.com")) {
 					final String id = StringUtils.substringAfterLast(newResource.getUrl(), "/");
 					if (StringUtils.isNumeric(id)) {
+						resource.setHasFrameBreaker(true);
 						final ResourceMetadataCo resourceMetadataCo = ResourceImageUtil.getMetaDataFromVimeoVideo(newResource.getUrl());
 						resourceTypeDo.setName(ResourceType.Type.VIMEO_VIDEO.getType());
 						newResource.setThumbnail(resourceMetadataCo != null ? resourceMetadataCo.getThumbnail() : null);
@@ -180,6 +181,11 @@ public class ResourceBoServiceImpl extends AbstractResourceServiceImpl implement
 		}
 		this.getResourceRepository().save(resource);
 
+	}
+
+	@Override
+	public Resource getResource(String resourceId) {
+		return this.getResourceRepository().findResourceByContentGooruId(resourceId);
 	}
 
 }
