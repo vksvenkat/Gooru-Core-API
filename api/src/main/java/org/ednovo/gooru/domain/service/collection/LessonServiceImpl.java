@@ -12,9 +12,7 @@ import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentClassificationRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,9 +25,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 public class LessonServiceImpl extends AbstractCollectionServiceImpl implements LessonService {
 
 	private static final String[] LESSON_TYPE = { "lesson" };
-
-	@Autowired
-	private ContentClassificationRepository contentClassificationRepository;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -66,7 +61,47 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 			updateContentMeta(contentMeta, data);
 		}
 	}
-
+	
+	
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void deleteLesson(String courseUId, String unitUId, String lessonUId, User user) {
+		Collection lesson = getCollectionDao().getCollectionByType(lessonUId, LESSON);
+		rejectIfNull(lesson, GL0056, LESSON);
+		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(lessonUId, user), GL0099, 403, LESSON);
+		Collection course = getCollectionDao().getCollectionByType(courseUId, COURSE);
+		rejectIfNull(course, GL0056, COURSE);
+		Collection unit = getCollectionDao().getCollectionByType(unitUId, UNIT);
+		rejectIfNull(unit, GL0056, UNIT);
+		this.deleteValidation(lesson.getContentId(), LESSON);
+		this.resetSequence(unitUId, lesson.getGooruOid());
+		this.deleteCollection(lessonUId);
+		this.updateMetaDataSummary(course.getContentId(), unit.getContentId());
+	}
+	
+	private void updateMetaDataSummary(Long courseId, Long unitId) {
+		ContentMeta unitContentMeta = this.getContentRepository().getContentMeta(unitId);
+		ContentMeta courseContentMeta = this.getContentRepository().getContentMeta(courseId);
+		if (unitContentMeta != null) {
+			updateSummaryMeta(unitContentMeta);
+		}
+		if (courseContentMeta != null) {
+			updateSummaryMeta(courseContentMeta);
+		}
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void updateSummaryMeta(ContentMeta contentMeta) {
+		Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
+		});
+		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
+		int lessonCount =  ((Number) summary.get(MetaConstants.LESSON_COUNT)).intValue() -1;
+		summary.put(MetaConstants.LESSON_COUNT, lessonCount);
+		metaData.put(SUMMARY, summary);
+		updateContentMeta(contentMeta, metaData);
+	}
+	
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getLesson(String lessonId) {
@@ -127,10 +162,6 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 			rejectIfNullOrEmpty(errors, collection.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 		}
 		return errors;
-	}
-
-	public ContentClassificationRepository getContentClassificationRepository() {
-		return contentClassificationRepository;
 	}
 
 }

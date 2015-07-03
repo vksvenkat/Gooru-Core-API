@@ -59,6 +59,7 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateCourse(String courseId, Collection newCollection, User user) {
 		Collection collection = this.getCollectionDao().getCollection(courseId);
+		Collection parentCollection = getCollectionDao().getCollection(user.getPartyUid(), CollectionType.SHElf.getCollectionType());
 		rejectIfNull(collection, GL0056, COURSE);
 		Map<String, Object> data = generateCourseMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {
@@ -67,7 +68,7 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		}
 		this.updateCollection(collection, newCollection, user);
 		if(newCollection.getPosition() != null){
-			this.resetSequence(courseId, collection.getGooruOid() , newCollection.getPosition());
+			this.resetSequence(parentCollection.getGooruOid(), collection.getGooruOid() , newCollection.getPosition());
 		}
 	}
 
@@ -95,6 +96,18 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		return getCourses(filters, limit, offset);
 	}
 
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void deleteCourse(String courseUId, User user) {
+		Collection course = getCollectionDao().getCollectionByType(courseUId, COURSE);
+		rejectIfNull(course, GL0056, COURSE);
+		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(courseUId, user), GL0099, 403, COURSE);
+		this.deleteValidation(course.getContentId(), COURSE);
+		Collection parentCollection = getCollectionDao().getCollection(user.getPartyUid(), CollectionType.SHElf.getCollectionType());
+		this.resetSequence(parentCollection.getGooruOid(), course.getGooruOid());
+		this.deleteCollection(courseUId);
+	}
+	
 	private List<Map<String, Object>> getCourses(Map<String, Object> filters, int limit, int offset) {
 		List<Map<String, Object>> results = this.getCollections(filters, limit, offset);
 		List<Map<String, Object>> courses = new ArrayList<Map<String, Object>>();
@@ -150,4 +163,5 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 	public TaxonomyCourseRepository getTaxonomyCourseRepository() {
 		return taxonomyCourseRepository;
 	}
+
 }

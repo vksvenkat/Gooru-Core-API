@@ -16,6 +16,7 @@ import org.ednovo.gooru.core.api.model.ContentClassification;
 import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
+import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -134,10 +135,23 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	}
 	
+	public void resetSequence(String parentGooruOid, String gooruOid){
+		CollectionItem itemSequence = this.getCollectionDao().getCollectionItem(parentGooruOid, gooruOid);
+		int sequence = itemSequence.getItemSequence();
+		List<CollectionItem> resetCollectionSequence = this.getCollectionDao().getCollectionItems(parentGooruOid, sequence);
+		if(resetCollectionSequence != null){
+			for(CollectionItem collectionItem : resetCollectionSequence){
+				collectionItem.setItemSequence(sequence++);
+			}
+			 this.getCollectionDao().saveAll(resetCollectionSequence);
+		}
+	}
+	
 	public void resetSequence(String parentGooruOid, String gooruOid, Integer newSequence){
 		List<CollectionItem> resetCollectionSequence = null;
 			int displaySequence;
 			CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(parentGooruOid, gooruOid);
+		if(collectionItem != null){
 			int oldSequence = collectionItem.getItemSequence();
 			if(newSequence > oldSequence){
 				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(),oldSequence, newSequence);
@@ -152,14 +166,14 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 					if(collectionSequence.getContent().getGooruOid() != gooruOid){
 						collectionSequence.setItemSequence(displaySequence++);
 					}
-					else{
+					else if(collectionSequence.getContent().getGooruOid().equalsIgnoreCase(gooruOid)){
 						collectionSequence.setItemSequence(newSequence);
+						}
 					}
-				}
-				this.getCollectionDao().saveAll(resetCollectionSequence);
+					this.getCollectionDao().saveAll(resetCollectionSequence);
 			}
+		}
 	}
-
 	@Override
 	public List<Map<String, Object>> getCollections(Map<String, Object> filters, int limit, int offset) {
 		return getCollectionDao().getCollections(filters, limit, offset);
@@ -263,6 +277,16 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 			}
 		}
 		return metaValues;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void deleteValidation(Long contentId, String collectionType){
+		ContentMeta contentMeta = this.getContentRepository().getContentMeta(contentId);
+		Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {});
+		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
+		int assessmentCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue();
+		int collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue();
+		reject((assessmentCount == 0 && collectionCount == 0), GL0110, 400, collectionType);
 	}
 
 	public List<Map<String, Object>> updateContentCode(Content content, List<Integer> codeIds, Short typeId) {

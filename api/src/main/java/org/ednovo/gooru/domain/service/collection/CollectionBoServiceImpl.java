@@ -49,6 +49,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	@Autowired
 	private ResourceBoService resourceBoService;
 
+	
 	@Autowired
 	private CollectionRepository collectionRepository;
 
@@ -78,6 +79,23 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
+	
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void deleteCollection(String courseId, String unitId, String lessonId, String collectionId, User user) {
+		Collection collection = this.getCollectionDao().getCollection(collectionId);
+		rejectIfNull(collection, GL0056, COLLECTION);
+		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user), GL0099, 403, COLLECTION);
+		Collection lesson = getCollectionDao().getCollectionByType(lessonId, LESSON);
+		rejectIfNull(lesson, GL0056, LESSON);
+		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE);
+		rejectIfNull(course, GL0056, COURSE);
+		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT);
+		rejectIfNull(unit, GL0056, UNIT);
+		this.resetSequence(lessonId, collection.getGooruOid());
+		this.deleteCollection(collectionId);
+		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getCollectionType(), DELETE);
+	}
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -94,7 +112,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 			Map<String, Object> data = generateCollectionMetaData(collection, collection, user);
 			data.put(SUMMARY, MetaConstants.COLLECTION_SUMMARY);
 			createContentMeta(collection, data);
-			updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getCollectionType());
+			updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getCollectionType(), ADD);
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
@@ -285,13 +303,22 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	}
 
 	@SuppressWarnings("unchecked")
-	private void updateMetaDataSummary(Long courseId, Long unitId, Long lessonId, String collectionType) {
+	private void updateMetaDataSummary(Long courseId, Long unitId, Long lessonId, String collectionType, String action) {
 		ContentMeta unitContentMeta = this.getContentRepository().getContentMeta(unitId);
 		ContentMeta courseContentMeta = this.getContentRepository().getContentMeta(courseId);
 		ContentMeta lessonContentMeta = this.getContentRepository().getContentMeta(lessonId);
 		if (lessonContentMeta != null) {
-			int assessmentCount = this.getCollectionDao().getCollectionItemCount(lessonId, CollectionType.ASSESSMENT.getCollectionType());
-			int collectionCount = this.getCollectionDao().getCollectionItemCount(lessonId, CollectionType.COLLECTION.getCollectionType());
+				int assessmentCount = this.getCollectionDao().getCollectionItemCount(lessonId, CollectionType.ASSESSMENT.getCollectionType());
+				int collectionCount = this.getCollectionDao().getCollectionItemCount(lessonId, CollectionType.COLLECTION.getCollectionType());
+			if(action.equalsIgnoreCase(DELETE)){
+				if(collectionType.equalsIgnoreCase(COLLECTION)){
+					collectionCount -= 1;
+				}
+				if(collectionType.equalsIgnoreCase(ASSESSMENT)){
+					assessmentCount -= 1;
+				}
+				
+			}
 			Map<String, Object> metaData = JsonDeserializer.deserialize(lessonContentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
 			});
 			Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
@@ -300,27 +327,35 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 			metaData.put(SUMMARY, summary);
 			updateContentMeta(lessonContentMeta, metaData);
 		}
-
 		if (unitContentMeta != null) {
-			updateSummaryMeta(collectionType, unitContentMeta);
+			updateSummaryMeta(collectionType, unitContentMeta, action);
 		}
 		if (courseContentMeta != null) {
-			updateSummaryMeta(collectionType, courseContentMeta);
+			updateSummaryMeta(collectionType, courseContentMeta, action);
 		}
-
 	}
 
 	@SuppressWarnings("unchecked")
-	private void updateSummaryMeta(String collectionType, ContentMeta contentMeta) {
+	private void updateSummaryMeta(String collectionType, ContentMeta contentMeta, String action) {
 		Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
 		});
 		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
 		if (collectionType.equalsIgnoreCase(CollectionType.ASSESSMENT.getCollectionType())) {
-			int assessmentCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue() + 1;
+			int assessmentCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue();
+			if(action.equalsIgnoreCase(DELETE)){
+				assessmentCount -= 1;
+			}else if(action.equalsIgnoreCase(ADD)){
+				assessmentCount += 1;
+			}
 			summary.put(MetaConstants.ASSESSMENT_COUNT, assessmentCount);
 		}
 		if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
-			int collectionCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue() + 1;
+			int collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue();
+			if(action.equalsIgnoreCase(DELETE)){
+				collectionCount -= 1;
+			}else if(action.equalsIgnoreCase(ADD)){
+				collectionCount += 1;
+			}
 			summary.put(MetaConstants.COLLECTION_COUNT, collectionCount);
 		}
 		metaData.put(SUMMARY, summary);

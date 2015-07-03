@@ -73,7 +73,7 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 		Domain domain = this.getDomainRepository().getDomain(domainId);
 		rejectIfNull(domain, GL0006, 404, DOMAIN_);
 		if (newDomain.getActiveFlag() != null) {
-			reject((newDomain.getActiveFlag() == 0 || newDomain.getActiveFlag() == 1), GL0007, ACTIVE_FLAG);
+			reject((newDomain.getActiveFlag() == 0 || newDomain.getActiveFlag() == 1), GL0007, 400, ACTIVE_FLAG);
 			domain.setActiveFlag(newDomain.getActiveFlag());
 		}
 		if (newDomain.getName() != null) {
@@ -101,7 +101,7 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 	public Domain getDomain(Integer domainId) {
 		Domain domain = this.getDomainRepository().getDomain(domainId);
 		rejectIfNull(domain, GL0056, 404, DOMAIN_);
-		reject((domain.getActiveFlag() == 1), GL0107, DOMAIN_INCLUDES);
+		reject((domain.getActiveFlag() == 1), GL0107, 400, DOMAIN_INCLUDES);
 		if (domain.getImagePath() != null) {
 			domain.setThumbnails(GooruImageUtil.getThumbnails(domain.getImagePath()));
 		}
