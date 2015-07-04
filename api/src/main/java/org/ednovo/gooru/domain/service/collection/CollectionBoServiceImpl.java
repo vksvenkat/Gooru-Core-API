@@ -164,9 +164,11 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void updateCollectionItem(String collectionId, final String collectionItemId, CollectionItem newCollectionItem, User user) {
+	public void updateCollectionItem(String lessonId, final String collectionItemId, CollectionItem newCollectionItem, User user) {
 		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, _COLLECTION_ITEM);
+		Collection lesson = this.getCollectionDao().getCollection(lessonId);
+		rejectIfNull(lesson, GL0056, LESSON);
 		if (newCollectionItem.getNarration() != null) {
 			collectionItem.setNarration(newCollectionItem.getNarration());
 		}
@@ -177,7 +179,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 			collectionItem.setStop(newCollectionItem.getStop());
 		}
 		if (newCollectionItem.getPosition() != null) {
-			this.resetSequence(collectionId, collectionItem.getContent().getGooruOid(), newCollectionItem.getPosition());
+			this.resetSequence(lesson, collectionItem.getContent().getGooruOid(), newCollectionItem.getPosition());
 		}
 		this.getCollectionRepository().save(collectionItem);
 	}

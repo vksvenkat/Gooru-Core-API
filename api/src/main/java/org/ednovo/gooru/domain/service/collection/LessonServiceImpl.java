@@ -48,12 +48,14 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void updateLesson(String courseId, String lessonId, Collection newCollection, User user) {
+	public void updateLesson(String unitId, String lessonId, Collection newCollection, User user) {
 		Collection collection = this.getCollectionDao().getCollection(lessonId);
 		rejectIfNull(collection, GL0056, LESSON);
+		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT);
+		rejectIfNull(unit, GL0056, UNIT);
 		this.updateCollection(collection, newCollection, user);
 		if(newCollection.getPosition() != null){
-			this.resetSequence(courseId, collection.getGooruOid() , newCollection.getPosition());
+			this.resetSequence(unit, collection.getGooruOid() , newCollection.getPosition());
 		}
 		Map<String, Object> data = generateLessonMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {

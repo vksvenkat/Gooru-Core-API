@@ -88,7 +88,7 @@ public class CollectionRestController extends BaseController implements Constant
 	public void updateCollectionItem(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @PathVariable(value = COLLECTION_ID) final String collectionId,
 			@PathVariable(value = ID) final String collectionItemId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		this.getCollectionBoService().updateCollectionItem(collectionId, collectionItemId, buildCollectionItem(data), user);
+		this.getCollectionBoService().updateCollectionItem(lessonUId, collectionItemId, buildCollectionItem(data), user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
