@@ -8,15 +8,10 @@ import java.util.Map;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionType;
-import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentMeta;
-import org.ednovo.gooru.core.api.model.ContentTaxonomyCourseAssoc;
 import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
-import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.domain.service.TaxonomyCourseRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,10 +23,6 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 
 	private static final String[] COURSE_TYPE = { "course" };
 
-	private final static String TAXONOMY_COURSE = "taxonomyCourse";
-
-	@Autowired
-	private TaxonomyCourseRepository taxonomyCourseRepository;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -67,8 +58,8 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 			updateContentMeta(contentMeta, data);
 		}
 		this.updateCollection(collection, newCollection, user);
-		if(newCollection.getPosition() != null){
-			this.resetSequence(parentCollection.getGooruOid(), collection.getGooruOid() , newCollection.getPosition());
+		if (newCollection.getPosition() != null) {
+			this.resetSequence(parentCollection.getGooruOid(), collection.getGooruOid(), newCollection.getPosition());
 		}
 	}
 
@@ -107,34 +98,12 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		this.resetSequence(parentCollection.getGooruOid(), course.getGooruOid());
 		this.deleteCollection(courseUId);
 	}
-	
+
 	private List<Map<String, Object>> getCourses(Map<String, Object> filters, int limit, int offset) {
 		List<Map<String, Object>> results = this.getCollections(filters, limit, offset);
 		List<Map<String, Object>> courses = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> course : results) {
 			courses.add(mergeMetaData(course));
-		}
-		return courses;
-	}
-
-	private List<Map<String, Object>> updateTaxonomyCourse(Content content, List<Integer> taxonomyCourseIds) {
-		this.getContentRepository().deleteContentTaxonomyCourseAssoc(content.getContentId());
-		List<Map<String, Object>> courses = null;
-		if (taxonomyCourseIds != null && taxonomyCourseIds.size() > 0) {
-			List<TaxonomyCourse> taxonomyCourses = this.getTaxonomyCourseRepository().getTaxonomyCourses(taxonomyCourseIds);
-			courses = new ArrayList<Map<String, Object>>();
-			List<ContentTaxonomyCourseAssoc> contentTaxonomyCourseAssocs = new ArrayList<ContentTaxonomyCourseAssoc>();
-			for (TaxonomyCourse taxonomyCourse : taxonomyCourses) {
-				ContentTaxonomyCourseAssoc contentTaxonomyCourseAssoc = new ContentTaxonomyCourseAssoc();
-				contentTaxonomyCourseAssoc.setContent(content);
-				contentTaxonomyCourseAssoc.setTaxonomyCourse(taxonomyCourse);
-				contentTaxonomyCourseAssocs.add(contentTaxonomyCourseAssoc);
-				Map<String, Object> course = new HashMap<String, Object>();
-				course.put(ID, contentTaxonomyCourseAssoc.getTaxonomyCourse().getCourseId());
-				course.put(NAME, contentTaxonomyCourseAssoc.getTaxonomyCourse().getName());
-				courses.add(course);
-			}
-			this.getContentRepository().saveAll(contentTaxonomyCourseAssocs);
 		}
 		return courses;
 	}
@@ -158,10 +127,6 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 			rejectIfNullOrEmpty(errors, collection.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 		}
 		return errors;
-	}
-
-	public TaxonomyCourseRepository getTaxonomyCourseRepository() {
-		return taxonomyCourseRepository;
 	}
 
 }
