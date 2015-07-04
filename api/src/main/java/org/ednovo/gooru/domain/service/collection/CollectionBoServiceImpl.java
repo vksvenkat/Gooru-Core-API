@@ -53,6 +53,9 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	@Autowired
 	private CollectionRepository collectionRepository;
 
+	@Autowired
+	private QuestionService questionService;
+
 	private final static String COLLECTION_IMAGE_DIMENSION = "160x120,75x56,120x90,80x60,800x600";
 
 	private final static String DEPTHOF_KNOWLEDGE = "depthOfKnowledge";
@@ -192,6 +195,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		if (!errors.hasErrors()) {
 			Collection collection = getCollectionDao().getCollectionByType(collectionId, COLLECTION);
 			rejectIfNull(collection, GL0056, 404, COLLECTION);
+			resource.setSharing(collection.getSharing());
 			resource = getResourceBoService().createResource(resource, user);
 			collectionItem.setItemType(ADDED);
 			collectionItem = createCollectionItem(collectionItem, collection, resource, user);
@@ -204,19 +208,56 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateResource(String collectionId, String collectionResourceItemId, CollectionItem newCollectionItem, User user) {
 		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionResourceItemId);
-		rejectIfNull(collectionItem, GL0056, 404, RESOURCE);
+		rejectIfNull(collectionItem, GL0056, 404, _COLLECTION_ITEM);
 		this.getResourceBoService().updateResource(collectionItem.getContent().getGooruOid(), newCollectionItem.getResource(), user);
 	}
 
 	@Override
-	public ActionResponseDTO<CollectionItem> createQuestion(String collectionId, CollectionItem collectionItem, User user) {
-		// TODO Auto-generated method stub
-		return null;
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public CollectionItem createQuestion(String collectionId, String data, User user) {
+		Collection collection = getCollectionDao().getCollectionByType(collectionId, COLLECTION);
+		rejectIfNull(collection, GL0056, 404, COLLECTION);
+		AssessmentQuestion question = getQuestionService().createQuestion(data, user);
+		CollectionItem collectionItem = new CollectionItem();
+		collectionItem.setItemType(ADDED);
+		collectionItem = createCollectionItem(collectionItem, collection, question, user);
+		collectionItem.setQuestion(question);
+		collectionItem.setTitle(question.getTitle());
+		updateCollectionMetaDataSummary(collection.getContentId(), QUESTION);
+		return collectionItem;
 	}
 
 	@Override
-	public void updateQuestion(String lessonId, String resourceId, AssessmentQuestion assessmentQuestion, User user) {
-		// TODO Auto-generated method stub
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void updateQuestion(String collectionId, String collectionQuestionItemId, String data, User user) {
+		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionQuestionItemId);
+		rejectIfNull(collectionItem, GL0056, 404, _COLLECTION_ITEM);
+		this.getQuestionService().updateQuestion(collectionItem.getContent().getGooruOid(), data, user);
+	}
+
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public CollectionItem addResource(String collectionId, String resourceId, User user) {
+		Collection collection = getCollectionDao().getCollectionByType(collectionId, COLLECTION);
+		rejectIfNull(collection, GL0056, 404, COLLECTION);
+		Resource resource = getResourceBoService().getResource(resourceId);
+		rejectIfNull(resource, GL0056, 404, RESOURCE);
+		updateCollectionMetaDataSummary(collection.getContentId(), QUESTION);
+		CollectionItem collectionItem = new CollectionItem();
+		collectionItem.setItemType(ADDED);
+		return createCollectionItem(collectionItem, collection, resource, user);
+	}
+
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public CollectionItem addQuestion(String collectionId, String questionId, User user) {
+		Collection collection = getCollectionDao().getCollectionByType(collectionId, COLLECTION);
+		rejectIfNull(collection, GL0056, 404, COLLECTION);
+		AssessmentQuestion question = this.getQuestionService().copyQuestion(questionId, user);
+		rejectIfNull(question, GL0056, 404, QUESTION);
+		CollectionItem collectionItem = new CollectionItem();
+		collectionItem.setItemType(ADDED);
+		return createCollectionItem(collectionItem, collection, question, user);
 	}
 
 	@Override
@@ -436,6 +477,15 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		return errors;
 	}
 
+	private Errors validateQuestion(final AssessmentQuestion quetsion) {
+		final Errors errors = new BindException(quetsion, QUESTION);
+		if (quetsion != null) {
+			rejectIfNullOrEmpty(errors, quetsion.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
+			rejectIfNullOrEmpty(errors, quetsion.getQuestionText(), QUESTION_TEXT, GL0006, generateErrorMessage(GL0006, QUESTION_TEXT));
+		}
+		return errors;
+	}
+
 	private Errors validateCollection(final Collection collection) {
 		final Errors errors = new BindException(collection, COLLECTION);
 		if (collection != null) {
@@ -464,4 +514,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		return collectionRepository;
 	}
 
+	public QuestionService getQuestionService() {
+		return questionService;
+	}
 }

@@ -164,7 +164,12 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getClass(String classUid) {
-		Map<String, Object> result = this.getClassRepository().getClass(classUid);
+		Map<String, Object> result = null;
+		if (BaseUtil.isUuid(classUid)) {
+			result = this.getClassRepository().getClass(classUid);
+		} else {
+			result = this.getClassRepository().getClassByCode(classUid);
+		}
 		rejectIfNull(result, GL0056, CLASS);
 		setClass(result);
 		return result;

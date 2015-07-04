@@ -78,16 +78,8 @@ public class Collection extends Content implements Versionable {
 	private String copiedCollectionId;
 
 	private List<ContentMetaDTO> depthOfKnowledges;
-	
-	private Integer position; 
 
-	public Integer getPosition() {
-		return position;
-	}
-
-	public void setPosition(Integer position) {
-		this.position = position;
-	}
+	private Integer position;
 
 	private String url;
 
@@ -100,13 +92,13 @@ public class Collection extends Content implements Versionable {
 	private String mediaFilename;
 
 	private List<Integer> taxonomyCourseIds;
-	
+
 	private List<Integer> domainIds;
-	
+
 	private List<Integer> standardIds;
-	
+
 	private List<Integer> skillIds;
-	
+
 	private List<Integer> depthOfKnowledgeIds;
 
 	public String getIdeas() {
@@ -397,7 +389,7 @@ public class Collection extends Content implements Versionable {
 		}
 		return thumbnails;
 	}
-	
+
 	public String getType() {
 		return getCollectionType();
 	}
@@ -472,6 +464,14 @@ public class Collection extends Content implements Versionable {
 
 	public void setPublishStatusId(Short publishStatusId) {
 		this.publishStatusId = publishStatusId;
+	}
+
+	public Integer getPosition() {
+		return position;
+	}
+
+	public void setPosition(Integer position) {
+		this.position = position;
 	}
 
 }

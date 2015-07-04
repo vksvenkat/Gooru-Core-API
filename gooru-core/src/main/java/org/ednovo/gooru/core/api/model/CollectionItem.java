@@ -24,7 +24,7 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 	private Date associationDate;
 	private User associatedUser;
 	private Rating rating;
-	private AssessmentQuestion questionInfo;
+	private AssessmentQuestion question;
 	private String documentid;
 	private String documentkey;
 	private List<StandardFo> standards;
@@ -125,14 +125,6 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 
 	public Rating getRating() {
 		return rating;
-	}
-
-	public void setQuestionInfo(AssessmentQuestion questionInfo) {
-		this.questionInfo = questionInfo;
-	}
-
-	public AssessmentQuestion getQuestionInfo() {
-		return questionInfo;
 	}
 
 	public void setDocumentid(String documentid) {
@@ -264,6 +256,14 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public AssessmentQuestion getQuestion() {
+		return question;
+	}
+
+	public void setQuestion(AssessmentQuestion question) {
+		this.question = question;
 	}
 
 }

@@ -154,6 +154,11 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 			List<Map<String, Object>> domain = updateUnitDomain(collection, newCollection.getDomainIds());
 			data.put(DOMAIN, domain);
 		}
+		if (newCollection.getTaxonomyCourseIds() != null) {
+			List<Map<String, Object>> taxonomyCourse = updateTaxonomyCourse(collection, newCollection.getTaxonomyCourseIds());
+			data.put(TAXONOMY_COURSE, taxonomyCourse);
+		}
+		
 		return data;
 	}
 

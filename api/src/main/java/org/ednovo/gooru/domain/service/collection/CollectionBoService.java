@@ -30,10 +30,13 @@ public interface CollectionBoService extends AbstractCollectionService {
 
 	void updateResource(String collectionId, String resourceId, CollectionItem newCollectionItem, User user);
 
-	ActionResponseDTO<CollectionItem> createQuestion(String collectionId, CollectionItem collectionItem, User user);
+	CollectionItem createQuestion(String collectionId, String  data, User user);
 
-	void updateQuestion(String collectionId, String resourceId, AssessmentQuestion assessmentQuestion, User user);
+	void updateQuestion(String collectionId, String collectionQuestionItemId, String data, User user);
 
 	Map<String, Object> getCollectionItem(String collectionId, String collectionItemId);
 
+	CollectionItem addResource(String collectionId, String resourceId, User user);
+
+	CollectionItem addQuestion(String collectionId, String questionId, User user);
 }

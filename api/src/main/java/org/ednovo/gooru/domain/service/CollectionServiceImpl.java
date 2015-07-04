@@ -136,9 +136,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				String questionImage = this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), mediaFileName, question, ASSET_QUESTION);
 				if (questionImage != null && questionImage.length() > 0) {
 					if (ResourceImageUtil.getYoutubeVideoId(questionImage) != null || questionImage.contains(YOUTUBE_URL)) {
-						response.getModel().setQuestionInfo(this.assessmentService.updateQuestionVideoAssest(responseDTO.getModel().getGooruOid(), questionImage));
+						//response.getModel().setQuestionInfo(this.assessmentService.updateQuestionVideoAssest(responseDTO.getModel().getGooruOid(), questionImage));
 					} else {
-						response.getModel().setQuestionInfo(this.assessmentService.updateQuestionAssest(responseDTO.getModel().getGooruOid(), StringUtils.substringAfterLast(questionImage, "/")));
+						//response.getModel().setQuestionInfo(this.assessmentService.updateQuestionAssest(responseDTO.getModel().getGooruOid(), StringUtils.substringAfterLast(questionImage, "/")));
 						try {
 							this.getAsyncExecutor().updateResourceFileInS3(responseDTO.getModel().getFolder(), response.getModel().getResource().getOrganization().getNfsStorageArea().getInternalPath(), response.getModel().getResource().getGooruOid(), UserGroupSupport.getSessionToken());
 						} catch (Exception e) {
@@ -153,7 +153,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			response.getModel().setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
 			if (question.isQuestionNewGen()) {
 				mongoQuestionsService.createQuestion(question.getGooruOid(), data);
-
 			}
 		}
 		try {
@@ -186,7 +185,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 							}
 						}
 					}
-					collectionItem.setQuestionInfo(assessmentQuestion);
+				//	collectionItem.setQuestionInfo(assessmentQuestion);
 
 					collectionItem.setStandards(this.getStandards(assessmentQuestion.getTaxonomySet(), false, null));
 				}
@@ -314,7 +313,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			if (mediaFileName != null && mediaFileName.length() > 0) {
 				final String questionImage = this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), mediaFileName, assessmentQuestion, ASSET_QUESTION);
 				if (questionImage != null && questionImage.length() > 0) {
-					response.getModel().setQuestionInfo(this.assessmentService.updateQuestionAssest(responseDTO.getModel().getGooruOid(), StringUtils.substringAfterLast(questionImage, "/")));
+					//response.getModel().setQuestionInfo(this.assessmentService.updateQuestionAssest(responseDTO.getModel().getGooruOid(), StringUtils.substringAfterLast(questionImage, "/")));
 				}
 			}
 		}
@@ -689,7 +688,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 							if (userSummary.getCollections() == null || userSummary.getCollections() == 0) {
 								final PartyCustomField partyCustomField = new PartyCustomField(USER_META, SHOW_PROFILE_PAGE, TRUE);
 								this.getPartyService().updatePartyCustomField(scollection.getUser().getPartyUid(), partyCustomField, scollection.getUser());
-							} 
+							}
 							if (userSummary.getGooruUid() == null) {
 								userSummary.setGooruUid(scollection.getUser().getPartyUid());
 							}

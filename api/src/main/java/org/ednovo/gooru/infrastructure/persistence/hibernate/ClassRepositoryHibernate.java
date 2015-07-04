@@ -25,10 +25,9 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 	private static final String GET_MEMBERS = "select p.party_uid as gooruUId,u.username as username,i.external_id as emailId,uga.association_date as associationDate from class c inner join user_group ug on c.class_uid = ug.user_group_uid inner join user_group_association uga on uga.user_group_uid = ug.user_group_uid inner join party p on uga.gooru_uid = p.party_uid left join identity i on i.user_uid = p.party_uid inner join user u on u.gooru_uid = p.party_uid where c.class_uid=:classUid";
 
 	private static final String FIND_STUDENT_AND_CLASS_ID = "SELECT IFNULL(c.class_id,0) AS classId,COALESCE(true,false) isStudent FROM  class c INNER JOIN user_group ug on c.class_uid = ug.user_group_uid LEFT JOIN user_group_association uga ON ug.user_group_uid = uga.user_group_uid AND uga.gooru_uid =:gooruUId WHERE ug.user_group_uid =:classGooruId";
-	
-	private static final String GET_CLASS_ID = "SELECT class_id AS classId from class where class_uid =:classGooruId" ;
 
-	
+	private static final String GET_CLASS_ID = "SELECT class_id AS classId from class where class_uid =:classGooruId";
+
 	@Override
 	public UserClass getClassById(String classUid) {
 		Criteria criteria = getSession().createCriteria(UserClass.class);
@@ -69,7 +68,7 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 		List<Map<String, Object>> results = list(query);
 		return results.size() > 0 ? results.get(0) : null;
 	}
-	
+
 	@Override
 	public List<Map<String, Object>> getClassesByCourse(String courseGooruOid, int limit, int offset) {
 		StringBuilder sql = new StringBuilder(GET_CLASSES);
@@ -89,10 +88,9 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
 		return list(query);
 	}
-	
-	
+
 	@Override
-	public  List<Map<String, Object>>  getMember(String classUid, int limit , int offset) {
+	public List<Map<String, Object>> getMember(String classUid, int limit, int offset) {
 		Query query = getSession().createSQLQuery(GET_MEMBERS);
 		query.setParameter(CLASS_UID, classUid);
 		query.setFirstResult(offset);
@@ -102,15 +100,13 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 	}
 
 	@Override
-	public Map<String,Object> findStudentAndClassId(String classGooruId, String gooruUId) {
+	public Map<String, Object> findStudentAndClassId(String classGooruId, String gooruUId) {
 		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createSQLQuery(FIND_STUDENT_AND_CLASS_ID)
-				.addScalar(CLASS_ID,StandardBasicTypes.LONG)
-				.addScalar(IS_STUDENT, StandardBasicTypes.BOOLEAN);		
+		Query query = session.createSQLQuery(FIND_STUDENT_AND_CLASS_ID).addScalar(CLASS_ID, StandardBasicTypes.LONG).addScalar(IS_STUDENT, StandardBasicTypes.BOOLEAN);
 		query.setParameter(CLASS_GOORU_ID, classGooruId);
 		query.setParameter(GOORU_UID, gooruUId);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
-		List<Map<String,Object>> results =  list(query);
+		List<Map<String, Object>> results = list(query);
 		return (results != null && results.size() > 0) ? results.get(0) : null;
 	}
 
@@ -122,10 +118,23 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 		List<Long> results = list(query);
 		return (results != null && results.size() > 0) ? results.get(0) : 0L;
 	}
-	public void deleteUserFromClass(String classUid,String userUid) {
-         Query query = getSession().createSQLQuery(DELETE_USER_FROM_CLASS);
-         query.setParameter(GOORU_UID, userUid);
-         query.setParameter(CLASS_UID, classUid);
-         query.executeUpdate();	}
+
+	public void deleteUserFromClass(String classUid, String userUid) {
+		Query query = getSession().createSQLQuery(DELETE_USER_FROM_CLASS);
+		query.setParameter(GOORU_UID, userUid);
+		query.setParameter(CLASS_UID, classUid);
+		query.executeUpdate();
+	}
+
+	@Override
+	public Map<String, Object> getClassByCode(String classCode) {
+		StringBuilder sql = new StringBuilder(GET_CLASSES);
+		sql.append("where user_group_code = :codeId order by p.created_on desc");
+		Query query = getSession().createSQLQuery(sql.toString());
+		query.setParameter(CODE_ID, classCode);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		List<Map<String, Object>> results = list(query);
+		return results.size() > 0 ? results.get(0) : null;
+	}
 
 }

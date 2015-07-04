@@ -15,14 +15,17 @@ import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentClassification;
 import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
+import org.ednovo.gooru.core.api.model.ContentTaxonomyCourseAssoc;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
+import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
+import org.ednovo.gooru.domain.service.TaxonomyCourseRepository;
 import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentClassificationRepository;
@@ -49,6 +52,11 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	@Autowired
 	private OperationAuthorizer operationAuthorizer;
+	
+	@Autowired
+	private TaxonomyCourseRepository taxonomyCourseRepository;
+	
+	protected final static String TAXONOMY_COURSE = "taxonomyCourse";
 
 	public Collection createCollection(Collection collection, User user) {
 		collection.setGooruOid(UUID.randomUUID().toString());
@@ -306,12 +314,35 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 				contentClassifications.add(contentClassification);
 				Map<String, Object> assocCode = new HashMap<String, Object>();
 				assocCode.put(ID, code.getCodeId());
+				assocCode.put(ROOT_NODE_ID, code.getRootNodeId());
 				assocCode.put(CODE, code.getCode());
 				codes.add(assocCode);
 			}
 			this.getContentRepository().saveAll(contentClassifications);
 		}
 		return codes;
+	}
+	
+	public  List<Map<String, Object>> updateTaxonomyCourse(Content content, List<Integer> taxonomyCourseIds) {
+		this.getContentRepository().deleteContentTaxonomyCourseAssoc(content.getContentId());
+		List<Map<String, Object>> courses = null;
+		if (taxonomyCourseIds != null && taxonomyCourseIds.size() > 0) {
+			List<TaxonomyCourse> taxonomyCourses = this.getTaxonomyCourseRepository().getTaxonomyCourses(taxonomyCourseIds);
+			courses = new ArrayList<Map<String, Object>>();
+			List<ContentTaxonomyCourseAssoc> contentTaxonomyCourseAssocs = new ArrayList<ContentTaxonomyCourseAssoc>();
+			for (TaxonomyCourse taxonomyCourse : taxonomyCourses) {
+				ContentTaxonomyCourseAssoc contentTaxonomyCourseAssoc = new ContentTaxonomyCourseAssoc();
+				contentTaxonomyCourseAssoc.setContent(content);
+				contentTaxonomyCourseAssoc.setTaxonomyCourse(taxonomyCourse);
+				contentTaxonomyCourseAssocs.add(contentTaxonomyCourseAssoc);
+				Map<String, Object> course = new HashMap<String, Object>();
+				course.put(ID, contentTaxonomyCourseAssoc.getTaxonomyCourse().getCourseId());
+				course.put(NAME, contentTaxonomyCourseAssoc.getTaxonomyCourse().getName());
+				courses.add(course);
+			}
+			this.getContentRepository().saveAll(contentTaxonomyCourseAssocs);
+		}
+		return courses;
 	}
 
 	public CollectionDao getCollectionDao() {
@@ -332,6 +363,10 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	public OperationAuthorizer getOperationAuthorizer() {
 		return operationAuthorizer;
+	}
+
+	public TaxonomyCourseRepository getTaxonomyCourseRepository() {
+		return taxonomyCourseRepository;
 	}
 
 }
