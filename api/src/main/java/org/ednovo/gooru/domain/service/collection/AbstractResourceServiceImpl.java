@@ -20,6 +20,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.cassandra.model.ResourceCio;
 import org.ednovo.gooru.core.cassandra.model.ResourceMetadataCo;
+import org.ednovo.gooru.domain.cassandra.service.DashboardCassandraService;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
 import org.ednovo.gooru.domain.service.content.ContentService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
@@ -45,8 +46,11 @@ public class AbstractResourceServiceImpl extends AbstractCollectionServiceImpl i
 
 	@Autowired
 	private MongoQuestionsService mongoQuestionsService;
+	
+	@Autowired
+	private DashboardCassandraService dashboardCassandraService;
 
-	private static final String HINTS = "hints";
+	protected static final String HINTS = "hints";
 
 	@Override
 	public List<String> updateContentProvider(String gooruOid, List<String> providerList, User user, String providerType) {
@@ -173,6 +177,10 @@ public class AbstractResourceServiceImpl extends AbstractCollectionServiceImpl i
 
 	public MongoQuestionsService getMongoQuestionsService() {
 		return mongoQuestionsService;
+	}
+
+	public DashboardCassandraService getDashboardCassandraService() {
+		return dashboardCassandraService;
 	}
 
 }
