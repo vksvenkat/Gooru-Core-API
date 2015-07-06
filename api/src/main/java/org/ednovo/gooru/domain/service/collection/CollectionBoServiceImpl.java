@@ -12,7 +12,6 @@ import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
-import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.ContentSettings;
 import org.ednovo.gooru.core.api.model.MetaConstants;
@@ -278,15 +277,20 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Map<String, Object> getCollection(String collectionId, String collectionType) {
-		return super.getCollection(collectionId, collectionType);
+	public Map<String, Object> getCollection(String collectionId, String collectionType, boolean includeItems) {
+		Map<String, Object> collection = super.getCollection(collectionId, collectionType);
+		StringBuilder key = new StringBuilder(ALL_);
+		key.append(collection.get(GOORU_OID));
+		collection.put(VIEWS, getDashboardCassandraService().readAsLong(key.toString(), COUNT_VIEWS));
+		collection.put(COLLECTION_ITEMS, this.getCollectionItems(collectionId, MAX_LIMIT, 0));
+		return collection;
 	}
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getCollections(String lessonId, String collectionType, int limit, int offset) {
 		Map<String, Object> filters = new HashMap<String, Object>();
-		String[] collectionTypes = collectionType.split(",");
+		String[] collectionTypes = collectionType.split(COMMA);
 		filters.put(COLLECTION_TYPE, collectionTypes);
 		filters.put(PARENT_GOORU_OID, lessonId);
 		List<Map<String, Object>> results = this.getCollections(filters, limit, offset);
@@ -305,6 +309,24 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		List<Map<String, Object>> collectionItems = this.getCollectionDao().getCollectionItem(filters, limit, offset);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> item : collectionItems) {
+			String resourceType = (String) item.get(RESOURCE_TYPE);
+			if (resourceType.equalsIgnoreCase(ResourceType.Type.ASSESSMENT_QUESTION.getType())) {
+				// To-Do,  need fix later, by getting answer and hints details
+				// without querying the assessment object
+				String gooruOid = (String) item.get(GOORU_OID);
+				AssessmentQuestion assessmentQuestion = this.getQuestionService().getQuestion(gooruOid);
+				if (assessmentQuestion != null && !assessmentQuestion.isQuestionNewGen()) {
+					item.put(ANSWERS, assessmentQuestion.getAnswers());
+					item.put(HINTS, assessmentQuestion.getHints());
+				} else { 
+					String json = getMongoQuestionsService().getQuestionByIdWithJsonAdjustments(gooruOid);
+					item.putAll(JsonDeserializer.deserialize(json, new TypeReference<Map<String, Object>>() {
+					}));
+				}
+			}
+			StringBuilder key = new StringBuilder(ALL_);
+			key.append(item.get(GOORU_OID));
+			item.put(VIEWS, getDashboardCassandraService().readAsLong(key.toString(), COUNT_VIEWS));
 			items.add(mergeCollectionItemMetaData(item));
 		}
 		return items;
