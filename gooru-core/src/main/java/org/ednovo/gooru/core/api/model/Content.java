@@ -87,6 +87,8 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 	private Long viewCount;
 
 	private String uri;
+	
+	private List<Integer> standardIds;
 
 	public Long getContentId() {
 		return contentId;
@@ -340,5 +342,13 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 		contentFolder = contentFolder.substring(0, 4) + "/" + contentFolder.substring(4, 8) + "/" + contentFolder.substring(8, 12);
 
 		return contentFolder + "/";
+	}
+
+	public List<Integer> getStandardIds() {
+		return standardIds;
+	}
+
+	public void setStandardIds(List<Integer> standardIds) {
+		this.standardIds = standardIds;
 	}
 }

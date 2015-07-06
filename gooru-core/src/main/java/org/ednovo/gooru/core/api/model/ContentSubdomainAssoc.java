@@ -2,13 +2,13 @@ package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
 
-public class ContentDomainAssoc implements Serializable {
+public class ContentSubdomainAssoc implements Serializable {
 
 	private static final long serialVersionUID = -248990366467402942L;
 
 	private Content content;
 
-	private Domain domain;
+	private Subdomain subdomain;
 
 	public Content getContent() {
 		return content;
@@ -18,11 +18,11 @@ public class ContentDomainAssoc implements Serializable {
 		this.content = content;
 	}
 
-	public Domain getDomain() {
-		return domain;
+	public Subdomain getSubdomain() {
+		return subdomain;
 	}
 
-	public void setDomain(Domain domain) {
-		this.domain = domain;
+	public void setSubdomain(Subdomain subdomain) {
+		this.subdomain = subdomain;
 	}
 }

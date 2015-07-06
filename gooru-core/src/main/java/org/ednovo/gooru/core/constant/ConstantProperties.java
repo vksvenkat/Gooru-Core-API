@@ -825,7 +825,7 @@ public interface ConstantProperties {
 
 	static final String COURSE_[] = { "*.courseId", "*.name", "*.thumbnails", "thumbnails.url" };
 
-	static final String DOMAIN_INCLUDES[] = { "*.thumbnails", "thumbnails.url", "*.domainId", "*.name" };
+	static final String DOMAIN_INCLUDES[] = { "*.thumbnails", "thumbnails.url", "*.domainId", "*.name", "*.subdomainId"};
 
 	static final String STATE[] = { "*.stateUid", "*.stateCode", "*.name", "*.totalHitCount", "*.searchResults" };
 

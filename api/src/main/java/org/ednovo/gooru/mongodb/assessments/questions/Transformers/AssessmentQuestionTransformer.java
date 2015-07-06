@@ -98,7 +98,7 @@ public class AssessmentQuestionTransformer extends ObjectTransformer {
 		instance.put("url", question.getUrl());
 		instance.put("version", question.getVersion());
 		instance.put("license", question.getLicense());
-//		instance.put("taxonomySet", question.getTaxonomySet());
+		instance.put("taxonomySet", question.getTaxonomySet());
 		instance.put("depthOfKnowledges", question.getDepthOfKnowledges());
 		instance.put("educationalUse", question.getEducationalUse());
 		return instance;
