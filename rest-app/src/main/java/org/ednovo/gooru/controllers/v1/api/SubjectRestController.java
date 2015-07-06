@@ -95,7 +95,7 @@ public class SubjectRestController extends BaseController implements ConstantPro
 	}
 
 	@AuthorizeOperations(operations={GooruOperationConstants.OPERATION_SUBJECT_READ})
-	@RequestMapping(value = RequestMappingUri.SUBJECT_CLASS, method = RequestMethod.GET)
+	@RequestMapping(value = RequestMappingUri.TAXONOMY_COURSE_BY_SUBJECT, method = RequestMethod.GET)
     public ModelAndView getCourses(HttpServletResponse response, HttpServletRequest request,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit,@PathVariable(ID) int subjectId) {
     	 return toModelAndView(this.getSubjectService().getCourses(offset, limit, subjectId), RESPONSE_FORMAT_JSON);
     }
