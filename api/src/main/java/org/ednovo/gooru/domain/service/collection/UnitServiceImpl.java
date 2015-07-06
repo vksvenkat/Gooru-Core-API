@@ -176,6 +176,8 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 					contentDomainAssocs.add(contentDomainAssoc);
 					Map<String, Object> unitDomain = new HashMap<String, Object>();
 					unitDomain.put(ID, subdomain.getSubdomainId());
+					unitDomain.put(SUBJECT_ID, subdomain.getTaxonomyCourse().getSubjectId());
+					unitDomain.put(COURSE_ID, subdomain.getTaxonomyCourse().getCourseId());
 					unitDomain.put(NAME, subdomain.getDomain().getName());
 					unitDomains.add(unitDomain);
 				}
