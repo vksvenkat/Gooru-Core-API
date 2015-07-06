@@ -345,6 +345,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 					contentTaxonomyCourseAssocs.add(contentTaxonomyCourseAssoc);
 					Map<String, Object> course = new HashMap<String, Object>();
 					course.put(ID, contentTaxonomyCourseAssoc.getTaxonomyCourse().getCourseId());
+					course.put(SUBJECT_ID, contentTaxonomyCourseAssoc.getTaxonomyCourse().getSubjectId());
 					course.put(NAME, contentTaxonomyCourseAssoc.getTaxonomyCourse().getName());
 					courses.add(course);
 				}
