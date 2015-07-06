@@ -67,4 +67,6 @@ public class RequestMappingUri {
 	
 	public static final String ITEM_ID = "/{id}/item";
 
+	public static final String TAXONOMY_COURSE_BY_SUBJECT = "/{id}/taxonomycourse";
+	
 }
