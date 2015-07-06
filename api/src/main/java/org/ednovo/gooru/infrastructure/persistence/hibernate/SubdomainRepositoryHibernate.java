@@ -32,10 +32,13 @@ import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implements SubdomainRepository, ParameterProperties,ConstantProperties {
+public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implements SubdomainRepository, ParameterProperties, ConstantProperties {
 
 	private static final String SUBDOMAINS = "FROM Subdomain";
+
 	private static final String SUBDOMAIN = "FROM Subdomain subdomain WHERE subdomain.subdomainId=:subdomainId";
+
+	private static final String SUBDOMAIN_BY_IDS = "FROM Subdomain  WHERE subdomainId in (:subdomainId)";
 
 	@Override
 	public Subdomain getSubdomain(Integer subdomainId) {
@@ -48,6 +51,12 @@ public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implem
 		Query query = getSession().createQuery(SUBDOMAINS);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
 		query.setFirstResult(offset);
+		return list(query);
+	}
+
+	@Override
+	public List<Subdomain> getSubdomains(List<Integer> subdomainIds) {
+		Query query = getSession().createQuery(SUBDOMAIN_BY_IDS).setParameterList(SUBDOMAIN_ID, subdomainIds);
 		return list(query);
 	}
 

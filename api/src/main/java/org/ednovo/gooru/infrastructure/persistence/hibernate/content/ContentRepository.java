@@ -92,7 +92,7 @@ public interface ContentRepository extends BaseRepository {
 	
 	void deleteContentMetaAssoc(Long contentId, String key);
 	
-	void deleteContentDomainAssoc(Long contentId);
+	void deleteContentSubdomainAssoc(Long contentId);
 	
 	List<ContentMetaAssociation> getContentMetaAssociation(String gooruOid, String key);
 
