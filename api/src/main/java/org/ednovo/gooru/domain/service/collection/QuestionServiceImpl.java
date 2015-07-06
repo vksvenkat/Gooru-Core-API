@@ -30,7 +30,6 @@ import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.domain.service.resource.AssetManager;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.QuestionRepository;
-import org.ednovo.gooru.mongodb.assessments.questions.services.MongoQuestionsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,9 +38,6 @@ import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 
 @Service
 public class QuestionServiceImpl extends AbstractResourceServiceImpl implements QuestionService, ParameterProperties, ConstantProperties {
-
-	@Autowired
-	private MongoQuestionsService mongoQuestionsService;
 
 	@Autowired
 	private QuestionRepository questionRepository;
@@ -95,13 +91,13 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		this.getQuestionRepository().save(question);
 		getIndexHandler().setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		if (question.isQuestionNewGen()) {
-			mongoQuestionsService.createQuestion(question.getGooruOid(), data);
+			getMongoQuestionsService().createQuestion(question.getGooruOid(), data);
 		}
 		return question;
 	}
 
 	@Override
-	public void updateQuestion(String questionId, String data, User user) {
+	public AssessmentQuestion updateQuestion(String questionId, String data, User user) {
 		AssessmentQuestion question = this.getQuestionRepository().getQuestion(questionId);
 		rejectIfNull(question, GL0056, 404, QUESTION);
 		AssessmentQuestion newQuestion = buildQuestion(data);
@@ -142,11 +138,15 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		question.setLastModified(new java.util.Date(System.currentTimeMillis()));
 		getIndexHandler().setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		this.getQuestionRepository().save(question);
+		newQuestion.setAnswers(question.getAnswers());
+		newQuestion.setHints(question.getHints());
+		newQuestion.setGooruOid(question.getGooruOid());
 		// Update the question in mongo now that transaction is almost
 		// done
 		if (question.isQuestionNewGen()) {
-			mongoQuestionsService.updateQuestion(question.getGooruOid(), data);
+			getMongoQuestionsService().updateQuestion(question.getGooruOid(), data);
 		}
+		return newQuestion;
 	}
 
 	private void updateAnswerList(Set<AssessmentAnswer> sourceList, Set<AssessmentAnswer> existingList) {
@@ -272,7 +272,7 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 			}
 			getQuestionRepository().save(copyQuestion);
 			if (copyQuestion.isQuestionNewGen()) {
-				mongoQuestionsService.copyQuestion(questionId, copyQuestion.getGooruOid());
+				getMongoQuestionsService().copyQuestion(questionId, copyQuestion.getGooruOid());
 			}
 			copyQuestion.setAssets(questionAssets);
 		}
@@ -385,10 +385,6 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 			}
 		}
 		return question;
-	}
-
-	public MongoQuestionsService getMongoQuestionsService() {
-		return mongoQuestionsService;
 	}
 
 	public QuestionRepository getQuestionRepository() {

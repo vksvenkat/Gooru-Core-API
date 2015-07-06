@@ -172,10 +172,11 @@ public class MongoQuestionsServiceImpl implements MongoQuestionsService {
 			Document answersDoc = (Document) questionDoc.get("answers");
 			Object answer = answersDoc.get("answer");
 			Document hintsDoc = (Document) questionDoc.get("hints");
-			Object hint = hintsDoc.get("hint");
-
+			if (hintsDoc != null) {				
+				Object hint = hintsDoc.get("hint");
+				questionDoc.put("hints", hint);
+			}
 			questionDoc.put("answers", answer);
-			questionDoc.put("hints", hint);
 
 			return questionDoc.toJson();
 		} else {

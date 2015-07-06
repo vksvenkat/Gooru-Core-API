@@ -12,6 +12,7 @@ import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
+import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.ContentSettings;
 import org.ednovo.gooru.core.api.model.MetaConstants;
@@ -38,7 +39,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import flexjson.JSONSerializer;
 
 @Service
-public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl implements CollectionBoService, ParameterProperties, ConstantProperties {
+public class CollectionBoServiceImpl extends AbstractResourceServiceImpl implements CollectionBoService, ParameterProperties, ConstantProperties {
 
 	@Autowired
 	private CollectionDao collectionDao;
@@ -49,7 +50,6 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	@Autowired
 	private ResourceBoService resourceBoService;
 
-	
 	@Autowired
 	private CollectionRepository collectionRepository;
 
@@ -79,7 +79,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
-	
+
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollection(String courseId, String unitId, String lessonId, String collectionId, User user) {
@@ -198,6 +198,9 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 			collectionItem.setItemType(ADDED);
 			collectionItem = createCollectionItem(collectionItem, collection, resource, user);
 			updateCollectionMetaDataSummary(collection.getContentId(), RESOURCE);
+			Map<String, Object> data = generateResourceMetaData(resource, collectionItem.getResource(), user);
+			createContentMeta(resource, data);
+
 		}
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
@@ -208,6 +211,11 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionResourceItemId);
 		rejectIfNull(collectionItem, GL0056, 404, _COLLECTION_ITEM);
 		this.getResourceBoService().updateResource(collectionItem.getContent().getGooruOid(), newCollectionItem.getResource(), user);
+		Map<String, Object> data = generateResourceMetaData(collectionItem.getContent(), newCollectionItem.getResource(), user);
+		if (data != null && data.size() > 0) {
+			ContentMeta contentMeta = this.getContentRepository().getContentMeta(collectionItem.getContent().getContentId());
+			updateContentMeta(contentMeta, data);
+		}
 	}
 
 	@Override
@@ -222,6 +230,8 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		collectionItem.setQuestion(question);
 		collectionItem.setTitle(question.getTitle());
 		updateCollectionMetaDataSummary(collection.getContentId(), QUESTION);
+		Map<String, Object> metaData = generateQuestionMetaData(question, question, user);
+		createContentMeta(question, metaData);
 		return collectionItem;
 	}
 
@@ -230,7 +240,12 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	public void updateQuestion(String collectionId, String collectionQuestionItemId, String data, User user) {
 		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionQuestionItemId);
 		rejectIfNull(collectionItem, GL0056, 404, _COLLECTION_ITEM);
-		this.getQuestionService().updateQuestion(collectionItem.getContent().getGooruOid(), data, user);
+		AssessmentQuestion newAssessmentQuestion = this.getQuestionService().updateQuestion(collectionItem.getContent().getGooruOid(), data, user);
+		Map<String, Object> metaData = generateQuestionMetaData(collectionItem.getContent(), newAssessmentQuestion, user);
+		if (metaData != null && metaData.size() > 0) {
+			ContentMeta contentMeta = this.getContentRepository().getContentMeta(collectionItem.getContent().getContentId());
+			updateContentMeta(contentMeta, metaData);
+		}
 	}
 
 	@Override
@@ -255,7 +270,10 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		rejectIfNull(question, GL0056, 404, QUESTION);
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setItemType(ADDED);
-		return createCollectionItem(collectionItem, collection, question, user);
+		collectionItem = createCollectionItem(collectionItem, collection, question, user);
+		Map<String, Object> metaData = generateQuestionMetaData(question, collectionItem.getQuestion(), user);
+		createContentMeta(question, metaData);
+		return collectionItem;
 	}
 
 	@Override
@@ -308,16 +326,16 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		ContentMeta courseContentMeta = this.getContentRepository().getContentMeta(courseId);
 		ContentMeta lessonContentMeta = this.getContentRepository().getContentMeta(lessonId);
 		if (lessonContentMeta != null) {
-				int assessmentCount = this.getCollectionDao().getCollectionItemCount(lessonId, CollectionType.ASSESSMENT.getCollectionType());
-				int collectionCount = this.getCollectionDao().getCollectionItemCount(lessonId, CollectionType.COLLECTION.getCollectionType());
-			if(action.equalsIgnoreCase(DELETE)){
-				if(collectionType.equalsIgnoreCase(COLLECTION)){
+			int assessmentCount = this.getCollectionDao().getCollectionItemCount(lessonId, CollectionType.ASSESSMENT.getCollectionType());
+			int collectionCount = this.getCollectionDao().getCollectionItemCount(lessonId, CollectionType.COLLECTION.getCollectionType());
+			if (action.equalsIgnoreCase(DELETE)) {
+				if (collectionType.equalsIgnoreCase(COLLECTION)) {
 					collectionCount -= 1;
 				}
-				if(collectionType.equalsIgnoreCase(ASSESSMENT)){
+				if (collectionType.equalsIgnoreCase(ASSESSMENT)) {
 					assessmentCount -= 1;
 				}
-				
+
 			}
 			Map<String, Object> metaData = JsonDeserializer.deserialize(lessonContentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
 			});
@@ -342,18 +360,18 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
 		if (collectionType.equalsIgnoreCase(CollectionType.ASSESSMENT.getCollectionType())) {
 			int assessmentCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue();
-			if(action.equalsIgnoreCase(DELETE)){
+			if (action.equalsIgnoreCase(DELETE)) {
 				assessmentCount -= 1;
-			}else if(action.equalsIgnoreCase(ADD)){
+			} else if (action.equalsIgnoreCase(ADD)) {
 				assessmentCount += 1;
 			}
 			summary.put(MetaConstants.ASSESSMENT_COUNT, assessmentCount);
 		}
 		if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
 			int collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue();
-			if(action.equalsIgnoreCase(DELETE)){
+			if (action.equalsIgnoreCase(DELETE)) {
 				collectionCount -= 1;
-			}else if(action.equalsIgnoreCase(ADD)){
+			} else if (action.equalsIgnoreCase(ADD)) {
 				collectionCount += 1;
 			}
 			summary.put(MetaConstants.COLLECTION_COUNT, collectionCount);
