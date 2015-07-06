@@ -25,9 +25,10 @@
 		<composite-id>
 			<key-many-to-one column="content_id" name="content"
 				class="org.ednovo.gooru.core.api.model.Content" lazy="proxy" />
+			<key-many-to-one column="course_id"
+			class="org.ednovo.gooru.core.api.model.TaxonomyCourse" name="taxonomyCourse" lazy="proxy" />
 		</composite-id>
-		<many-to-one column="course_id"
-			class="org.ednovo.gooru.core.api.model.TaxonomyCourse" name="taxonomyCourse" />
+		
 	</class>
 </hibernate-mapping>
 
