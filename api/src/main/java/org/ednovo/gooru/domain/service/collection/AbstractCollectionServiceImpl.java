@@ -72,7 +72,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		collection.setLastUpdatedUserUid(user.getGooruUId());
 		collection.setContentType(this.getContentType(collection.getCollectionType()));
 		collection.setIsRepresentative(1);
-		collection.setDistinguish((short)0);
+		collection.setDistinguish((short) 0);
 		collection.setClusterUid(collection.getGooruOid());
 		getCollectionDao().save(collection);
 		return collection;
@@ -215,7 +215,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 			content.put(BUILD_TYPE, Constants.BUILD_TYPE.get(((Number) buildType).shortValue()));
 		}
 		Object thumbnail = content.get(IMAGE_PATH);
-		if (thumbnail != null) { 
+		if (thumbnail != null) {
 			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
 		}
 		Object publishStatus = (Short) content.get(PUBLISH_STATUS);
@@ -339,15 +339,15 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 				courses = new ArrayList<Map<String, Object>>();
 				List<ContentTaxonomyCourseAssoc> contentTaxonomyCourseAssocs = new ArrayList<ContentTaxonomyCourseAssoc>();
 				for (TaxonomyCourse taxonomyCourse : taxonomyCourses) {
+					Map<String, Object> course = new HashMap<String, Object>();
+					course.put(ID, taxonomyCourse.getCourseId());
+					course.put(SUBJECT_ID, taxonomyCourse.getSubjectId());
+					course.put(NAME, taxonomyCourse.getName());
+					courses.add(course);
 					ContentTaxonomyCourseAssoc contentTaxonomyCourseAssoc = new ContentTaxonomyCourseAssoc();
 					contentTaxonomyCourseAssoc.setContent(content);
 					contentTaxonomyCourseAssoc.setTaxonomyCourse(taxonomyCourse);
 					contentTaxonomyCourseAssocs.add(contentTaxonomyCourseAssoc);
-					Map<String, Object> course = new HashMap<String, Object>();
-					course.put(ID, contentTaxonomyCourseAssoc.getTaxonomyCourse().getCourseId());
-					course.put(SUBJECT_ID, contentTaxonomyCourseAssoc.getTaxonomyCourse().getSubjectId());
-					course.put(NAME, contentTaxonomyCourseAssoc.getTaxonomyCourse().getName());
-					courses.add(course);
 				}
 				this.getContentRepository().saveAll(contentTaxonomyCourseAssocs);
 			}
