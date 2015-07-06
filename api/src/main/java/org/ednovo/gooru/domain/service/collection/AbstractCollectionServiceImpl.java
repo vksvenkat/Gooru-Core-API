@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.application.util.SerializerUtil;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
@@ -213,12 +214,17 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		if (buildType != null) {
 			content.put(BUILD_TYPE, Constants.BUILD_TYPE.get(((Number) buildType).shortValue()));
 		}
+		Object thumbnail = content.get(IMAGE_PATH);
+		if (thumbnail != null) { 
+			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
+		}
 		Object publishStatus = (Short) content.get(PUBLISH_STATUS);
 		if (publishStatus != null) {
 			content.put(PUBLISH_STATUS, Constants.PUBLISH_STATUS.get(((Number) publishStatus).shortValue()));
 		}
 		content.remove(DATA);
 		content.remove(META_DATA);
+		content.remove(IMAGE_PATH);
 		return content;
 	}
 
