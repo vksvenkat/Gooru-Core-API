@@ -40,6 +40,7 @@ import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.cassandra.service.DashboardCassandraService;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
@@ -77,7 +78,7 @@ import flexjson.JSONSerializer;
 
 @Controller
 @RequestMapping(value = { "/resource", "" })
-public class ResourceRestController extends BaseController implements ConstantProperties {
+public class ResourceRestController extends BaseController implements ParameterProperties, ConstantProperties {
 
 	private static final Logger logger = LoggerFactory.getLogger(ResourceRestController.class);
 
@@ -361,7 +362,7 @@ public class ResourceRestController extends BaseController implements ConstantPr
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/resource/updateThumbnail" })
-	public ModelAndView updateThumbnails(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = NUM_OF_IMGS, defaultValue = STATUS_500) String numberOfImages, @RequestParam(value = DOWNLOAD_IMGS, defaultValue = ONE) String downloadImages,
+	public ModelAndView updateThumbnails(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = NUM_OF_IMGS, defaultValue = "STATUS_500") String numberOfImages, @RequestParam(value = DOWNLOAD_IMGS, defaultValue = ONE) String downloadImages,
 			@RequestParam(value = RESOURCE_URL, required = false) String resourceUrl, @RequestParam(value = RESOURCE_TYPE, defaultValue = RES_URL) String resourceType, @RequestParam(value = LOG_LEVEL, defaultValue = INFO) String logLevel, final Model model) throws Exception {
 		// request.setAttribute("predicate", "learning_guide.update_classplan");
 		Integer numberOfImagesToDownload = Integer.parseInt(numberOfImages);

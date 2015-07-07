@@ -33,6 +33,7 @@ import javax.annotation.PostConstruct;
 
 import org.ednovo.gooru.cassandra.core.dao.RawCassandraDao;
 import org.ednovo.gooru.core.constant.ColumnFamilyConstant;
+import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.domain.cassandra.ApiCassandraFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,7 +43,7 @@ import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import com.netflix.astyanax.model.ColumnList;
 
 @Service
-public class BlackListWordCassandraServiceImpl implements BlackListWordCassandraService, ParameterProperties {
+public class BlackListWordCassandraServiceImpl implements BlackListWordCassandraService, ParameterProperties, ConstantProperties {
 
 	@Autowired
 	private ApiCassandraFactory apiCassandraFactory;
