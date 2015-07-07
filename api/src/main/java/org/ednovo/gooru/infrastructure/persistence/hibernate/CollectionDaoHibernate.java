@@ -1,5 +1,6 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +41,12 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	private static final String GET_COLLECTIONITEM_BY_GOORUOID = "FROM CollectionItem where content.gooruOid=:gooruOid and collection.gooruOid=:parentGooruOid";
 
 	private final static String GET_COLLECTIONITEM_BY_SEQUENCE= "FROM CollectionItem where collection.gooruOid=:gooruOid and itemSequence>:sequence order by itemSequence";
+	
+	private static final String DELETE_COLLECTIONITEM = "delete from collection_item where resource_content_id=:contentId";
+
+	private static final String COLLECTIONITEM_BY_USERUID = "FROM CollectionItem ci where ci.content.gooruOid=:gooruOid and ci.collection.user.partyUid=:gooruUId";
+	
+	private static final String GET_PARENTCOLLECTION = "select collection_content_id from collection_item where resource_content_id=:contentId";
 	
 	@Override
 	public Collection getCollection(String collectionId) {
@@ -179,4 +186,26 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 		query.setParameter(SEQUENCE, sequence);
 		return list(query);
 	}
+	
+	@Override
+	public void deleteCollectionItem(Long contentId) {
+		Query query = getSession().createSQLQuery(DELETE_COLLECTIONITEM);
+		query.setParameter(CONTENT_ID, contentId);
+		query.executeUpdate();
+	}
+
+	@Override
+	public CollectionItem findCollectionItem(String gooruOid, String gooruUId) {
+		Query query =getSession().createQuery(COLLECTIONITEM_BY_USERUID);
+		query.setParameter(GOORU_OID, gooruOid);
+		query.setParameter(GOORU_UID, gooruUId);
+		return (CollectionItem) query.list().get(0);
+	}
+
+	@Override
+	public Long getParent(Long contentId) {
+		Query query = getSession().createSQLQuery(GET_PARENTCOLLECTION).setParameter(CONTENT_ID, contentId);
+		return (Long) (query.list().size() > 0 ? ((BigInteger) (query.list().get(0))).longValue() : null);
+	}
+	
 }

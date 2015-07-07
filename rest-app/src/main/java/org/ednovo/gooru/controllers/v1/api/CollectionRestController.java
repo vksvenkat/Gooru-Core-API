@@ -17,6 +17,7 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.collection.CollectionBoService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -149,7 +150,10 @@ public class CollectionRestController extends BaseController implements Constant
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_MOVE })
 	@RequestMapping(value = { RequestMappingUri.TARGET_LESSON }, method = RequestMethod.PUT)
-	public ModelAndView moveCollection(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @RequestBody final String data, final HttpServletRequest request,final HttpServletResponse response) {
+	public ModelAndView moveCollection(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @PathVariable(value = LESSON_ID) final String lessonId, @RequestBody final String data, final HttpServletRequest request,final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final JSONObject json = requestData(data);
+		this.getCollectionBoService().moveCollectionToLesson(courseId, unitId, lessonId, getValue(SOURCE_ID, json), user);
 		return null;
 	}
 

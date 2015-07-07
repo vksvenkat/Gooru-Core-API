@@ -304,30 +304,44 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		return mergeCollectionItemMetaData(collectionItems.get(0));
 	}
 
-	@SuppressWarnings("unchecked")
+	//Validation to check for the collection already played, should not be moved
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public CollectionItem moveCollectionToLesson(String courseId, String unitId, String lessonId, String collectionId, User user) {
+		Collection sourceCollection = this.getCollectionDao().getCollectionByType(collectionId, COLLECTION);
+		rejectIfNull(sourceCollection, GL0056, COLLECTION);
+		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user), GL0099, 403, COLLECTION);
+		Collection lesson = this.getCollectionDao().getCollectionByType(lessonId, LESSON);
+		rejectIfNull(lesson, GL0056, LESSON);
+		Collection unit = this.getCollectionDao().getCollectionByType(unitId, UNIT);
+		rejectIfNull(unit, GL0056, UNIT);
+		Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE);
+		rejectIfNull(course, GL0056, COURSE);
+		CollectionItem sourceCollectionItem = getCollectionDao().findCollectionItem(sourceCollection.getGooruOid(), user.getPartyUid());	
+		CollectionItem collectionItem = new CollectionItem();
+		if(sourceCollectionItem.getItemType() != null){
+			collectionItem.setItemType(sourceCollectionItem.getItemType());
+		}
+		getParents(sourceCollection.getContentId(), sourceCollection.getCollectionType());
+		this.getCollectionDao().deleteCollectionItem(sourceCollection.getContentId());
+		CollectionItem newCollectionItem = this.createCollectionItem(collectionItem, lesson, sourceCollection, user);
+		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), sourceCollection.getCollectionType() , ADD);
+		return newCollectionItem;
+	}
+	
+	private void getParents(Long collectionId, String collectionType){
+		Long lessonId = this.getCollectionDao().getParent(collectionId);
+		Long unitId = this.getCollectionDao().getParent(lessonId);
+		Long courseId = this.getCollectionDao().getParent(unitId);
+		this.updateMetaDataSummary(courseId, unitId, lessonId, collectionType, DELETE);
+	}
+	
 	private void updateMetaDataSummary(Long courseId, Long unitId, Long lessonId, String collectionType, String action) {
 		ContentMeta unitContentMeta = this.getContentRepository().getContentMeta(unitId);
 		ContentMeta courseContentMeta = this.getContentRepository().getContentMeta(courseId);
 		ContentMeta lessonContentMeta = this.getContentRepository().getContentMeta(lessonId);
 		if (lessonContentMeta != null) {
-				int assessmentCount = this.getCollectionDao().getCollectionItemCount(lessonId, CollectionType.ASSESSMENT.getCollectionType());
-				int collectionCount = this.getCollectionDao().getCollectionItemCount(lessonId, CollectionType.COLLECTION.getCollectionType());
-			if(action.equalsIgnoreCase(DELETE)){
-				if(collectionType.equalsIgnoreCase(COLLECTION)){
-					collectionCount -= 1;
-				}
-				if(collectionType.equalsIgnoreCase(ASSESSMENT)){
-					assessmentCount -= 1;
-				}
-				
-			}
-			Map<String, Object> metaData = JsonDeserializer.deserialize(lessonContentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
-			});
-			Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
-			summary.put(MetaConstants.COLLECTION_COUNT, collectionCount);
-			summary.put(MetaConstants.ASSESSMENT_COUNT, assessmentCount);
-			metaData.put(SUMMARY, summary);
-			updateContentMeta(lessonContentMeta, metaData);
+			updateSummaryMeta(collectionType, lessonContentMeta, action);
 		}
 		if (unitContentMeta != null) {
 			updateSummaryMeta(collectionType, unitContentMeta, action);
@@ -517,4 +531,5 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	public QuestionService getQuestionService() {
 		return questionService;
 	}
+
 }
