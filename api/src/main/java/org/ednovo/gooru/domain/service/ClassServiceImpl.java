@@ -1,5 +1,6 @@
 package org.ednovo.gooru.domain.service;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -55,6 +56,9 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	@Autowired
 	private CustomTableRepository customTableRepository;
 
+	@Autowired
+	private GooruImageUtil gooruImageUtil;
+
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<UserClass> createClass(UserClass userClass, User user) {
@@ -99,6 +103,13 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 			rejectIfNull(collection, GL0056, COURSE);
 			userClass.setCourseContentId(collection.getContentId());
 		}
+		if (newUserClass.getMediaFilename() != null) {
+			StringBuilder basePath = new StringBuilder(UserClass.REPO_PATH);
+			basePath.append(File.separator).append(userClass.getClassId());
+			getGooruImageUtil().imageUpload(newUserClass.getMediaFilename(), basePath.toString(), UserClass.IMAGE_DIMENSION);
+			basePath.append(File.separator).append(newUserClass.getMediaFilename());
+			userClass.setImagePath(basePath.toString());
+		}
 		userClass.setLastModifiedOn(new Date(System.currentTimeMillis()));
 		userClass.setLastModifiedUserUid(user.getPartyUid());
 		this.getClassRepository().save(userClass);
@@ -107,7 +118,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public List<Map<String, Object>> getClasses(String gooruUid, int limit, int offset) {
+	public Map<String, Object> getClasses(String gooruUid, int limit, int offset) {
 		List<Map<String, Object>> resultSet = null;
 		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
 		if (gooruUid != null) {
@@ -115,25 +126,35 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		} else {
 			resultSet = this.getClassRepository().getClasses(limit, offset);
 		}
-		if (resultSet != null) {
+		Map<String, Object> searchResults = null;
+		if (resultSet != null && resultSet.size() > 0) {
+			searchResults = new HashMap<String, Object>();
 			for (Map<String, Object> result : resultSet) {
 				results.add(setClass(result));
 			}
+			Integer count = this.getClassRepository().getClassesCount(gooruUid);
+			searchResults.put(SEARCH_RESULT, results);
+			searchResults.put(TOTAL_HIT_COUNT, count);
 		}
-		return results;
+		return searchResults;
 	}
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public List<Map<String, Object>> getStudyClasses(String gooruUid, int limit, int offset) {
+	public Map<String, Object> getStudyClasses(String gooruUid, int limit, int offset) {
 		List<Map<String, Object>> resultSet = this.getClassRepository().getStudyClasses(gooruUid, limit, offset);
 		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
-		if (resultSet != null) {
+		Map<String, Object> searchResults = null;
+		if (resultSet != null && resultSet.size() > 0) {
+			searchResults = new HashMap<String, Object>();
 			for (Map<String, Object> result : resultSet) {
 				results.add(setClass(result));
 			}
+			Integer count = this.getClassRepository().getClassesCount(gooruUid);
+			searchResults.put(SEARCH_RESULT, results);
+			searchResults.put(TOTAL_HIT_COUNT, count);
 		}
-		return results;
+		return searchResults;
 	}
 
 	@Override
@@ -189,6 +210,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		user.put(GOORU_UID, userUid);
 		user.put(USER_NAME, username);
 		user.put(GENDER, gender);
+		user.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf(user.get(GOORU_UID)) + ".png");
 		return user;
 	}
 
@@ -269,6 +291,10 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
+	}
+
+	public GooruImageUtil getGooruImageUtil() {
+		return gooruImageUtil;
 	}
 
 }
