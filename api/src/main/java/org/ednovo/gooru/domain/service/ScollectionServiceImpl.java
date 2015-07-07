@@ -215,6 +215,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Collection> createCollection(final Collection collection, final boolean addToShelf, final String resourceId, final String parentId, final User user) throws Exception {
+		if (collection.getBuildTypeId() != null) {
+			collection.setBuildTypeId(Constants.BUILD_WEB_TYPE_ID);
+		}
 		final Errors errors = validateCollection(collection);
 		if (!errors.hasErrors()) {
 			Collection parentCollection = null;
@@ -1451,7 +1454,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (collection != null) {
 			rejectIfNullOrEmpty(errors, collection.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 			rejectIfInvalidType(errors, collection.getCollectionType(), COLLECTION_TYPE, GL0007, generateErrorMessage(GL0007, COLLECTION_TYPE), Constants.COLLECTION_TYPES);
-			rejectIfInvalidType(errors, collection.getBuildTypeId(), BUILD_TYPE, GL0007, generateErrorMessage(GL0007, BUILD_TYPE), Constants.BUILD_TYPE);
 		}
 		return errors;
 	}
