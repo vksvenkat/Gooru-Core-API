@@ -83,14 +83,14 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollection(String courseId, String unitId, String lessonId, String collectionId, User user) {
 		Collection collection = this.getCollectionDao().getCollection(collectionId);
-		rejectIfNull(collection, GL0056, COLLECTION);
+		rejectIfNull(collection, GL0056, 404, COLLECTION);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user), GL0099, 403, COLLECTION);
 		Collection lesson = getCollectionDao().getCollectionByType(lessonId, LESSON);
-		rejectIfNull(lesson, GL0056, LESSON);
+		rejectIfNull(lesson, GL0056, 404,LESSON);
 		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE);
-		rejectIfNull(course, GL0056, COURSE);
+		rejectIfNull(course, GL0056,404, COURSE);
 		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT);
-		rejectIfNull(unit, GL0056, UNIT);
+		rejectIfNull(unit, GL0056,404, UNIT);
 		this.resetSequence(lessonId, collection.getGooruOid());
 		this.deleteCollection(collectionId);
 		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getCollectionType(), DELETE);
@@ -102,11 +102,11 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		final Errors errors = validateCollection(collection);
 		if (!errors.hasErrors()) {
 			Collection course = getCollectionDao().getCollectionByType(courseId, COURSE);
-			rejectIfNull(course, GL0056, COURSE);
+			rejectIfNull(course, GL0056, 404,COURSE);
 			Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT);
-			rejectIfNull(unit, GL0056, UNIT);
+			rejectIfNull(unit, GL0056, 404,UNIT);
 			Collection lesson = getCollectionDao().getCollectionByType(lessonId, LESSON);
-			rejectIfNull(lesson, GL0056, LESSON);
+			rejectIfNull(lesson, GL0056, 404,LESSON);
 			createCollection(user, collection, lesson);
 			Map<String, Object> data = generateCollectionMetaData(collection, collection, user);
 			data.put(SUMMARY, MetaConstants.COLLECTION_SUMMARY);
@@ -168,9 +168,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateCollectionItem(String collectionId, final String collectionItemId, CollectionItem newCollectionItem, User user) {
 		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
-		rejectIfNull(collectionItem, GL0056, _COLLECTION_ITEM);
+		rejectIfNull(collectionItem, GL0056,404, _COLLECTION_ITEM);
 		Collection collection = this.getCollectionDao().getCollectionByType(collectionId, COLLECTION);
-		rejectIfNull(collection, GL0056, COLLECTION);
+		rejectIfNull(collection, GL0056, 404, COLLECTION);
 		if (newCollectionItem.getNarration() != null) {
 			collectionItem.setNarration(newCollectionItem.getNarration());
 		}
@@ -348,31 +348,31 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public CollectionItem moveCollectionToLesson(String courseId, String unitId, String lessonId, String collectionId, User user) {
-		Collection sourceCollection = this.getCollectionDao().getCollectionByType(collectionId, COLLECTION);
-		rejectIfNull(sourceCollection, GL0056, 404, COLLECTION);
+		//Collection sourceCollections = this.getCollectionDao().getCollectionByType(collectionId, COLLECTION);
+		CollectionItem sourceCollectionItem = getCollectionDao().findCollectionItem(collectionId, user.getPartyUid());	
+		rejectIfNull(sourceCollectionItem, GL0056, 404, COLLECTION);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user), GL0099, 403, COLLECTION);
 		Collection lesson = this.getCollectionDao().getCollectionByType(lessonId, LESSON);
 		rejectIfNull(lesson, GL0056, 404, LESSON);
 		Collection unit = this.getCollectionDao().getCollectionByType(unitId, UNIT);
 		rejectIfNull(unit, GL0056, 404, UNIT);
 		Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE);
-		rejectIfNull(course, GL0056, COURSE);
-		CollectionItem sourceCollectionItem = getCollectionDao().findCollectionItem(sourceCollection.getGooruOid(), user.getPartyUid());	
+		rejectIfNull(course, GL0056, 404, COURSE);
 		CollectionItem collectionItem = new CollectionItem();
 		if(sourceCollectionItem.getItemType() != null){
 			collectionItem.setItemType(sourceCollectionItem.getItemType());
 		}
-		getParents(sourceCollection.getContentId(), sourceCollection.getCollectionType());
-		this.getCollectionDao().deleteCollectionItem(sourceCollection.getContentId());
-		CollectionItem newCollectionItem = this.createCollectionItem(collectionItem, lesson, sourceCollection, user);
-		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), sourceCollection.getCollectionType() , ADD);
+		getParentCollection(sourceCollectionItem.getContent().getContentId(), sourceCollectionItem.getContent().getContentType().getName());
+		this.getCollectionDao().deleteCollectionItem(sourceCollectionItem.getContent().getContentId());
+		CollectionItem newCollectionItem = this.createCollectionItem(collectionItem, lesson, sourceCollectionItem.getContent(), user);
+		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), sourceCollectionItem.getContent().getContentType().getName() , ADD);
 		return newCollectionItem;
 	}
 	
-	private void getParents(Long collectionId, String collectionType){
-		Long lessonId = this.getCollectionDao().getParent(collectionId);
-		Long unitId = this.getCollectionDao().getParent(lessonId);
-		Long courseId = this.getCollectionDao().getParent(unitId);
+	private void getParentCollection(Long collectionId, String collectionType){
+		Long lessonId = this.getCollectionDao().getParentCollection(collectionId);
+		Long unitId = this.getCollectionDao().getParentCollection(lessonId);
+		Long courseId = this.getCollectionDao().getParentCollection(unitId);
 		this.updateMetaDataSummary(courseId, unitId, lessonId, collectionType, DELETE);
 	}
 	

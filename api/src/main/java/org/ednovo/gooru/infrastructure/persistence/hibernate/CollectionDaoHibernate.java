@@ -203,7 +203,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	}
 
 	@Override
-	public Long getParent(Long contentId) {
+	public Long getParentCollection(Long contentId) {
 		Query query = getSession().createSQLQuery(GET_PARENTCOLLECTION).setParameter(CONTENT_ID, contentId);
 		return (Long) (query.list().size() > 0 ? ((BigInteger) (query.list().get(0))).longValue() : null);
 	}

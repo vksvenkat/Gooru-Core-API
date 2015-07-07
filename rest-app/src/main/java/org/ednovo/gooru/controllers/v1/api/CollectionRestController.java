@@ -152,11 +152,9 @@ public class CollectionRestController extends BaseController implements Constant
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_MOVE })
 	@RequestMapping(value = { RequestMappingUri.TARGET_LESSON }, method = RequestMethod.PUT)
-	public ModelAndView moveCollection(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @PathVariable(value = LESSON_ID) final String lessonId, @RequestBody final String data, final HttpServletRequest request,final HttpServletResponse response) throws Exception {
+	public void moveCollection(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @PathVariable(value = LESSON_ID) final String lessonId, @RequestBody final String data, @RequestParam(value = SOURCE_COLLECTION, required = true) final String sourceCollection, final HttpServletRequest request,final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
-		final JSONObject json = requestData(data);
-		this.getCollectionBoService().moveCollectionToLesson(courseId, unitId, lessonId, getValue(SOURCE_ID, json), user);
-		return null;
+		this.getCollectionBoService().moveCollectionToLesson(courseId, unitId, lessonId, sourceCollection, user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
