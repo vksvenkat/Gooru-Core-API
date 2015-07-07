@@ -59,5 +59,17 @@ public interface ErrorCodeProperties {
 	String GL0107 = "GL0107";
 
 	String GL0109 = "GL0109";
+	
+	
+	String STATUS_403 = "403";
+
+	String STATUS_200 = "200";
+
+	String STATUS_404 = "404";
+
+	String STATUS_500 = "500";
+
+	String STATUS_4011 = "4011";
+
 
 }
