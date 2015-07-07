@@ -43,7 +43,7 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 	public ActionResponseDTO<Collection> createUnit(String courseId, Collection collection, User user) {
 		final Errors errors = validateUnit(collection);
 		if (!errors.hasErrors()) {
-			Collection parentCollection = getCollectionDao().getCollection(courseId);
+			Collection parentCollection = getCollectionDao().getCollectionByType(courseId, COURSE);
 			rejectIfNull(collection, GL0056, COURSE);
 			collection.setSharing(Sharing.PRIVATE.getSharing());
 			collection.setCollectionType(CollectionType.UNIT.getCollectionType());
@@ -59,9 +59,9 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateUnit(String courseId, String unitId, Collection newCollection, User user) {
-		Collection collection = this.getCollectionDao().getCollection(unitId);
+		Collection collection = getCollectionDao().getCollectionByType(unitId, UNIT);
 		rejectIfNull(collection, GL0056, UNIT);
-		Collection parentCollection = getCollectionDao().getCollection(courseId);
+		Collection parentCollection = getCollectionDao().getCollectionByType(courseId, COURSE);
 		rejectIfNull(collection, GL0056, COURSE);
 		if(newCollection.getPosition() != null){
 			this.resetSequence(parentCollection, collection.getGooruOid() , newCollection.getPosition());
