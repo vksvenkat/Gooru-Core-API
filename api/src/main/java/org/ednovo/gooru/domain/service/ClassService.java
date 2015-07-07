@@ -17,9 +17,9 @@ public interface ClassService {
 
 	Map<String, Object> getClass(String classUid);
 
-	List<Map<String, Object>> getClasses(String gooruUid, int limit, int offset);
+	Map<String, Object> getClasses(String gooruUid, int limit, int offset);
 
-	List<Map<String, Object>> getStudyClasses(String gooruUid, int limit, int offset);
+	Map<String, Object> getStudyClasses(String gooruUid, int limit, int offset);
 
 	void deleteUserFromClass(String classUid, String userUid, User user);
 

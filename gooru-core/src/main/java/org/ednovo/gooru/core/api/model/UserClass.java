@@ -19,13 +19,19 @@ public class UserClass extends UserGroup implements Serializable {
 
 	private Short minimumScore;
 
-	private Short visibility;
+	private Boolean visibility;
 
 	private String uri;
 	
 	private Long classId;
 
 	private String courseGooruOid;
+	
+	private String mediaFilename;
+	
+	public static final String IMAGE_DIMENSION = "800x600";
+	
+	public static final String REPO_PATH = "fclass";
 	
 	public String getDescription() {
 		return description;
@@ -59,14 +65,6 @@ public class UserClass extends UserGroup implements Serializable {
 		this.courseContentId = courseContentId;
 	}
 
-	public Short getVisibility() {
-		return visibility;
-	}
-
-	public void setVisibility(Short visibility) {
-		this.visibility = visibility;
-	}
-
 	public Short getMinimumScore() {
 		return minimumScore;
 	}
@@ -96,5 +94,21 @@ public class UserClass extends UserGroup implements Serializable {
 
 	public void setCourseGooruOid(String courseGooruOid) {
 		this.courseGooruOid = courseGooruOid;
+	}
+
+	public Boolean getVisibility() {
+		return visibility;
+	}
+
+	public void setVisibility(Boolean visibility) {
+		this.visibility = visibility;
+	}
+
+	public String getMediaFilename() {
+		return mediaFilename;
+	}
+
+	public void setMediaFilename(String mediaFilename) {
+		this.mediaFilename = mediaFilename;
 	}
 }
