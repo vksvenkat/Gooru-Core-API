@@ -7,7 +7,7 @@ public interface QuestionService extends AbstractResourceService {
 
 	AssessmentQuestion createQuestion(String data, User user);
 
-	void updateQuestion(String questionId, String data, User user);
+	AssessmentQuestion updateQuestion(String questionId, String data, User user);
 
 	AssessmentQuestion getQuestion(String questionId);
 

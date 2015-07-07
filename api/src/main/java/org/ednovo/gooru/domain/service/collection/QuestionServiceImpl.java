@@ -3,6 +3,7 @@ package org.ednovo.gooru.domain.service.collection;
 import java.io.File;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -30,7 +31,6 @@ import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.domain.service.resource.AssetManager;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.QuestionRepository;
-import org.ednovo.gooru.mongodb.assessments.questions.services.MongoQuestionsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,9 +39,6 @@ import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 
 @Service
 public class QuestionServiceImpl extends AbstractResourceServiceImpl implements QuestionService, ParameterProperties, ConstantProperties {
-
-	@Autowired
-	private MongoQuestionsService mongoQuestionsService;
 
 	@Autowired
 	private QuestionRepository questionRepository;
@@ -95,13 +92,13 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		this.getQuestionRepository().save(question);
 		getIndexHandler().setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		if (question.isQuestionNewGen()) {
-			mongoQuestionsService.createQuestion(question.getGooruOid(), data);
+			getMongoQuestionsService().createQuestion(question.getGooruOid(), data);
 		}
 		return question;
 	}
 
 	@Override
-	public void updateQuestion(String questionId, String data, User user) {
+	public AssessmentQuestion updateQuestion(String questionId, String data, User user) {
 		AssessmentQuestion question = this.getQuestionRepository().getQuestion(questionId);
 		rejectIfNull(question, GL0056, 404, QUESTION);
 		AssessmentQuestion newQuestion = buildQuestion(data);
@@ -139,14 +136,32 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		if (newQuestion.getRecordSource() != null) {
 			question.setRecordSource(newQuestion.getRecordSource());
 		}
+		/*
+		 * Remove the assets for the new generation question. These assets are
+		 * in not stored in association in mysql. Since the question is getting
+		 * overridden we need to use original object (as we are using transient
+		 * field).
+		 */
+		if (newQuestion.isQuestionNewGen()) {
+			List<String> deletedMediaFiles = newQuestion.getDeletedMediaFiles();
+			if (deletedMediaFiles != null && deletedMediaFiles.size() > 0) {
+				for (String deletedMediaFile : deletedMediaFiles) {
+					assetManager.deletePathIfExist(question.getOrganization().getNfsStorageArea().getInternalPath() + question.getFolder() + deletedMediaFile);
+				}
+			}
+		}
 		question.setLastModified(new java.util.Date(System.currentTimeMillis()));
 		getIndexHandler().setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		this.getQuestionRepository().save(question);
+		newQuestion.setAnswers(question.getAnswers());
+		newQuestion.setHints(question.getHints());
+		newQuestion.setGooruOid(question.getGooruOid());
 		// Update the question in mongo now that transaction is almost
 		// done
 		if (question.isQuestionNewGen()) {
-			mongoQuestionsService.updateQuestion(question.getGooruOid(), data);
+			getMongoQuestionsService().updateQuestion(question.getGooruOid(), data);
 		}
+		return newQuestion;
 	}
 
 	private void updateAnswerList(Set<AssessmentAnswer> sourceList, Set<AssessmentAnswer> existingList) {
@@ -272,7 +287,7 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 			}
 			getQuestionRepository().save(copyQuestion);
 			if (copyQuestion.isQuestionNewGen()) {
-				mongoQuestionsService.copyQuestion(questionId, copyQuestion.getGooruOid());
+				getMongoQuestionsService().copyQuestion(questionId, copyQuestion.getGooruOid());
 			}
 			copyQuestion.setAssets(questionAssets);
 		}
@@ -360,6 +375,8 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		xstream.alias(TAXONOMY_CODE, Code.class);
 		xstream.alias(_DEPTH_OF_KNOWLEDGE, ContentMetaDTO.class);
 		xstream.alias(_EDUCATIONAL_USE, ContentMetaDTO.class);
+		xstream.addImplicitCollection(AssessmentQuestion.class, "mediaFiles", String.class);
+		xstream.addImplicitCollection(AssessmentQuestion.class, "deletedMediaFiles", String.class);
 		/*
 		 * The change to make sure that if we add some other attributes
 		 * tomorrow, or as we have added today, we don't have to make them parse
@@ -385,10 +402,6 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 			}
 		}
 		return question;
-	}
-
-	public MongoQuestionsService getMongoQuestionsService() {
-		return mongoQuestionsService;
 	}
 
 	public QuestionRepository getQuestionRepository() {

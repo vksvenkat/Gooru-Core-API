@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.application.util.SerializerUtil;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
@@ -52,10 +53,10 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	@Autowired
 	private OperationAuthorizer operationAuthorizer;
-	
+
 	@Autowired
 	private TaxonomyCourseRepository taxonomyCourseRepository;
-	
+
 	protected final static String TAXONOMY_COURSE = "taxonomyCourse";
 
 	public Collection createCollection(Collection collection, User user) {
@@ -71,6 +72,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		collection.setLastUpdatedUserUid(user.getGooruUId());
 		collection.setContentType(this.getContentType(collection.getCollectionType()));
 		collection.setIsRepresentative(1);
+		collection.setDistinguish((short) 0);
 		collection.setClusterUid(collection.getGooruOid());
 		getCollectionDao().save(collection);
 		return collection;
@@ -142,48 +144,45 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		return collection;
 
 	}
-	
-	public void resetSequence(String parentGooruOid, String gooruOid){
+
+	public void resetSequence(String parentGooruOid, String gooruOid) {
 		CollectionItem itemSequence = this.getCollectionDao().getCollectionItem(parentGooruOid, gooruOid);
 		int sequence = itemSequence.getItemSequence();
 		List<CollectionItem> resetCollectionSequence = this.getCollectionDao().getCollectionItems(parentGooruOid, sequence);
-		if(resetCollectionSequence != null){
-			for(CollectionItem collectionItem : resetCollectionSequence){
+		if (resetCollectionSequence != null) {
+			for (CollectionItem collectionItem : resetCollectionSequence) {
 				collectionItem.setItemSequence(sequence++);
 			}
-			 this.getCollectionDao().saveAll(resetCollectionSequence);
+			this.getCollectionDao().saveAll(resetCollectionSequence);
 		}
 	}
-	
-	public void resetSequence(Collection parentCollection, String gooruOid, Integer newSequence){
-		int max = this.getCollectionDao().getCollectionItemMaxSequence(parentCollection.getContentId());
-		reject((max > newSequence), GL0007, 404, ITEM_SEQUENCE);
+
+	public void resetSequence(String parentGooruOid, String gooruOid, Integer newSequence) {
 		List<CollectionItem> resetCollectionSequence = null;
-			int displaySequence;
-			CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(parentCollection.getGooruOid(), gooruOid);
-		if(collectionItem != null){
+		int displaySequence;
+		CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(parentGooruOid, gooruOid);
+		if (collectionItem != null) {
 			int oldSequence = collectionItem.getItemSequence();
-			if(newSequence > oldSequence){
-				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(),oldSequence, newSequence);
+			if (newSequence > oldSequence) {
+				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), oldSequence, newSequence);
 				displaySequence = oldSequence;
-			}
-			else{
+			} else {
 				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), newSequence, oldSequence);
-				displaySequence = newSequence +1;
+				displaySequence = newSequence + 1;
 			}
-			if(resetCollectionSequence != null){
-				for(CollectionItem collectionSequence : resetCollectionSequence){
-					if(collectionSequence.getContent().getGooruOid() != gooruOid){
+			if (resetCollectionSequence != null) {
+				for (CollectionItem collectionSequence : resetCollectionSequence) {
+					if (collectionSequence.getContent().getGooruOid() != gooruOid) {
 						collectionSequence.setItemSequence(displaySequence++);
-					}
-					else if(collectionSequence.getContent().getGooruOid().equalsIgnoreCase(gooruOid)){
+					} else if (collectionSequence.getContent().getGooruOid().equalsIgnoreCase(gooruOid)) {
 						collectionSequence.setItemSequence(newSequence);
-						}
 					}
-					this.getCollectionDao().saveAll(resetCollectionSequence);
+				}
+				this.getCollectionDao().saveAll(resetCollectionSequence);
 			}
 		}
 	}
+
 	@Override
 	public List<Map<String, Object>> getCollections(Map<String, Object> filters, int limit, int offset) {
 		return getCollectionDao().getCollections(filters, limit, offset);
@@ -194,7 +193,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put(GOORU_OID, collectionId);
 		List<Map<String, Object>> collection = getCollectionDao().getCollections(filters, 1, 0);
-		rejectIfNull((collection == null ||  collection.size() == 0 ? null : collection) , GL0056, collectionType);
+		rejectIfNull((collection == null || collection.size() == 0 ? null : collection), GL0056, collectionType);
 		return mergeMetaData(collection.get(0));
 	}
 
@@ -215,12 +214,17 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		if (buildType != null) {
 			content.put(BUILD_TYPE, Constants.BUILD_TYPE.get(((Number) buildType).shortValue()));
 		}
+		Object thumbnail = content.get(IMAGE_PATH);
+		if (thumbnail != null) {
+			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
+		}
 		Object publishStatus = (Short) content.get(PUBLISH_STATUS);
 		if (publishStatus != null) {
 			content.put(PUBLISH_STATUS, Constants.PUBLISH_STATUS.get(((Number) publishStatus).shortValue()));
 		}
 		content.remove(DATA);
 		content.remove(META_DATA);
+		content.remove(IMAGE_PATH);
 		return content;
 	}
 
@@ -288,11 +292,12 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		}
 		return metaValues;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public void deleteValidation(Long contentId, String collectionType){
+	public void deleteValidation(Long contentId, String collectionType) {
 		ContentMeta contentMeta = this.getContentRepository().getContentMeta(contentId);
-		Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {});
+		Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
+		});
 		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
 		int assessmentCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue();
 		int collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue();
@@ -305,42 +310,47 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		if (codeIds != null && codeIds.size() > 0) {
 			codes = new ArrayList<Map<String, Object>>();
 			List<Code> assocCodes = this.getContentClassificationRepository().getCodes(codeIds);
-			List<ContentClassification> contentClassifications = new ArrayList<ContentClassification>();
-			for (Code code : assocCodes) {
-				ContentClassification contentClassification = new ContentClassification();
-				contentClassification.setContent(content);
-				contentClassification.setCode(code);
-				contentClassification.setTypeId(typeId);
-				contentClassifications.add(contentClassification);
-				Map<String, Object> assocCode = new HashMap<String, Object>();
-				assocCode.put(ID, code.getCodeId());
-				assocCode.put(ROOT_NODE_ID, code.getRootNodeId());
-				assocCode.put(CODE, code.getCode());
-				codes.add(assocCode);
+			if (assocCodes != null && assocCodes.size() > 0) {
+				List<ContentClassification> contentClassifications = new ArrayList<ContentClassification>();
+				for (Code code : assocCodes) {
+					ContentClassification contentClassification = new ContentClassification();
+					contentClassification.setContent(content);
+					contentClassification.setCode(code);
+					contentClassification.setTypeId(typeId);
+					contentClassifications.add(contentClassification);
+					Map<String, Object> assocCode = new HashMap<String, Object>();
+					assocCode.put(ID, code.getCodeId());
+					assocCode.put(ROOT_NODE_ID, code.getRootNodeId());
+					assocCode.put(CODE, code.getCode());
+					codes.add(assocCode);
+				}
+				this.getContentRepository().saveAll(contentClassifications);
 			}
-			this.getContentRepository().saveAll(contentClassifications);
 		}
 		return codes;
 	}
-	
-	public  List<Map<String, Object>> updateTaxonomyCourse(Content content, List<Integer> taxonomyCourseIds) {
+
+	public List<Map<String, Object>> updateTaxonomyCourse(Content content, List<Integer> taxonomyCourseIds) {
 		this.getContentRepository().deleteContentTaxonomyCourseAssoc(content.getContentId());
 		List<Map<String, Object>> courses = null;
 		if (taxonomyCourseIds != null && taxonomyCourseIds.size() > 0) {
 			List<TaxonomyCourse> taxonomyCourses = this.getTaxonomyCourseRepository().getTaxonomyCourses(taxonomyCourseIds);
-			courses = new ArrayList<Map<String, Object>>();
-			List<ContentTaxonomyCourseAssoc> contentTaxonomyCourseAssocs = new ArrayList<ContentTaxonomyCourseAssoc>();
-			for (TaxonomyCourse taxonomyCourse : taxonomyCourses) {
-				ContentTaxonomyCourseAssoc contentTaxonomyCourseAssoc = new ContentTaxonomyCourseAssoc();
-				contentTaxonomyCourseAssoc.setContent(content);
-				contentTaxonomyCourseAssoc.setTaxonomyCourse(taxonomyCourse);
-				contentTaxonomyCourseAssocs.add(contentTaxonomyCourseAssoc);
-				Map<String, Object> course = new HashMap<String, Object>();
-				course.put(ID, contentTaxonomyCourseAssoc.getTaxonomyCourse().getCourseId());
-				course.put(NAME, contentTaxonomyCourseAssoc.getTaxonomyCourse().getName());
-				courses.add(course);
+			if (taxonomyCourses != null && taxonomyCourses.size() > 0) {
+				courses = new ArrayList<Map<String, Object>>();
+				List<ContentTaxonomyCourseAssoc> contentTaxonomyCourseAssocs = new ArrayList<ContentTaxonomyCourseAssoc>();
+				for (TaxonomyCourse taxonomyCourse : taxonomyCourses) {
+					Map<String, Object> course = new HashMap<String, Object>();
+					course.put(ID, taxonomyCourse.getCourseId());
+					course.put(SUBJECT_ID, taxonomyCourse.getSubjectId());
+					course.put(NAME, taxonomyCourse.getName());
+					courses.add(course);
+					ContentTaxonomyCourseAssoc contentTaxonomyCourseAssoc = new ContentTaxonomyCourseAssoc();
+					contentTaxonomyCourseAssoc.setContent(content);
+					contentTaxonomyCourseAssoc.setTaxonomyCourse(taxonomyCourse);
+					contentTaxonomyCourseAssocs.add(contentTaxonomyCourseAssoc);
+				}
+				this.getContentRepository().saveAll(contentTaxonomyCourseAssocs);
 			}
-			this.getContentRepository().saveAll(contentTaxonomyCourseAssocs);
 		}
 		return courses;
 	}

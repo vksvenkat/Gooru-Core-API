@@ -20,13 +20,13 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-	<class name="org.ednovo.gooru.core.api.model.ContentDomainAssoc"
-		table="content_domain_assoc">
+	<class name="org.ednovo.gooru.core.api.model.ContentSubdomainAssoc"
+		table="content_subdomain_assoc">
 		<composite-id>
 			<key-many-to-one column="content_id" name="content"
 				class="org.ednovo.gooru.core.api.model.Content" lazy="proxy" />
-			<key-many-to-one column="domain_id" name="domain"
-				class="org.ednovo.gooru.core.api.model.Domain" lazy="proxy" />
+			<key-many-to-one column="subdomain_id" name="subdomain"
+				class="org.ednovo.gooru.core.api.model.Subdomain" lazy="proxy" />
 		</composite-id>
 	</class>
 </hibernate-mapping>

@@ -26,6 +26,8 @@ package org.ednovo.gooru.core.api.model;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Transient;
+
 public class Subdomain implements Serializable {
 
 	/**
@@ -35,13 +37,21 @@ public class Subdomain implements Serializable {
 
 	private Integer subdomainId;
 
-	private Integer CourseId;
+	private TaxonomyCourse taxonomyCourse;
 
-	private Integer domainId;
+	private Domain domain;
 
 	private Date createdOn;
-	
+
 	private String uri;
+
+	@Transient
+	private Integer domainId;
+
+	@Transient
+	private Integer taxonomyCourseId;
+	
+	private String description;
 
 	public Integer getSubdomainId() {
 		return subdomainId;
@@ -49,22 +59,6 @@ public class Subdomain implements Serializable {
 
 	public void setSubdomainId(Integer subdomainId) {
 		this.subdomainId = subdomainId;
-	}
-
-	public Integer getCourseId() {
-		return CourseId;
-	}
-
-	public void setCourseId(Integer courseId) {
-		CourseId = courseId;
-	}
-
-	public Integer getDomainId() {
-		return domainId;
-	}
-
-	public void setDomainId(Integer domainId) {
-		this.domainId = domainId;
 	}
 
 	public Date getCreatedOn() {
@@ -81,6 +75,46 @@ public class Subdomain implements Serializable {
 
 	public void setUri(String uri) {
 		this.uri = uri;
+	}
+
+	public Domain getDomain() {
+		return domain;
+	}
+
+	public void setDomain(Domain domain) {
+		this.domain = domain;
+	}
+
+	public Integer getDomainId() {
+		return domainId;
+	}
+
+	public void setDomainId(Integer domainId) {
+		this.domainId = domainId;
+	}
+
+	public TaxonomyCourse getTaxonomyCourse() {
+		return taxonomyCourse;
+	}
+
+	public void setTaxonomyCourse(TaxonomyCourse taxonomyCourse) {
+		this.taxonomyCourse = taxonomyCourse;
+	}
+
+	public Integer getTaxonomyCourseId() {
+		return taxonomyCourseId;
+	}
+
+	public void setTaxonomyCourseId(Integer taxonomyCourseId) {
+		this.taxonomyCourseId = taxonomyCourseId;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 }

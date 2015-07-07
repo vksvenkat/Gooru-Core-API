@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Subdomain.hbm.xml gooru-api Created by Gooru on 2015 Copyright (c) 2015
+<!-- Subdomain.hbm.xml gooru-api Created by Gooru on 2015 Copyright (c) 2015 
 	Gooru. All rights reserved. http://www.goorulearning.org/ Permission is hereby 
 	granted, free of charge, to any person obtaining a copy of this software 
 	and associated documentation files (the "Software"), to deal in the Software 
@@ -24,8 +24,12 @@
 		<id name="subdomainId" column="subdomain_id" unsaved-value="null">
 			<generator class="identity" />
 		</id>
-		<property name="courseId" column="course_id" not-null="true"></property>
-		<property name="domainId" column="domain_id" not-null="true"></property>
+		<many-to-one name="taxonomyCourse"
+			class="org.ednovo.gooru.core.api.model.TaxonomyCourse" column="course_id"
+			not-null="false" lazy="proxy" cascade="none" />
+		<many-to-one name="domain" class="org.ednovo.gooru.core.api.model.Domain"
+			not-null="false" lazy="proxy" cascade="none" column="domain_id" />
+		<property name="description" column="description" not-null="false" />
 		<property name="createdOn" column="created_on" not-null="true"></property>
 	</class>
 </hibernate-mapping>

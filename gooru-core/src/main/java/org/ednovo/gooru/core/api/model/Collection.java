@@ -93,13 +93,13 @@ public class Collection extends Content implements Versionable {
 
 	private List<Integer> taxonomyCourseIds;
 
-	private List<Integer> domainIds;
-
-	private List<Integer> standardIds;
+	private List<Integer> subdomainIds;
 
 	private List<Integer> skillIds;
 
 	private List<Integer> depthOfKnowledgeIds;
+	
+	private Short distinguish;
 
 	public String getIdeas() {
 		return ideas;
@@ -418,22 +418,6 @@ public class Collection extends Content implements Versionable {
 		this.taxonomyCourseIds = taxonomyCourseIds;
 	}
 
-	public List<Integer> getDomainIds() {
-		return domainIds;
-	}
-
-	public void setDomainIds(List<Integer> domainIds) {
-		this.domainIds = domainIds;
-	}
-
-	public List<Integer> getStandardIds() {
-		return standardIds;
-	}
-
-	public void setStandardIds(List<Integer> standardIds) {
-		this.standardIds = standardIds;
-	}
-
 	public List<Integer> getSkillIds() {
 		return skillIds;
 	}
@@ -474,4 +458,19 @@ public class Collection extends Content implements Versionable {
 		this.position = position;
 	}
 
+	public List<Integer> getSubdomainIds() {
+		return subdomainIds;
+	}
+
+	public void setSubdomainIds(List<Integer> subdomainIds) {
+		this.subdomainIds = subdomainIds;
+	}
+
+	public Short getDistinguish() {
+		return distinguish;
+	}
+
+	public void setDistinguish(Short distinguish) {
+		this.distinguish = distinguish;
+	}
 }

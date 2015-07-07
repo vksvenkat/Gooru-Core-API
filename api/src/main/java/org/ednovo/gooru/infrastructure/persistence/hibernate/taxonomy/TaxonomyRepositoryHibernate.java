@@ -334,6 +334,15 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 
 	@Override
+	public List<Map<String, Object>> getCurriculum(List<Integer> codeIds) {
+		String sql = "select code, label, code_id as codeId from code where depth = 0  and root_node_id != 20000";
+		Query query = getSession().createSQLQuery(sql);
+		//query.setParameterList(CODE_ID, codeIds);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		return list(query);
+	}
+	
+	@Override
 	public Code findFirstChildTaxonomyCodeByDepth(Integer codeId, Integer depth) {
 		List<Code> code = list(getSession().createQuery("from Code c where c.parentId =" + codeId + " and c.depth =" + depth + " and c.displayOrder = 1 and c.activeFlag = 1 " + "and " + generateOrgAuthQueryWithData("c.")));
 		return (code != null && code.size() > 0) ? code.get(0) : null;

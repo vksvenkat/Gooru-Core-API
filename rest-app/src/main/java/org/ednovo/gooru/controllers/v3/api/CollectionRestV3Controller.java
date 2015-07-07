@@ -9,64 +9,38 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
+import org.ednovo.gooru.domain.service.collection.CollectionBoService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @RequestMapping(value = { RequestMappingUri.V3_COLLECTION })
 @Controller
 public class CollectionRestV3Controller extends BaseController implements ConstantProperties, ParameterProperties {
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
-	@RequestMapping(method = RequestMethod.POST)
-	public ModelAndView createCollection(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
-		return null;
-	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
-	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.PUT)
-	public void updateCollection(@PathVariable(value = ID) final String collectionUId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
+	@Autowired
+	private CollectionBoService collectionBoService;
+
+	private static final String INCLUDE_ITEMS = "includeItems";
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@RequestMapping(value = { RequestMappingUri.ID }, method = RequestMethod.GET)
+	public ModelAndView getCollection(@PathVariable(value = ID) final String collectionId, @RequestParam(value = INCLUDE_ITEMS, required = false, defaultValue = FALSE) final boolean includeItems, final HttpServletRequest request, final HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(this.getCollectionBoService().getCollection(collectionId, COLLECTION, includeItems), RESPONSE_FORMAT_JSON, EXCLUDE, true, INCLUDE_COLLECTION_ITEMS);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
-	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.GET)
-	public ModelAndView getCollection(@PathVariable(value = ID) final String collectionUId, final HttpServletRequest request, final HttpServletResponse response) {
-		return null;
+	@RequestMapping(value = { RequestMappingUri.ITEM_ID }, method = RequestMethod.GET)
+	public ModelAndView getCollectionItems(@PathVariable(value = ID) final String collectionId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit,
+			final HttpServletRequest request, final HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(this.getCollectionBoService().getCollectionItems(collectionId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE, true, INCLUDE_COLLECTION_ITEMS);
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
-	@RequestMapping(method = RequestMethod.GET)
-	public ModelAndView getCollections(final HttpServletRequest request, final HttpServletResponse response) {
-		return null;
-	}
-
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
-	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.DELETE)
-	public void deleteCollection(@PathVariable(value = ID) final String collectionUId, final HttpServletRequest request, final HttpServletResponse response) {
-	}
-
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
-	@RequestMapping(value = { RequestMappingUri.CREATE_RESOURCE }, method = RequestMethod.POST)
-	public ModelAndView createResource(@PathVariable(value = ID) final String collectionUId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
-		return null;
-	}
-
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
-	@RequestMapping(value = { RequestMappingUri.CREATE_QUESTION }, method = RequestMethod.POST)
-	public ModelAndView createQuestion(@PathVariable(value = ID) final String collectionUId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
-		return null;
-	}
-
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
-	@RequestMapping(value = { RequestMappingUri.UPDATE_RESOURCE }, method = RequestMethod.PUT)
-	public void updateResource(@PathVariable(value = COLLECTION_ID) final String collectionUId, @PathVariable(value = ID) final String questionId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
-
-	}
-
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
-	@RequestMapping(value = { RequestMappingUri.UPDATE_QUESTION }, method = RequestMethod.PUT)
-	public void updateQuestion(@PathVariable(value = COLLECTION_ID) final String collectionUId, @PathVariable(value = ID) final String questionId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
+	public CollectionBoService getCollectionBoService() {
+		return collectionBoService;
 	}
 }

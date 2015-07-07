@@ -55,7 +55,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class ContentRepositoryHibernate extends BaseRepositoryHibernate implements ContentRepository, ConstantProperties, ParameterProperties {
 
-	private final static String DELETE_CONTENT_DOMAIN_ASSOC = "DELETE FROM ContentDomainAssoc where content.contentId =:contentId";
+	private final static String DELETE_CONTENT_SUBDOMAIN_ASSOC = "DELETE FROM ContentSubdomainAssoc where content.contentId =:contentId";
 
 	private final static String DELETE_CONTENT_META_ASSOC = "DELETE cm.* from content_meta_assoc cm  inner join custom_table_value ctv on cm.type_id = ctv.custom_table_value_id  inner join custom_table ct on ctv.custom_table_id = ct.custom_table_id where  cm.content_id =:contentId and  name =:key";
 
@@ -337,8 +337,8 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	}
 
 	@Override
-	public void deleteContentDomainAssoc(Long contentId) {
-		Query query = getSession().createQuery(DELETE_CONTENT_DOMAIN_ASSOC);
+	public void deleteContentSubdomainAssoc(Long contentId) {
+		Query query = getSession().createQuery(DELETE_CONTENT_SUBDOMAIN_ASSOC);
 		query.setParameter(CONTENT_ID, contentId);
 		query.executeUpdate();
 	}

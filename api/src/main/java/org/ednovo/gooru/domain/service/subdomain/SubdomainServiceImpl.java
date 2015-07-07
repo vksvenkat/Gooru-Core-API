@@ -36,7 +36,6 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.DomainRepository;
 import org.ednovo.gooru.domain.service.TaxonomyCourseRepository;
-import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.SubdomainRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,7 +52,7 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 
 	@Autowired
 	private TaxonomyCourseRepository TaxonomycourseRepository;
-	
+
 	@Autowired
 	private DomainRepository domainRepository;
 
@@ -61,11 +60,13 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Subdomain> createSubdomain(Subdomain subdomain, User user) {
 		final Errors errors = validateSubdomain(subdomain);
-		TaxonomyCourse Taxonomycourse = this.getTaxonomyCourseRepository().getCourse(subdomain.getCourseId());
-         rejectIfNull(Taxonomycourse, GL0006, 404, COURSE);
-         Domain domain = this.getDomainRepository().getDomain(subdomain.getDomainId());
-         rejectIfNull(domain, GL0006, 404, DOMAIN_);
+		TaxonomyCourse Taxonomycourse = this.getTaxonomyCourseRepository().getCourse(subdomain.getTaxonomyCourseId());
+		rejectIfNull(Taxonomycourse, GL0006, 404, COURSE);
+		Domain domain = this.getDomainRepository().getDomain(subdomain.getDomainId());
+		rejectIfNull(domain, GL0006, 404, DOMAIN_);
 		if (!errors.hasErrors()) {
+			subdomain.setTaxonomyCourse(Taxonomycourse);
+			subdomain.setDomain(domain);
 			subdomain.setCreatedOn(new Date(System.currentTimeMillis()));
 			this.getSubdomainRepository().save(subdomain);
 		}
@@ -92,13 +93,13 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteSubdomain(Integer subdomainId) {
 		Subdomain subdomain = this.getSubdomainRepository().getSubdomain(subdomainId);
-		rejectIfNull(subdomain, GL0056, 404,SUBDOMAIN);
+		rejectIfNull(subdomain, GL0056, 404, SUBDOMAIN);
 		this.getSubdomainRepository().remove(subdomain);
 	}
 
 	private Errors validateSubdomain(Subdomain subdomain) {
 		final Errors errors = new BindException(subdomain, SUBDOMAIN);
-		rejectIfNull(errors, subdomain.getCourseId(), COURSE_ID, generateErrorMessage(GL0006, COURSE_ID));
+		rejectIfNull(errors, subdomain.getTaxonomyCourseId(), COURSE_ID, generateErrorMessage(GL0006, COURSE_ID));
 		rejectIfNull(errors, subdomain.getDomainId(), DOMAIN_ID, generateErrorMessage(GL0006, DOMAIN_ID));
 		return errors;
 	}
@@ -106,11 +107,11 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 	public SubdomainRepository getSubdomainRepository() {
 		return subdomainRepository;
 	}
-	
+
 	public TaxonomyCourseRepository getTaxonomyCourseRepository() {
 		return TaxonomycourseRepository;
 	}
-	
+
 	public DomainRepository getDomainRepository() {
 		return domainRepository;
 	}

@@ -120,7 +120,7 @@
 				</value>
 				<value>org/ednovo/gooru/domain/model/content/ContentTaxonomyCourseAssoc.hbm.xml
 				</value>
-				<value>org/ednovo/gooru/domain/model/content/ContentDomainAssoc.hbm.xml
+				<value>org/ednovo/gooru/domain/model/content/ContentSubdomainAssoc.hbm.xml
 				</value>
 
 

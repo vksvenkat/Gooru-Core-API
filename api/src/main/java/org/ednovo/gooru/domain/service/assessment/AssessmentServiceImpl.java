@@ -198,6 +198,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 	@Override
 	public ActionResponseDTO<AssessmentQuestion> updateQuestion(AssessmentQuestion question, List<Integer> deleteAssets, String gooruOQuestionId, boolean copyToOriginal, boolean index) throws Exception {
+		AssessmentQuestion incomingQuestion = question;
 		question = initQuestion(question, gooruOQuestionId, copyToOriginal);
 		Errors errors = validateQuestion(question);
 		List<Asset> assets = buildQuestionAssets(deleteAssets, errors);
@@ -212,9 +213,24 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 				assessmentRepository.deleteQuestionAssets(asset.getAssetId());
 				assetManager.deletePathIfExist(asset.getOrganization().getNfsStorageArea().getInternalPath() + question.getFolder() + asset.getName());
 			}
+			/*
+             * Remove the assets for the new generation question. These assets are
+             * in not stored in association in mysql. Since the question is getting
+             * overridden we need to use original object (as we are using transient
+             * field).
+             */
+            if (incomingQuestion.isQuestionNewGen()) {
+                List<String> deletedMediaFiles = incomingQuestion.getDeletedMediaFiles();
+                if (deletedMediaFiles != null && deletedMediaFiles.size() > 0) {
+                    for (String deletedMediaFile : deletedMediaFiles) {
+                        assetManager.deletePathIfExist(question.getOrganization().getNfsStorageArea().getInternalPath() + question.getFolder() + deletedMediaFile);
+                    }
+                }
+            }
 			if (assets.size() > 0) {
 				assessmentRepository.removeAll(assets);
 			}
+			
 			ResourceMetaInfo resourceMetaInfo = new ResourceMetaInfo();
 			resourceMetaInfo.setStandards(collectionService.getStandards(question.getTaxonomySet(), false, null));
 			question.setMetaInfo(resourceMetaInfo);
@@ -911,6 +927,9 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		xstream.alias(TAXONOMY_CODE, Code.class);
 		xstream.alias(_DEPTH_OF_KNOWLEDGE, ContentMetaDTO.class);
 		xstream.alias(_EDUCATIONAL_USE, ContentMetaDTO.class);
+		xstream.addImplicitCollection(AssessmentQuestion.class, "deletedMediaFiles", String.class);
+		xstream.addImplicitCollection(AssessmentQuestion.class, "mediaFiles", String.class);
+		
 		/*
 		 * The change to make sure that if we add some other attributes
 		 * tomorrow, or as we have added today, we don't have to make them parse

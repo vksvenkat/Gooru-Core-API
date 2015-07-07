@@ -38,7 +38,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import flexjson.JSONSerializer;
 
 @Service
-public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl implements CollectionBoService, ParameterProperties, ConstantProperties {
+public class CollectionBoServiceImpl extends AbstractResourceServiceImpl implements CollectionBoService, ParameterProperties, ConstantProperties {
 
 	@Autowired
 	private CollectionDao collectionDao;
@@ -49,7 +49,6 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	@Autowired
 	private ResourceBoService resourceBoService;
 
-	
 	@Autowired
 	private CollectionRepository collectionRepository;
 
@@ -79,7 +78,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
-	
+
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollection(String courseId, String unitId, String lessonId, String collectionId, User user) {
@@ -200,6 +199,9 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 			collectionItem.setItemType(ADDED);
 			collectionItem = createCollectionItem(collectionItem, collection, resource, user);
 			updateCollectionMetaDataSummary(collection.getContentId(), RESOURCE);
+			Map<String, Object> data = generateResourceMetaData(resource, collectionItem.getResource(), user);
+			createContentMeta(resource, data);
+
 		}
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
@@ -210,6 +212,11 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionResourceItemId);
 		rejectIfNull(collectionItem, GL0056, 404, _COLLECTION_ITEM);
 		this.getResourceBoService().updateResource(collectionItem.getContent().getGooruOid(), newCollectionItem.getResource(), user);
+		Map<String, Object> data = generateResourceMetaData(collectionItem.getContent(), newCollectionItem.getResource(), user);
+		if (data != null && data.size() > 0) {
+			ContentMeta contentMeta = this.getContentRepository().getContentMeta(collectionItem.getContent().getContentId());
+			updateContentMeta(contentMeta, data);
+		}
 	}
 
 	@Override
@@ -224,6 +231,8 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		collectionItem.setQuestion(question);
 		collectionItem.setTitle(question.getTitle());
 		updateCollectionMetaDataSummary(collection.getContentId(), QUESTION);
+		Map<String, Object> metaData = generateQuestionMetaData(question, question, user);
+		createContentMeta(question, metaData);
 		return collectionItem;
 	}
 
@@ -232,7 +241,12 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	public void updateQuestion(String collectionId, String collectionQuestionItemId, String data, User user) {
 		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionQuestionItemId);
 		rejectIfNull(collectionItem, GL0056, 404, _COLLECTION_ITEM);
-		this.getQuestionService().updateQuestion(collectionItem.getContent().getGooruOid(), data, user);
+		AssessmentQuestion newAssessmentQuestion = this.getQuestionService().updateQuestion(collectionItem.getContent().getGooruOid(), data, user);
+		Map<String, Object> metaData = generateQuestionMetaData(collectionItem.getContent(), newAssessmentQuestion, user);
+		if (metaData != null && metaData.size() > 0) {
+			ContentMeta contentMeta = this.getContentRepository().getContentMeta(collectionItem.getContent().getContentId());
+			updateContentMeta(contentMeta, metaData);
+		}
 	}
 
 	@Override
@@ -257,20 +271,28 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		rejectIfNull(question, GL0056, 404, QUESTION);
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setItemType(ADDED);
-		return createCollectionItem(collectionItem, collection, question, user);
+		collectionItem = createCollectionItem(collectionItem, collection, question, user);
+		Map<String, Object> metaData = generateQuestionMetaData(question, collectionItem.getQuestion(), user);
+		createContentMeta(question, metaData);
+		return collectionItem;
 	}
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Map<String, Object> getCollection(String collectionId, String collectionType) {
-		return super.getCollection(collectionId, collectionType);
+	public Map<String, Object> getCollection(String collectionId, String collectionType, boolean includeItems) {
+		Map<String, Object> collection = super.getCollection(collectionId, collectionType);
+		StringBuilder key = new StringBuilder(ALL_);
+		key.append(collection.get(GOORU_OID));
+		collection.put(VIEWS, getDashboardCassandraService().readAsLong(key.toString(), COUNT_VIEWS));
+		collection.put(COLLECTION_ITEMS, this.getCollectionItems(collectionId, MAX_LIMIT, 0));
+		return collection;
 	}
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getCollections(String lessonId, String collectionType, int limit, int offset) {
 		Map<String, Object> filters = new HashMap<String, Object>();
-		String[] collectionTypes = collectionType.split(",");
+		String[] collectionTypes = collectionType.split(COMMA);
 		filters.put(COLLECTION_TYPE, collectionTypes);
 		filters.put(PARENT_GOORU_OID, lessonId);
 		List<Map<String, Object>> results = this.getCollections(filters, limit, offset);
@@ -289,6 +311,24 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		List<Map<String, Object>> collectionItems = this.getCollectionDao().getCollectionItem(filters, limit, offset);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> item : collectionItems) {
+			String resourceType = (String) item.get(RESOURCE_TYPE);
+			if (resourceType.equalsIgnoreCase(ResourceType.Type.ASSESSMENT_QUESTION.getType())) {
+				// To-Do,  need fix later, by getting answer and hints details
+				// without querying the assessment object
+				String gooruOid = (String) item.get(GOORU_OID);
+				AssessmentQuestion assessmentQuestion = this.getQuestionService().getQuestion(gooruOid);
+				if (assessmentQuestion != null && !assessmentQuestion.isQuestionNewGen()) {
+					item.put(ANSWERS, assessmentQuestion.getAnswers());
+					item.put(HINTS, assessmentQuestion.getHints());
+				} else { 
+					String json = getMongoQuestionsService().getQuestionByIdWithJsonAdjustments(gooruOid);
+					item.putAll(JsonDeserializer.deserialize(json, new TypeReference<Map<String, Object>>() {
+					}));
+				}
+			}
+			StringBuilder key = new StringBuilder(ALL_);
+			key.append(item.get(GOORU_OID));
+			item.put(VIEWS, getDashboardCassandraService().readAsLong(key.toString(), COUNT_VIEWS));
 			items.add(mergeCollectionItemMetaData(item));
 		}
 		return items;
@@ -358,18 +398,18 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
 		if (collectionType.equalsIgnoreCase(CollectionType.ASSESSMENT.getCollectionType())) {
 			int assessmentCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue();
-			if(action.equalsIgnoreCase(DELETE)){
+			if (action.equalsIgnoreCase(DELETE)) {
 				assessmentCount -= 1;
-			}else if(action.equalsIgnoreCase(ADD)){
+			} else if (action.equalsIgnoreCase(ADD)) {
 				assessmentCount += 1;
 			}
 			summary.put(MetaConstants.ASSESSMENT_COUNT, assessmentCount);
 		}
 		if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
 			int collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue();
-			if(action.equalsIgnoreCase(DELETE)){
+			if (action.equalsIgnoreCase(DELETE)) {
 				collectionCount -= 1;
-			}else if(action.equalsIgnoreCase(ADD)){
+			} else if (action.equalsIgnoreCase(ADD)) {
 				collectionCount += 1;
 			}
 			summary.put(MetaConstants.COLLECTION_COUNT, collectionCount);
