@@ -60,6 +60,7 @@ public interface ErrorCodeProperties {
 
 	String GL0109 = "GL0109";
 	
+	String GL0110 = "GL0110";
 	
 	String STATUS_403 = "403";
 
