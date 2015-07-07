@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
+import org.ednovo.gooru.core.api.model.User;
 
 public interface CollectionDao extends BaseRepository {
 	Collection getCollection(String collectionId);
@@ -31,7 +32,7 @@ public interface CollectionDao extends BaseRepository {
 	
 	void deleteCollectionItem(Long contentId);
 	
-	CollectionItem findCollectionItem(String gooruOid, String gooruUid);
+	CollectionItem getCollectionItemById(String gooruOid, User user);
 	
 	Long getParentCollection(Long contentId);
 }

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
+import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.hibernate.Criteria;
@@ -44,7 +45,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	
 	private static final String DELETE_COLLECTIONITEM = "delete from collection_item where resource_content_id=:contentId";
 
-	private static final String COLLECTIONITEM_BY_USERUID = "FROM CollectionItem ci where ci.content.gooruOid=:gooruOid and ci.collection.user.partyUid=:gooruUId";
+	private static final String COLLECTIONITEM_BY_USERUID = "FROM CollectionItem ci where ci.content.gooruOid=:gooruOid and ci.associatedUser=:user";
 	
 	private static final String GET_PARENTCOLLECTION = "select collection_content_id from collection_item where resource_content_id=:contentId";
 	
@@ -195,10 +196,10 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	}
 
 	@Override
-	public CollectionItem findCollectionItem(String gooruOid, String gooruUId) {
+	public CollectionItem getCollectionItemById(String gooruOid, User user) {
 		Query query =getSession().createQuery(COLLECTIONITEM_BY_USERUID);
 		query.setParameter(GOORU_OID, gooruOid);
-		query.setParameter(GOORU_UID, gooruUId);
+		query.setParameter(USER, user);
 		return (CollectionItem) query.list().get(0);
 	}
 
