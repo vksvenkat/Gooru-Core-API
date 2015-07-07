@@ -3,6 +3,7 @@ package org.ednovo.gooru.domain.service.collection;
 import java.io.File;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -134,6 +135,20 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		}
 		if (newQuestion.getRecordSource() != null) {
 			question.setRecordSource(newQuestion.getRecordSource());
+		}
+		/*
+		 * Remove the assets for the new generation question. These assets are
+		 * in not stored in association in mysql. Since the question is getting
+		 * overridden we need to use original object (as we are using transient
+		 * field).
+		 */
+		if (newQuestion.isQuestionNewGen()) {
+			List<String> deletedMediaFiles = newQuestion.getDeletedMediaFiles();
+			if (deletedMediaFiles != null && deletedMediaFiles.size() > 0) {
+				for (String deletedMediaFile : deletedMediaFiles) {
+					assetManager.deletePathIfExist(question.getOrganization().getNfsStorageArea().getInternalPath() + question.getFolder() + deletedMediaFile);
+				}
+			}
 		}
 		question.setLastModified(new java.util.Date(System.currentTimeMillis()));
 		getIndexHandler().setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
@@ -360,6 +375,8 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		xstream.alias(TAXONOMY_CODE, Code.class);
 		xstream.alias(_DEPTH_OF_KNOWLEDGE, ContentMetaDTO.class);
 		xstream.alias(_EDUCATIONAL_USE, ContentMetaDTO.class);
+		xstream.addImplicitCollection(AssessmentQuestion.class, "mediaFiles", String.class);
+		xstream.addImplicitCollection(AssessmentQuestion.class, "deletedMediaFiles", String.class);
 		/*
 		 * The change to make sure that if we add some other attributes
 		 * tomorrow, or as we have added today, we don't have to make them parse
