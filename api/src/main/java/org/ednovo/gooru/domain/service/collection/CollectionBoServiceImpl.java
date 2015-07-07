@@ -349,12 +349,12 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public CollectionItem moveCollectionToLesson(String courseId, String unitId, String lessonId, String collectionId, User user) {
 		Collection sourceCollection = this.getCollectionDao().getCollectionByType(collectionId, COLLECTION);
-		rejectIfNull(sourceCollection, GL0056, COLLECTION);
+		rejectIfNull(sourceCollection, GL0056, 404, COLLECTION);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user), GL0099, 403, COLLECTION);
 		Collection lesson = this.getCollectionDao().getCollectionByType(lessonId, LESSON);
-		rejectIfNull(lesson, GL0056, LESSON);
+		rejectIfNull(lesson, GL0056, 404, LESSON);
 		Collection unit = this.getCollectionDao().getCollectionByType(unitId, UNIT);
-		rejectIfNull(unit, GL0056, UNIT);
+		rejectIfNull(unit, GL0056, 404, UNIT);
 		Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE);
 		rejectIfNull(course, GL0056, COURSE);
 		CollectionItem sourceCollectionItem = getCollectionDao().findCollectionItem(sourceCollection.getGooruOid(), user.getPartyUid());	
