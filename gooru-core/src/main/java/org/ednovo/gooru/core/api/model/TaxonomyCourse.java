@@ -30,9 +30,9 @@ import java.util.Map;
 public class TaxonomyCourse implements Serializable {
 
 	private static final long serialVersionUID = -1775302177846507373L;
-	
+
 	public static final String REPO_PATH = "fc";
-	
+
 	public static final String IMAGE_DIMENSION = "160x120,80x60";
 
 	private Integer courseId;
@@ -60,7 +60,7 @@ public class TaxonomyCourse implements Serializable {
 	private Date lastModified;
 
 	private String uri;
-	
+
 	private Map<String, Object> thumbnails;
 
 	public Map<String, Object> getThumbnails() {

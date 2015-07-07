@@ -76,13 +76,13 @@ public class SubdomainRestController extends BaseController implements ConstantP
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBDOMAIN_READ })
-	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
+	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.GET)
 	public ModelAndView getSubdomain(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) Integer SubdomainId) throws Exception {
 		return toModelAndViewWithIoFilter(this.getSubdomainService().getSubdomain(SubdomainId), FORMAT_JSON, EXCLUDE_ALL, true, SUBDOMAIN_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBDOMAIN_DELETE })
-	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
+	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.DELETE)
 	public void deleteSubdomain(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) Integer subDomaintId) throws Exception {
 		this.getSubdomainService().deleteSubdomain(subDomaintId);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
