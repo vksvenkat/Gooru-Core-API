@@ -41,8 +41,14 @@ public interface ErrorCodeProperties {
 	String GL0079 = "GL0079";
 
 	String GL0081 = "GL0081";
+	
+	String GL0082 = "GL0082";
 
+	String GL0088 = "GL0088";
+	
 	String GL0089 = "GL0089";
+	
+	String GL0091 = "GL0091";
 
 	String GL0101 = "GL0101";
 
