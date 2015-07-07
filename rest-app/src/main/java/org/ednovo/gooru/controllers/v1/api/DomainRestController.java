@@ -71,13 +71,13 @@ public class DomainRestController extends BaseController implements ConstantProp
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_UPDATE })
-	@RequestMapping(value = { "/{id}" }, method = RequestMethod.PUT)
+	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.PUT)
 	public void updateDomain(@PathVariable(value = ID) Integer domainId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		getDomainService().updateDomain(domainId, buildDomainFromInputParameters(data));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_READ })
-	@RequestMapping(value = { "/{id}" }, method = RequestMethod.GET)
+	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.GET)
 	public ModelAndView getDomain(@PathVariable(value = ID) Integer domainId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return toModelAndViewWithIoFilter(getDomainService().getDomain(domainId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, DOMAIN_INCLUDES);
 	}
@@ -89,14 +89,14 @@ public class DomainRestController extends BaseController implements ConstantProp
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_DELETE })
-	@RequestMapping(value = { "/{id}" }, method = RequestMethod.DELETE)
+	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.DELETE)
 	public void deleteDomain(@PathVariable(value = ID) Integer domainId, HttpServletRequest request, HttpServletResponse response) {
 		getDomainService().deleteDomain(domainId);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_DELETE })
-	@RequestMapping(value = { "taxonomycourse/{cid}/domain/{id}" }, method = RequestMethod.GET)
+	@RequestMapping(value = RequestMappingUri.TAXONOMY_COURSE_BY_DOMAIN, method = RequestMethod.GET)
 	public ModelAndView getDomainAttributes(HttpServletRequest request, HttpServletResponse response,@PathVariable(value = CID) Integer courseId, @PathVariable(value = ID) Integer domainId,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit) {
 		return toModelAndViewWithIoFilter(getDomainService().getDomainAttributes(courseId, domainId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL,true, SUBDOMAIN_ATTRIBUTE);
 	}
