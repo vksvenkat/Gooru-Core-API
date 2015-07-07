@@ -80,6 +80,8 @@ public interface TaxonomyRespository extends BaseRepository{
 	List<Code> findChildTaxonomyCodeByDepth(Integer codeId, Integer depth);
 	
 	List<Code> getCurriculumCodeByDepth(Integer depth);
+	
+	List<Map<String, Object>> getCurriculum(List<Integer> codeIds);
 
 	List<Code> findAll();
 

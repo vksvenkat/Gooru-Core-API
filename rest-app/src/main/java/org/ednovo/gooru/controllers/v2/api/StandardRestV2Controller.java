@@ -64,6 +64,22 @@ public class StandardRestV2Controller extends BaseController implements Constant
 		}
 		return toModelAndView(data);
 	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
+	@RequestMapping(value = "/curriculum", method = RequestMethod.GET)
+	public ModelAndView getCurriculumByCode(@RequestParam(value = DEPTH, required = false, defaultValue = ZERO) Integer depth,  @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, HttpServletRequest request, HttpServletResponse response) {
+		final String cacheKey = "v2-standards-data-Curriculum";
+		String data = null;
+		if (!clearCache) {
+			data = getRedisService().getValue(cacheKey);
+		}
+		if (data == null) {
+			data = serializeToJson(this.getTaxonomyService().getCurriculum(null));
+			getRedisService().putValue(cacheKey, data);
+		}
+		return toModelAndView(data);
+	}
+
 
 	public TaxonomyService getTaxonomyService() {
 		return taxonomyService;
