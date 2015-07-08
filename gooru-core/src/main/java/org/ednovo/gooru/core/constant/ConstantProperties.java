@@ -1,6 +1,7 @@
 package org.ednovo.gooru.core.constant;
 
-public interface ConstantProperties  {
+
+public interface ConstantProperties extends ErrorCodeProperties {
 
 	static final String[] ACTIVITY_LIST_EXCLUDE = { "*.class", "*.courseSet", "*.userRoleSetString", "*.emailId" };
 
@@ -918,8 +919,6 @@ public interface ConstantProperties  {
 	final static String DOMAIN_ID = "domainId";
 
 	final static String SUBJECT_ID = "subjectId";
-
-	final static String GL0110 ="GL0110";
 	
 	final static String SUBDOMAIN_ID = "subdomainId";
 
@@ -944,4 +943,6 @@ public interface ConstantProperties  {
 	final static String CLASS_ID = "classId";
 	
 	final static String INCLUDE_COLLECTION_ITEMS[] = {"*.collectionItems", "*.user", "*.answer", "*.hints"};
+	
+	final static String SOURCE_COLLECTION = "sourceCollection";
 }

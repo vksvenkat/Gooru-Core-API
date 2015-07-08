@@ -38,6 +38,7 @@ import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
+import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
@@ -55,7 +56,7 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
 @Service
-public class OAuthServiceImpl extends ServerValidationUtils implements OAuthService, ParameterProperties {
+public class OAuthServiceImpl extends ServerValidationUtils implements OAuthService, ParameterProperties, ConstantProperties {
 
 	@Autowired
 	private UserRepository userRepository;
