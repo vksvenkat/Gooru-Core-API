@@ -46,7 +46,7 @@ public class InviteRepositoryHibernate extends BaseRepositoryHibernate implement
 	private final static String INVITE_USERS = "select   email, username, user_uid as gooruUId from invite_user inner join  custom_table_value ctv on status_id = ctv.custom_table_value_id  left join identity i on i.external_id = email left join user u on u.gooru_uid =  i.user_uid where gooru_oid =:gooruOid and ctv.key_value =:key";
 
 	private final static String INVITE_USERS_COUNT = "select count(1) as count from invite_user inner join  custom_table_value ctv on status_id = ctv.custom_table_value_id  left join identity i on i.external_id = email left join user u on u.gooru_uid =  i.user_uid where gooru_oid =:gooruOid and ctv.key_value =:key";
-	
+
 	private final static String DELETE_USER_INVITE = "delete from invite_user where gooru_oid =:gooruOid and email =:email";
 
 	@Override
@@ -120,5 +120,4 @@ public class InviteRepositoryHibernate extends BaseRepositoryHibernate implement
 		query.setParameter(EMAIL, email);
 		query.executeUpdate();
 	}
-
 }
