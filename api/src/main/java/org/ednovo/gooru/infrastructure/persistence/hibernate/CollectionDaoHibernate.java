@@ -47,7 +47,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 
 	private static final String COLLECTIONITEM_BY_USERUID = "FROM CollectionItem ci where ci.content.gooruOid=:gooruOid and ci.associatedUser=:user";
 	
-	private static final String GET_PARENTCOLLECTION = "select collection_content_id from collection_item where resource_content_id=:contentId";
+	private static final String GET_PARENTCOLLECTION = "FROM CollectionItem ci where ci.content.contentId=:contentId";
 	
 	@Override
 	public Collection getCollection(String collectionId) {
@@ -200,13 +200,13 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 		Query query =getSession().createQuery(COLLECTIONITEM_BY_USERUID);
 		query.setParameter(GOORU_OID, gooruOid);
 		query.setParameter(USER, user);
-		return (CollectionItem) query.list().get(0);
+		return (CollectionItem) (query.list().size() > 0 ? query.list().get(0): null);
 	}
 
 	@Override
-	public Long getParentCollection(Long contentId) {
-		Query query = getSession().createSQLQuery(GET_PARENTCOLLECTION).setParameter(CONTENT_ID, contentId);
-		return (Long) (query.list().size() > 0 ? ((BigInteger) (query.list().get(0))).longValue() : null);
+	public CollectionItem getParentCollection(Long contentId) {
+		Query query = getSession().createQuery(GET_PARENTCOLLECTION).setParameter(CONTENT_ID, contentId);
+		return (CollectionItem) (query.list().size() > 0 ? query.list().get(0): null);
 	}
 	
 }

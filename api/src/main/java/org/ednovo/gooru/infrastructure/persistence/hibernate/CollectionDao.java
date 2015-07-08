@@ -34,5 +34,5 @@ public interface CollectionDao extends BaseRepository {
 	
 	CollectionItem getCollectionItemById(String gooruOid, User user);
 	
-	Long getParentCollection(Long contentId);
+	CollectionItem getParentCollection(Long contentId);
 }

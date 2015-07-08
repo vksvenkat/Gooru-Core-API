@@ -362,17 +362,26 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if(sourceCollectionItem.getItemType() != null){
 			collectionItem.setItemType(sourceCollectionItem.getItemType());
 		}
-		getParentCollection(sourceCollectionItem.getContent().getContentId(), sourceCollectionItem.getContent().getContentType().getName());
-		this.getCollectionDao().deleteCollectionItem(sourceCollectionItem.getContent().getContentId());
-		CollectionItem newCollectionItem = this.createCollectionItem(collectionItem, lesson, sourceCollectionItem.getContent(), user);
-		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), sourceCollectionItem.getContent().getContentType().getName() , ADD);
+		
+		String collectionType = getParentCollection(sourceCollectionItem.getContent().getContentId(), sourceCollectionItem.getContent().getContentType().getName());
+		if(collectionType.equalsIgnoreCase(SHELF) || collectionType.equals(FOLDER)){
+			this.createCollectionItem(collectionItem, lesson, sourceCollectionItem.getContent(), user);
+		}
+		else{
+			this.getCollectionDao().deleteCollectionItem(sourceCollectionItem.getContent().getContentId());
+			this.createCollectionItem(collectionItem, lesson, sourceCollectionItem.getContent(), user);
+			this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), sourceCollectionItem.getContent().getContentType().getName() , ADD);
+		}
 	}
 	
-	private void getParentCollection(Long collectionId, String collectionType){
-		Long lessonId = this.getCollectionDao().getParentCollection(collectionId);
-		Long unitId = this.getCollectionDao().getParentCollection(lessonId);
-		Long courseId = this.getCollectionDao().getParentCollection(unitId);
-		this.updateMetaDataSummary(courseId, unitId, lessonId, collectionType, DELETE);
+	private String getParentCollection(Long collectionId, String collectionType){
+		CollectionItem lesson = this.getCollectionDao().getParentCollection(collectionId);
+		if(lesson.getCollection().getCollectionType().equalsIgnoreCase(LESSON)){
+			CollectionItem unit = this.getCollectionDao().getParentCollection(lesson.getCollection().getContentId());
+			CollectionItem course = this.getCollectionDao().getParentCollection(unit.getCollection().getContentId());
+			this.updateMetaDataSummary(course.getCollection().getContentId(), unit.getCollection().getContentId(), lesson.getCollection().getContentId(), collectionType, DELETE);
+		}
+		return lesson.getCollection().getCollectionType();
 	}
 	
 	private void updateMetaDataSummary(Long courseId, Long unitId, Long lessonId, String collectionType, String action) {
