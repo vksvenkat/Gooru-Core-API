@@ -348,7 +348,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	public CollectionItem moveCollectionToLesson(String courseId, String unitId, String lessonId, String collectionId, User user) {
 		CollectionItem sourceCollectionItem = getCollectionDao().getCollectionItemById(collectionId, user);	
 		rejectIfNull(sourceCollectionItem, GL0056, 404, COLLECTION);
-		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user), GL0099, 403, COLLECTION);
+		//need to put validation for collaborator
+		//reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user), GL0099, 403, COLLECTION);
 		Collection lesson = this.getCollectionDao().getCollectionByType(lessonId, LESSON);
 		rejectIfNull(lesson, GL0056, 404, LESSON);
 		Collection unit = this.getCollectionDao().getCollectionByType(unitId, UNIT);
