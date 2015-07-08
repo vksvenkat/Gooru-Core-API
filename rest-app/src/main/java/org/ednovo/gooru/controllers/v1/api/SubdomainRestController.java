@@ -88,6 +88,12 @@ public class SubdomainRestController extends BaseController implements ConstantP
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBDOMAIN_READ })
+	@RequestMapping(value = RequestMappingUri.SUBDOMAIN_STANDARDS, method = RequestMethod.GET)
+	public ModelAndView getSubdomainStandards(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) Integer subdomainId) throws Exception {
+		return toModelAndViewWithIoFilter(this.getSubdomainService().getSubdomainStandards(subdomainId), FORMAT_JSON, EXCLUDE, true, "*");
+	}
+
 	private Subdomain buildSubdomainFromInputParameters(String data) {
 		return JsonDeserializer.deserialize(data, Subdomain.class);
 	}

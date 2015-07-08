@@ -172,7 +172,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public List<Map<String, Object>> getMember(String classUid, int limit, int offset) {
+	public Map<String, Object> getMember(String classUid, int limit, int offset) {
 		final List<Map<String, Object>> members = this.getClassRepository().getMember(classUid, limit, offset);
 		Map<String, Object> searchResults = new HashMap<String, Object>();
 		List<Map<String, Object>> memberList = new ArrayList<Map<String, Object>>();
@@ -185,7 +185,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		}
 		searchResults.put(TOTAL_HIT_COUNT, count);
 		searchResults.put(SEARCH_RESULT, memberList);
-		return memberList;
+		return searchResults;
 	}
 
 	@Override
