@@ -433,7 +433,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	@Override
 	public User userAuthentication(User newUser, final String secretKey, final String apiKey, final String source, final HttpServletRequest request) {
 		if (secretKey == null || !secretKey.equalsIgnoreCase(settingService.getConfigSetting(ConfigConstants.GOORU_AUTHENTICATION_SECERT_KEY, 0, TaxonomyUtil.GOORU_ORG_UID))) {
-			throw new UnauthorizedException(generateErrorMessage("GL0082", "secret") + secretKey, "GL0082");
+			throw new UnauthorizedException(generateErrorMessage(GL0082, "secret") + secretKey, GL0082);
 		}
 		boolean registerUser = false;
 		final Identity identity = new Identity();

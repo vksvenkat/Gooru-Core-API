@@ -726,7 +726,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 						if (collectionIds.toString().trim().length() > 0) {
 							collectionIds.append(",");
 						} else {
-							throw new BadRequestException(generateErrorMessage("GL0089"));
+							throw new BadRequestException(generateErrorMessage(GL0089));
 						}
 					}
 
@@ -773,7 +773,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 						resetFolderVisibility(scollection.getGooruOid(), scollection.getUser().getPartyUid());
 						updateResourceSharing(ANYONE_WITH_LINK, scollection);
 					} else {
-						throw new BadRequestException(generateErrorMessage("GL0091"));
+						throw new BadRequestException(generateErrorMessage(GL0091));
 
 					}
 				}
