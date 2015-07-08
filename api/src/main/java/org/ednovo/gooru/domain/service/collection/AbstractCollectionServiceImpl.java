@@ -221,7 +221,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		if (thumbnail != null) {
 			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
 		}
-		Object publishStatus = (Short) content.get(PUBLISH_STATUS);
+		Object publishStatus = content.get(PUBLISH_STATUS);
 		if (publishStatus != null) {
 			content.put(PUBLISH_STATUS, Constants.PUBLISH_STATUS.get(((Number) publishStatus).shortValue()));
 		}

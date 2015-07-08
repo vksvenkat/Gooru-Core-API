@@ -52,8 +52,7 @@ public class CollectionRestV3Controller extends BaseController implements Consta
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
 	@RequestMapping(value = { RequestMappingUri.COLLECTION_RESOURCE_ID }, method = RequestMethod.POST)
-	public ModelAndView addResource(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @PathVariable(value = COLLECTION_ID) final String collectionId,
-			@PathVariable(value = ID) final String resourceId, final HttpServletRequest request, final HttpServletResponse response) {
+	public ModelAndView addResource(@PathVariable(value = COLLECTION_ID) final String collectionId, @PathVariable(value = ID) final String resourceId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		CollectionItem collectionItem = this.getCollectionBoService().addResource(collectionId, resourceId, user);
 		collectionItem.setUri(generateUri(request.getRequestURI(), collectionItem.getCollectionItemId()));
@@ -63,16 +62,14 @@ public class CollectionRestV3Controller extends BaseController implements Consta
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
 	@RequestMapping(value = { RequestMappingUri.COLLECTION_RESOURCE_ID }, method = RequestMethod.PUT)
-	public void updateResource(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @PathVariable(value = COLLECTION_ID) final String collectionId,
-			@PathVariable(value = ID) final String collectionItemId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
+	public void updateResource(@PathVariable(value = COLLECTION_ID) final String collectionId, @PathVariable(value = ID) final String collectionItemId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		this.getCollectionBoService().updateResource(collectionId, collectionItemId, buildCollectionItem(data), user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
-	@RequestMapping(value = { RequestMappingUri.LESSON_COLLECTION_QUESTION }, method = RequestMethod.POST)
-	public ModelAndView createQuestion(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @PathVariable(value = ID) final String collectionId, @RequestBody final String data,
-			final HttpServletRequest request, final HttpServletResponse response) {
+	@RequestMapping(value = { RequestMappingUri.COLLECTION_QUESTION }, method = RequestMethod.POST)
+	public ModelAndView createQuestion(@PathVariable(value = ID) final String collectionId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		final CollectionItem collectionItem = this.getCollectionBoService().createQuestion(collectionId, data, user);
 		response.setStatus(HttpServletResponse.SC_CREATED);
