@@ -87,8 +87,8 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void inviteUserForClass(List<String> emails, final String classCode, final User user) {
-		final UserClass userClass = this.getClassRepository().getClassByClassCode(classCode);
+	public void inviteUserForClass(List<String> emails, final String classUid, final User user) {
+		final UserClass userClass = this.getClassRepository().getClassById(classUid);
 		rejectIfNull(userClass, GL0056, 404, CLASS);
 		// To Do, Fix me
 		CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, PENDING);
