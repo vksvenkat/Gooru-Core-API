@@ -347,7 +347,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	//Validation to check for the collection already played, should not be moved
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public CollectionItem moveCollectionToLesson(String courseId, String unitId, String lessonId, String collectionId, User user) {
+	public void moveCollectionToLesson(String courseId, String unitId, String lessonId, String collectionId, User user) {
 		CollectionItem sourceCollectionItem = getCollectionDao().getCollectionItemById(collectionId, user);	
 		rejectIfNull(sourceCollectionItem, GL0056, 404, COLLECTION);
 		//need to put validation for collaborator
@@ -366,7 +366,6 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		this.getCollectionDao().deleteCollectionItem(sourceCollectionItem.getContent().getContentId());
 		CollectionItem newCollectionItem = this.createCollectionItem(collectionItem, lesson, sourceCollectionItem.getContent(), user);
 		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), sourceCollectionItem.getContent().getContentType().getName() , ADD);
-		return newCollectionItem;
 	}
 	
 	private void getParentCollection(Long collectionId, String collectionType){
