@@ -57,7 +57,7 @@ public class InviteUserRestV2Controller extends BaseController implements Consta
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_INVITE_CODE_ADD })
 	@RequestMapping(method = RequestMethod.POST)
-	public void inviteUserForClass(@PathVariable(ID) String gooruOid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) {
+	public void inviteUserToClass(@PathVariable(ID) String gooruOid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
 		this.getInviteService().inviteUserForClass(JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
 		}), gooruOid, user);
