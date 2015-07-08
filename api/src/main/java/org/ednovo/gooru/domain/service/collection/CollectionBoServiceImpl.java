@@ -370,8 +370,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		else{
 			this.getCollectionDao().deleteCollectionItem(sourceCollectionItem.getContent().getContentId());
 			this.createCollectionItem(collectionItem, lesson, sourceCollectionItem.getContent(), user);
+			this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), sourceCollectionItem.getContent().getContentType().getName() , ADD);
 		}
-		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), sourceCollectionItem.getContent().getContentType().getName() , ADD);
 	}
 	
 	private String getParentCollection(Long collectionId, String collectionType, String gooruOid){
