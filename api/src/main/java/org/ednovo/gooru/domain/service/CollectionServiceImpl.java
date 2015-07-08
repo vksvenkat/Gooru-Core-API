@@ -132,22 +132,40 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		final ActionResponseDTO<AssessmentQuestion> responseDTO = assessmentService.createQuestion(question, true);
 		if (responseDTO.getModel() != null) {
 			response = this.createCollectionItem(responseDTO.getModel(), collection, null, null, user);
+			boolean updateAssetInS3 = false;
 			if (mediaFileName != null && mediaFileName.length() > 0) {
 				String questionImage = this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), mediaFileName, question, ASSET_QUESTION);
 				if (questionImage != null && questionImage.length() > 0) {
-					if (ResourceImageUtil.getYoutubeVideoId(questionImage) != null || questionImage.contains(YOUTUBE_URL)) {
-						//response.getModel().setQuestionInfo(this.assessmentService.updateQuestionVideoAssest(responseDTO.getModel().getGooruOid(), questionImage));
-					} else {
-						//response.getModel().setQuestionInfo(this.assessmentService.updateQuestionAssest(responseDTO.getModel().getGooruOid(), StringUtils.substringAfterLast(questionImage, "/")));
-						try {
-							this.getAsyncExecutor().updateResourceFileInS3(responseDTO.getModel().getFolder(), response.getModel().getResource().getOrganization().getNfsStorageArea().getInternalPath(), response.getModel().getResource().getGooruOid(), UserGroupSupport.getSessionToken());
-						} catch (Exception e) {
-							if (LOGGER.isErrorEnabled()) {
-								LOGGER.error(e.getMessage());
-							}
-						}
+					if (!(ResourceImageUtil.getYoutubeVideoId(questionImage) != null || questionImage.contains(YOUTUBE_URL))) {
+						updateAssetInS3 = true;
 					}
 				}
+			}
+			/*
+			 * The new generation questions have answers as images as well. We
+			 * need to store these assets. Note that since they are going into
+			 * Mongo, we are not maintaining the association in MySql. We shall
+			 * just stash them and then make sure that they go till S3
+			 */
+			if (question.isQuestionNewGen()) {
+				List<String> answerAssets = question.getMediaFiles();
+				if (answerAssets != null && answerAssets.size() > 0) {
+					updateAssetInS3 = true;
+					for (String answerAsset : answerAssets) {
+						this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), answerAsset, question, null);
+					}
+				}
+			}
+
+			if (updateAssetInS3) {
+				try {
+					this.getAsyncExecutor().updateResourceFileInS3(response.getModel().getResource().getFolder(), response.getModel().getResource().getOrganization().getNfsStorageArea().getInternalPath(), response.getModel().getResource().getGooruOid(), UserGroupSupport.getSessionToken());
+				} catch (Exception e) {
+					if (LOGGER.isErrorEnabled()) {
+						LOGGER.error(e.getMessage());
+					}
+				}
+
 			}
 
 			response.getModel().setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
@@ -185,7 +203,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 							}
 						}
 					}
-				//	collectionItem.setQuestionInfo(assessmentQuestion);
+					// collectionItem.setQuestionInfo(assessmentQuestion);
 
 					collectionItem.setStandards(this.getStandards(assessmentQuestion.getTaxonomySet(), false, null));
 				}
@@ -313,7 +331,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			if (mediaFileName != null && mediaFileName.length() > 0) {
 				final String questionImage = this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), mediaFileName, assessmentQuestion, ASSET_QUESTION);
 				if (questionImage != null && questionImage.length() > 0) {
-					//response.getModel().setQuestionInfo(this.assessmentService.updateQuestionAssest(responseDTO.getModel().getGooruOid(), StringUtils.substringAfterLast(questionImage, "/")));
+					// response.getModel().setQuestionInfo(this.assessmentService.updateQuestionAssest(responseDTO.getModel().getGooruOid(),
+					// StringUtils.substringAfterLast(questionImage, "/")));
 				}
 			}
 		}

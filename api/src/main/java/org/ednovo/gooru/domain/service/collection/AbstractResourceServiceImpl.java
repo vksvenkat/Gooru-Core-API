@@ -43,11 +43,13 @@ public class AbstractResourceServiceImpl extends AbstractCollectionServiceImpl i
 
 	@Autowired
 	private MongoQuestionsService mongoQuestionsService;
-	
+
 	@Autowired
 	private DashboardCassandraService dashboardCassandraService;
 
 	protected static final String HINTS = "hints";
+
+	protected static final String EDUCATIONALUSE = "educationalUse";
 
 	@Override
 	public List<String> updateContentProvider(String gooruOid, List<String> providerList, User user, String providerType) {
@@ -140,6 +142,25 @@ public class AbstractResourceServiceImpl extends AbstractCollectionServiceImpl i
 			List<Map<String, Object>> standards = updateContentCode(content, newResource.getStandardIds(), MetaConstants.CONTENT_CLASSIFICATION_STANDARD_TYPE_ID);
 			data.put(STANDARDS, standards);
 		}
+		if (newResource.getSkillIds() != null) {
+			List<Map<String, Object>> skills = updateContentCode(content, newResource.getSkillIds(), MetaConstants.CONTENT_CLASSIFICATION_SKILLS_TYPE_ID);
+			data.put(SKILLS, skills);
+		}
+		if (newResource.getDepthOfKnowledgeIds() != null) {
+			List<Map<String, Object>> depthOfKnowledge = updateContentMetaAssoc(content, user, DEPTH_OF_KNOWLEDGE, newResource.getDepthOfKnowledgeIds());
+			data.put(DEPTHOF_KNOWLEDGE, depthOfKnowledge);
+		}
+
+		if (newResource.getMomentsOfLearningIds() != null) {
+			List<Map<String, Object>> momentsOfLearning = updateContentMetaAssoc(content, user, MOMENTS_OF_LEARNING, newResource.getMomentsOfLearningIds());
+			data.put(MOMENTSOFLEARNING, momentsOfLearning);
+		}
+		
+		if (newResource.getEducationalUseIds() != null) {
+			List<Map<String, Object>> educationalUse = updateContentMetaAssoc(content, user, EDUCATIONAL_USE, newResource.getEducationalUseIds());
+			data.put(EDUCATIONALUSE, educationalUse);
+		}
+
 		return data;
 	}
 

@@ -2890,4 +2890,14 @@ public interface ParameterProperties {
 
 	String REFERER = "referer";
 	
+<<<<<<< HEAD
+=======
+	String GL0012 = "GL0012";
+	
+	String GL0089 = "GL0089";
+	
+	String MEDIA_FILES = "media_files";
+	
+	String ASSET_ANSWERS = "asset-answers";
+>>>>>>> gooru/master
 }
