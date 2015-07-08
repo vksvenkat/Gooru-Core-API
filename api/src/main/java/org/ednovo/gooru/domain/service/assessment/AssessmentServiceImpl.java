@@ -261,7 +261,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			if (gooruOQuestionId == null) {
 				License license = (License) baseRepository.get(License.class, CREATIVE_COMMONS);
 				question.setLicense(license);
-				ContentType contentType = (ContentType) baseRepository.get(ContentType.class, ContentType.RESOURCE);
+				ContentType contentType = (ContentType) baseRepository.get(ContentType.class, ContentType.QUESTION);
 				question.setContentType(contentType);
 				if (question.getGooruOid() == null) {
 					question.setGooruOid(UUID.randomUUID().toString());

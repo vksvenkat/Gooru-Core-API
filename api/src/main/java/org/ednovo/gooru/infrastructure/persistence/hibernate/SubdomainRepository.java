@@ -24,7 +24,7 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
 import java.util.List;
-
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Subdomain;
 
@@ -33,7 +33,11 @@ public interface SubdomainRepository extends BaseRepository {
 	List<Subdomain> getSubdomains(Integer limit, Integer offset);
 
 	Subdomain getSubdomain(Integer subdomainId);
-	
+
 	List<Subdomain> getSubdomains(List<Integer> subdomainIds);
+
+	List<Map<String, Object>> getSubdomainStandards(Integer subdomainId);
+
+	List<Map<String, Object>> getStandards(Integer codeId);
 
 }

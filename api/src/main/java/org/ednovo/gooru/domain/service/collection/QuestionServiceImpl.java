@@ -56,7 +56,7 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		question.setTitle(question.getQuestionText().substring(0, question.getQuestionText().length() > 1000 ? 999 :  question.getQuestionText().length()));
 		License license = (License) getBaseRepository().get(License.class, CREATIVE_COMMONS);
 		question.setLicense(license);
-		ContentType contentType = (ContentType) getBaseRepository().get(ContentType.class, ContentType.RESOURCE);
+		ContentType contentType = (ContentType) getBaseRepository().get(ContentType.class, ContentType.QUESTION);
 		question.setContentType(contentType);
 		question.setGooruOid(UUID.randomUUID().toString());
 		question.setCreatedOn(new Date(System.currentTimeMillis()));

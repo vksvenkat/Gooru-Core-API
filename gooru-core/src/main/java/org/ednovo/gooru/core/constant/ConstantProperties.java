@@ -421,7 +421,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 
 	static final String[] CLASS_MEMBER_FIELDS = { "*.totalHitCount", "*.searchResults", "*.emailId", "*.username", "*.gooruUid", "*.associatedDate", "*.status", "*.profileImageUrl", "*.firstName", "*.lastName" };
 
-	static final String[] CLASS_FIELDS = { "*.totalHitCount", "*.searchResults", "*.gooruUId","*.username", "*.emailId","*.associationDate", "*.profileImageUrl"};
+	static final String[] CLASS_FIELDS = { "*.totalHitCount", "*.searchResult", "*.gooruUId","*.username", "*.emailId","*.associationDate", "*.profileImageUrl"};
 	
 	static final String[] USER_CONTENT_TAGS_INCLUDES = { "*.totalHitCount", "*.searchResults", "*.count", "*.label", "*.tagGooruOid" };
 

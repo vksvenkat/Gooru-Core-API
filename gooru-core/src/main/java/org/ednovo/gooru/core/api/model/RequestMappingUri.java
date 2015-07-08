@@ -79,5 +79,7 @@ public class RequestMappingUri {
 	public static final String COLLECTION_QUESTION = "/{id}/question";
 
 	public static final String COLLECTION_RESOURCE = "/{id}/resource";
+	
+	public static final String SUBDOMAIN_STANDARDS = "/{id}/standards";
 
 }
