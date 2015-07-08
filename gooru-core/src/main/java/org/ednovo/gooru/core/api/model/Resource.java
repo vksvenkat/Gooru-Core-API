@@ -98,8 +98,6 @@ public class Resource extends Content implements Serializable {
 
 	private boolean isNew = false;
 
-	private List<ContentMetaDTO> depthOfKnowledges;
-
 	@JsonManagedReference
 	private Set<ResourceMetaData> resourceMetaData;
 
@@ -156,11 +154,11 @@ public class Resource extends Content implements Serializable {
 	private CustomTableValue instructional;
 
 	private Map<String, Object> ratings;
+	
+	private List<Integer> momentsOfLearningIds;
 
-	private List<ContentMetaDTO> educationalUse;
-
-	private List<ContentMetaDTO> momentsOfLearning;
-
+	private List<Integer> educationalUseIds;
+	
 	private ResourceMetaInfo metaInfo;
 
 	public static final String COLLECTION_THUMBNAIL_SIZES = "160x120,75x56,120x90,80x60,50x40,310x258,800x600";
@@ -684,30 +682,6 @@ public class Resource extends Content implements Serializable {
 		this.ratings = ratings;
 	}
 
-	public void setMomentsOfLearning(List<ContentMetaDTO> momentsOfLearning) {
-		this.momentsOfLearning = momentsOfLearning;
-	}
-
-	public List<ContentMetaDTO> getMomentsOfLearning() {
-		return momentsOfLearning;
-	}
-
-	public void setEducationalUse(List<ContentMetaDTO> educationalUse) {
-		this.educationalUse = educationalUse;
-	}
-
-	public List<ContentMetaDTO> getEducationalUse() {
-		return educationalUse;
-	}
-
-	public void setDepthOfKnowledges(List<ContentMetaDTO> depthOfKnowledges) {
-		this.depthOfKnowledges = depthOfKnowledges;
-	}
-
-	public List<ContentMetaDTO> getDepthOfKnowledges() {
-		return depthOfKnowledges;
-	}
-
 	public void setMetaInfo(ResourceMetaInfo metaInfo) {
 		this.metaInfo = metaInfo;
 	}
@@ -803,9 +777,21 @@ public class Resource extends Content implements Serializable {
 	public void setResourceUsedUserCount(Integer resourceUsedUserCount) {
 		this.resourceUsedUserCount = resourceUsedUserCount;
 	}
-	
-	public static void main(String a[]) { 
-		System.out.print(buildResourceFolder(12345L));
+
+	public List<Integer> getMomentsOfLearningIds() {
+		return momentsOfLearningIds;
+	}
+
+	public void setMomentsOfLearningIds(List<Integer> momentsOfLearningIds) {
+		this.momentsOfLearningIds = momentsOfLearningIds;
+	}
+
+	public List<Integer> getEducationalUseIds() {
+		return educationalUseIds;
+	}
+
+	public void setEducationalUseIds(List<Integer> educationalUseIds) {
+		this.educationalUseIds = educationalUseIds;
 	}
 
 }

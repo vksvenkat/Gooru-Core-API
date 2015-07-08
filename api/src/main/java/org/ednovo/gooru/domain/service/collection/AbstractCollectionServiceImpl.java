@@ -58,6 +58,9 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 	private TaxonomyCourseRepository taxonomyCourseRepository;
 
 	protected final static String TAXONOMY_COURSE = "taxonomyCourse";
+	
+	protected final static String DEPTHOF_KNOWLEDGE = "depthOfKnowledge";
+	
 
 	public Collection createCollection(Collection collection, User user) {
 		collection.setGooruOid(UUID.randomUUID().toString());
@@ -220,7 +223,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		if (thumbnail != null) {
 			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
 		}
-		Object publishStatus = (Short) content.get(PUBLISH_STATUS);
+		Object publishStatus = content.get(PUBLISH_STATUS);
 		if (publishStatus != null) {
 			content.put(PUBLISH_STATUS, Constants.PUBLISH_STATUS.get(((Number) publishStatus).shortValue()));
 		}

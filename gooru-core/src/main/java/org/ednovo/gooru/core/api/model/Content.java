@@ -89,6 +89,10 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 	private String uri;
 	
 	private List<Integer> standardIds;
+	
+	private List<Integer> skillIds;
+	
+	private List<Integer> depthOfKnowledgeIds;
 
 	public Long getContentId() {
 		return contentId;
@@ -350,5 +354,21 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 
 	public void setStandardIds(List<Integer> standardIds) {
 		this.standardIds = standardIds;
+	}
+
+	public List<Integer> getSkillIds() {
+		return skillIds;
+	}
+
+	public void setSkillIds(List<Integer> skillIds) {
+		this.skillIds = skillIds;
+	}
+
+	public List<Integer> getDepthOfKnowledgeIds() {
+		return depthOfKnowledgeIds;
+	}
+
+	public void setDepthOfKnowledgeIds(List<Integer> depthOfKnowledgeIds) {
+		this.depthOfKnowledgeIds = depthOfKnowledgeIds;
 	}
 }

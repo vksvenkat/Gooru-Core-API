@@ -126,16 +126,16 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		} else {
 			resultSet = this.getClassRepository().getClasses(limit, offset);
 		}
-		Map<String, Object> searchResults = null;
+		Map<String, Object> searchResults = new HashMap<String, Object>();
+		Integer count = 0;
 		if (resultSet != null && resultSet.size() > 0) {
-			searchResults = new HashMap<String, Object>();
 			for (Map<String, Object> result : resultSet) {
 				results.add(setClass(result));
 			}
-			Integer count = this.getClassRepository().getClassesCount(gooruUid);
-			searchResults.put(SEARCH_RESULT, results);
-			searchResults.put(TOTAL_HIT_COUNT, count);
+			count = this.getClassRepository().getClassesCount(gooruUid);
 		}
+		searchResults.put(TOTAL_HIT_COUNT, count);
+		searchResults.put(SEARCH_RESULT, results);
 		return searchResults;
 	}
 
@@ -144,16 +144,16 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	public Map<String, Object> getStudyClasses(String gooruUid, int limit, int offset) {
 		List<Map<String, Object>> resultSet = this.getClassRepository().getStudyClasses(gooruUid, limit, offset);
 		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
-		Map<String, Object> searchResults = null;
+		Map<String, Object> searchResults = new HashMap<String, Object>();
+		Integer count = 0;
 		if (resultSet != null && resultSet.size() > 0) {
-			searchResults = new HashMap<String, Object>();
 			for (Map<String, Object> result : resultSet) {
 				results.add(setClass(result));
 			}
-			Integer count = this.getClassRepository().getClassesCount(gooruUid);
-			searchResults.put(SEARCH_RESULT, results);
-			searchResults.put(TOTAL_HIT_COUNT, count);
+			count = this.getClassRepository().getClassesCount(gooruUid);
 		}
+		searchResults.put(TOTAL_HIT_COUNT, count);
+		searchResults.put(SEARCH_RESULT, results);
 		return searchResults;
 	}
 

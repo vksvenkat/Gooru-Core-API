@@ -95,8 +95,6 @@ public class Collection extends Content implements Versionable {
 
 	private List<Integer> subdomainIds;
 
-	private List<Integer> skillIds;
-
 	private List<Integer> depthOfKnowledgeIds;
 	
 	private Short distinguish;
@@ -416,14 +414,6 @@ public class Collection extends Content implements Versionable {
 
 	public void setTaxonomyCourseIds(List<Integer> taxonomyCourseIds) {
 		this.taxonomyCourseIds = taxonomyCourseIds;
-	}
-
-	public List<Integer> getSkillIds() {
-		return skillIds;
-	}
-
-	public void setSkillIds(List<Integer> skillIds) {
-		this.skillIds = skillIds;
 	}
 
 	public List<Integer> getDepthOfKnowledgeIds() {
