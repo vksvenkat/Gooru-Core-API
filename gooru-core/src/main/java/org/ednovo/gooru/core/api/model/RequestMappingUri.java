@@ -78,8 +78,8 @@ public class RequestMappingUri {
 
 	public static final String COLLECTION_ITEM_ID = "/{collectionId}/item/{id}";
 
-	public static final String COLLECTION_QUESTION = "/{collectionId}/question";
+	public static final String COLLECTION_QUESTION = "/{id}/question";
 
-	public static final String COLLECTION_RESOURCE = "/{collectionId}/resource";
+	public static final String COLLECTION_RESOURCE = "/{id}/resource";
 
 }
