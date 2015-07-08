@@ -94,12 +94,6 @@ public class DomainRestController extends BaseController implements ConstantProp
 		getDomainService().deleteDomain(domainId);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
-	
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_DELETE })
-	@RequestMapping(value = RequestMappingUri.TAXONOMY_COURSE_BY_DOMAIN, method = RequestMethod.GET)
-	public ModelAndView getDomainAttributes(HttpServletRequest request, HttpServletResponse response,@PathVariable(value = CID) Integer courseId, @PathVariable(value = ID) Integer domainId,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit) {
-		return toModelAndViewWithIoFilter(getDomainService().getDomainAttributes(courseId, domainId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL,true, SUBDOMAIN_ATTRIBUTE);
-	}
 
 	public DomainService getDomainService() {
 		return domainService;
