@@ -484,9 +484,6 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			rating.put(COUNT, content.get(COUNT));
 			content.put(RATING, rating);
 		}
-		Map<String, Object> resourceType = new HashMap<String, Object>();
-		resourceType.put(NAME, content.get(RESOURCE_TYPE));
-		content.put(RESOURCE_TYPE, resourceType);
 		Object thumbnail = content.get(THUMBNAIL);
 		if (thumbnail != null) {
 			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
