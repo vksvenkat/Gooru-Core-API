@@ -26,21 +26,11 @@ package org.ednovo.gooru.controllers.v2.api;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
-import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.SessionActivity;
-import org.ednovo.gooru.core.api.model.SessionActivityItem;
-import org.ednovo.gooru.core.api.model.SessionActivityItemAttemptTry;
-import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
-import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
-import org.ednovo.gooru.domain.service.session.SessionActivityService;
-import org.ednovo.goorucore.application.serializer.JsonDeserializer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,93 +38,51 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+// This session controller will get deprecated 
+@Deprecated
 @Controller
 @RequestMapping(value = { "/v2/session" })
 public class SessionActivityRestV2Controller extends BaseController implements ParameterProperties, ConstantProperties {
 
-	@Autowired
-	private SessionActivityService sessionActivityService;
-
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_ADD })
 	@RequestMapping(value = "", method = RequestMethod.POST)
 	public ModelAndView createSession(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		final ActionResponseDTO<SessionActivity> sessionActivity = getSessionActivityService().createSessionActivity(this.buildSessionActivityFromInputParameters(data), user);
-		if (sessionActivity.getErrors().getErrorCount() > 0) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			response.setStatus(HttpServletResponse.SC_CREATED);
-		}
-		String includes[] = (String[]) ArrayUtils.addAll(SESSION_INCLUDES, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(sessionActivity.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return null;
+
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_UPDATE })
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	public ModelAndView updateSession(@RequestBody String data, @PathVariable(ID) Long sessionActivityId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		ActionResponseDTO<SessionActivity> sessionActivity = getSessionActivityService().updateSessionActivity(sessionActivityId, this.buildSessionActivityFromInputParameters(data));
-		if (sessionActivity.getErrors().getErrorCount() > 0) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		}
-		String includes[] = (String[]) ArrayUtils.addAll(SESSION_INCLUDES, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(sessionActivity.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return null;
+
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	public ModelAndView getSession(@PathVariable(ID) final Long sessionActivityId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-		String includes[] = (String[]) ArrayUtils.addAll(SESSION_INCLUDES, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(this.getSessionActivityService().getSessionActivity(sessionActivityId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return null;
+
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_ADD })
 	@RequestMapping(method = { RequestMethod.POST, RequestMethod.PUT }, value = "/{id}/item")
 	public ModelAndView createOrUpdateSessionItem(@RequestBody String data, @PathVariable(ID) Long sessionActivityId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		SessionActivityItem sessionActivityItem = null;
-		if (sessionActivityId == 0) {
-			sessionActivityItem = getSessionActivityService().updateLastResourceSessionActivityItem(this.buildSessionActivityItemFromInputParameters(data));
-		} else {
-			sessionActivityItem = getSessionActivityService().createOrUpdateSessionActivityItem(this.buildSessionActivityItemFromInputParameters(data), sessionActivityId);
-		}
-		response.setStatus(HttpServletResponse.SC_CREATED);
-		String includes[] = (String[]) ArrayUtils.addAll(SESSION_ITEM_INCLUDES, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(sessionActivityItem, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return null;
+
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_ADD })
 	@RequestMapping(method = RequestMethod.POST, value = "/{id}/attempt")
 	public ModelAndView createSessionItemAttemptTry(@RequestBody String data, @PathVariable(ID) Long sessionActivityId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		SessionActivityItemAttemptTry sessionActivityItemAttemptTry = getSessionActivityService().createSessionActivityItemAttemptTry(this.buildSessionItemAttemptFromInputParameters(data), sessionActivityId);
-		if (sessionActivityItemAttemptTry == null) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		}
-		return toModelAndViewWithIoFilter(sessionActivityItemAttemptTry, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, SESSION_ITEM_ATTEMPT_INCLUDES);
+		return null;
+
 	}
-	
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/incomplete-session")
 	public ModelAndView getInCompleteSession(@PathVariable(ID) final String gooruOid, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		return toModelAndView(this.getSessionActivityService().getInCompleteSessionActivity(gooruOid,user.getPartyUid()), RESPONSE_FORMAT_JSON);
-	}
+		return null;
 
-
-	private SessionActivity buildSessionActivityFromInputParameters(String data) {
-
-		return JsonDeserializer.deserialize(data, SessionActivity.class);
-	}
-
-	private SessionActivityItem buildSessionActivityItemFromInputParameters(String data) {
-
-		return JsonDeserializer.deserialize(data, SessionActivityItem.class);
-	}
-
-	private SessionActivityItemAttemptTry buildSessionItemAttemptFromInputParameters(String data) {
-
-		return JsonDeserializer.deserialize(data, SessionActivityItemAttemptTry.class);
-	}
-
-	public SessionActivityService getSessionActivityService() {
-		return sessionActivityService;
 	}
 }
