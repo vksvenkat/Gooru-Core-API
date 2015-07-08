@@ -32,6 +32,8 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	private static final String GET_CLASSES_COUNT = "select count(1) as count from class c inner join user_group ug  on ug.user_group_uid = c.class_uid inner join party p on p.party_uid = ug.user_group_uid inner join  user on  created_by_uid = gooru_uid inner join profile pr on pr.user_uid = gooru_uid left join content cc on cc.content_id = course_content_id ";
 
+	private static final String GET_MEMBERS_COUNT = "select count(1) as count from class c inner join user_group ug on c.class_uid = ug.user_group_uid inner join user_group_association uga on uga.user_group_uid = ug.user_group_uid inner join party p on uga.gooru_uid = p.party_uid left join identity i on i.user_uid = p.party_uid inner join user u on u.gooru_uid = p.party_uid where c.class_uid=:classUid";
+
 	@Override
 	public UserClass getClassById(String classUid) {
 		Criteria criteria = getSession().createCriteria(UserClass.class);
@@ -159,6 +161,14 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 		if (gooruUid != null) {
 			query.setParameter(GOORU_UID, gooruUid);
 		}
+		List<Integer> result = list(query);
+		return (result.size() > 0 ? result.get(0) : 0);
+	}
+
+	@Override
+	public Integer getMemeberCount(String classUid) {
+		Query query = getSession().createSQLQuery(GET_MEMBERS_COUNT).addScalar(COUNT, StandardBasicTypes.INTEGER);
+		query.setParameter(CLASS_UID, classUid);
 		List<Integer> result = list(query);
 		return (result.size() > 0 ? result.get(0) : 0);
 	}

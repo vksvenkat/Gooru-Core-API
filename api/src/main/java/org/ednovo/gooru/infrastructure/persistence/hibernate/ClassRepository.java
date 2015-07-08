@@ -32,4 +32,6 @@ public interface ClassRepository extends BaseRepository {
 	Integer getStudyClassesCount(String gooruUid);
 	
 	Integer getClassesCount(String gooruUid);
+	
+	Integer getMemeberCount(String classUid);
 }
