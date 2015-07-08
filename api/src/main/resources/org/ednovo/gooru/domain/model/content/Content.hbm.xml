@@ -159,7 +159,8 @@
 				not-null="false" />
 			<property name="languageObjective" column="language_objective"
 				not-null="false" />
-			<property name="buildTypeId" column="build_type_id" not-null="false" />
+			<property name="buildTypeId" column="build_type_id"
+				not-null="false" />
 			<property name="publishStatusId" column="publish_status_id"
 				not-null="false" />
 			<property name="clusterUid" column="cluster_uid" not-null="false" />
@@ -175,6 +176,12 @@
 				<key column="collection_content_id" />
 				<one-to-many class="org.ednovo.gooru.core.api.model.CollectionItem" />
 			</set>
+			<joined-subclass name="org.ednovo.gooru.core.api.model.Classpage"
+				table="classpage" lazy="true">
+				<key column="classpage_content_id" />
+				<property name="classpageCode" column="classpage_code"
+					not-null="true" />
+			</joined-subclass>
 		</joined-subclass>
 
 		<joined-subclass name="org.ednovo.gooru.core.api.model.Resource"
@@ -267,7 +274,8 @@
 				<property name="searchLimit" column="search_limit" type="int"
 					not-null="false" />
 				<property name="secretKey" column="secret_key" not-null="true" />
-				<property name="refererDomains" column="referer_domains" not-null="false" />
+				<property name="refererDomains" column="referer_domains"
+					not-null="false" />
 				<many-to-one name="status"
 					class="org.ednovo.gooru.core.api.model.CustomTableValue" column="status_id"
 					not-null="true" lazy="proxy" cascade="none" />
