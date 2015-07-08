@@ -70,8 +70,6 @@ public class RequestMappingUri {
 
 	public static final String DOMAIN_BY_TAXONOMY_COURSE = "/{id}/domain";
 	
-	public static final String TAXONOMY_COURSE_BY_DOMAIN = "taxonomycourse/{cid}/domain/{id}";
-
 	public static final String COLLECTION_QUESTION_ID = "/{collectionId}/question/{id}";
 
 	public static final String COLLECTION_RESOURCE_ID = "/{collectionId}/resource/{id}";
