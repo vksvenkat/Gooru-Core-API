@@ -943,4 +943,6 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	final static String CLASS_ID = "classId";
 	
 	final static String INCLUDE_COLLECTION_ITEMS[] = {"*.collectionItems", "*.user", "*.answer", "*.hints"};
+	
+	final static String SOURCE_COLLECTION = "sourceCollection";
 }

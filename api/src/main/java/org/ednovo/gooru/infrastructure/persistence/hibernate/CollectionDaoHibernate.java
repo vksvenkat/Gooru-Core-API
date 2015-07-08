@@ -1,10 +1,12 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
+import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.hibernate.Criteria;
@@ -40,6 +42,12 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	private static final String GET_COLLECTIONITEM_BY_GOORUOID = "FROM CollectionItem where content.gooruOid=:gooruOid and collection.gooruOid=:parentGooruOid";
 
 	private final static String GET_COLLECTIONITEM_BY_SEQUENCE= "FROM CollectionItem where collection.gooruOid=:gooruOid and itemSequence>:sequence order by itemSequence";
+	
+	private static final String DELETE_COLLECTIONITEM = "delete from collection_item where resource_content_id=:contentId";
+
+	private static final String COLLECTIONITEM_BY_USERUID = "FROM CollectionItem ci where ci.content.gooruOid=:gooruOid and ci.associatedUser=:user";
+	
+	private static final String GET_PARENTCOLLECTION = "FROM CollectionItem ci where ci.content.contentId=:contentId";
 	
 	@Override
 	public Collection getCollection(String collectionId) {
@@ -179,4 +187,26 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 		query.setParameter(SEQUENCE, sequence);
 		return list(query);
 	}
+	
+	@Override
+	public void deleteCollectionItem(Long contentId) {
+		Query query = getSession().createSQLQuery(DELETE_COLLECTIONITEM);
+		query.setParameter(CONTENT_ID, contentId);
+		query.executeUpdate();
+	}
+
+	@Override
+	public CollectionItem getCollectionItemById(String gooruOid, User user) {
+		Query query =getSession().createQuery(COLLECTIONITEM_BY_USERUID);
+		query.setParameter(GOORU_OID, gooruOid);
+		query.setParameter(USER, user);
+		return (CollectionItem) (query.list().size() > 0 ? query.list().get(0): null);
+	}
+
+	@Override
+	public CollectionItem getParentCollection(Long contentId) {
+		Query query = getSession().createQuery(GET_PARENTCOLLECTION).setParameter(CONTENT_ID, contentId);
+		return (CollectionItem) (query.list().size() > 0 ? query.list().get(0): null);
+	}
+	
 }
