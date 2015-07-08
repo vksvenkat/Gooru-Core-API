@@ -282,7 +282,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		StringBuilder key = new StringBuilder(ALL_);
 		key.append(collection.get(GOORU_OID));
 		collection.put(VIEWS, getDashboardCassandraService().readAsLong(key.toString(), COUNT_VIEWS));
-		collection.put(COLLECTION_ITEMS, this.getCollectionItems(collectionId, MAX_LIMIT, 0));
+		if (includeItems) {
+			collection.put(COLLECTION_ITEMS, this.getCollectionItems(collectionId, MAX_LIMIT, 0));
+		}
 		return collection;
 	}
 
