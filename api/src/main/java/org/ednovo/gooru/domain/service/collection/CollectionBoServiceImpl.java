@@ -362,24 +362,24 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if(sourceCollectionItem.getItemType() != null){
 			collectionItem.setItemType(sourceCollectionItem.getItemType());
 		}
-		
-		String collectionType = getParentCollection(sourceCollectionItem.getContent().getContentId(), sourceCollectionItem.getContent().getContentType().getName());
+		String collectionType = getParentCollection(sourceCollectionItem.getContent().getContentId(), sourceCollectionItem.getContent().getContentType().getName(), collectionId);
 		if(collectionType.equalsIgnoreCase(SHELF) || collectionType.equals(FOLDER)){
 			this.createCollectionItem(collectionItem, lesson, sourceCollectionItem.getContent(), user);
 		}
 		else{
 			this.getCollectionDao().deleteCollectionItem(sourceCollectionItem.getContent().getContentId());
 			this.createCollectionItem(collectionItem, lesson, sourceCollectionItem.getContent(), user);
-			this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), sourceCollectionItem.getContent().getContentType().getName() , ADD);
 		}
+		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), sourceCollectionItem.getContent().getContentType().getName() , ADD);
 	}
 	
-	private String getParentCollection(Long collectionId, String collectionType){
+	private String getParentCollection(Long collectionId, String collectionType, String gooruOid){
 		CollectionItem lesson = this.getCollectionDao().getParentCollection(collectionId);
 		if(lesson.getCollection().getCollectionType().equalsIgnoreCase(LESSON)){
 			CollectionItem unit = this.getCollectionDao().getParentCollection(lesson.getCollection().getContentId());
 			CollectionItem course = this.getCollectionDao().getParentCollection(unit.getCollection().getContentId());
 			this.updateMetaDataSummary(course.getCollection().getContentId(), unit.getCollection().getContentId(), lesson.getCollection().getContentId(), collectionType, DELETE);
+			this.resetSequence(lesson.getCollection().getGooruOid(), gooruOid);
 		}
 		return lesson.getCollection().getCollectionType();
 	}
