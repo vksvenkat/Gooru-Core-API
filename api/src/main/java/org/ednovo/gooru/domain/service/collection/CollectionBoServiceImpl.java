@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
@@ -459,6 +460,15 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			rating.put(COUNT, content.get(COUNT));
 			content.put(RATING, rating);
 		}
+		Map<String, Object> resourceType = new HashMap<String, Object>();
+		resourceType.put(NAME, content.get(RESOURCE_TYPE));
+		content.put(RESOURCE_TYPE, resourceType);
+		Object thumbnail = content.get(THUMBNAIL);
+		if (thumbnail != null) {
+			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
+		}
+		content.put(ASSET_URI, ConfigProperties.getBaseRepoUrl());
+		content.remove(THUMBNAIL);
 		content.remove(VALUE);
 		content.remove(DISPLAY_NAME);
 		content.remove(AVERAGE);
