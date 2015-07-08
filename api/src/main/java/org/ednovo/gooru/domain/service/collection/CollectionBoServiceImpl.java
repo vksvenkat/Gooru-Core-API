@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
@@ -362,8 +363,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if(sourceCollectionItem.getItemType() != null){
 			collectionItem.setItemType(sourceCollectionItem.getItemType());
 		}
-		
-		String collectionType = getParentCollection(sourceCollectionItem.getContent().getContentId(), sourceCollectionItem.getContent().getContentType().getName());
+		String collectionType = getParentCollection(sourceCollectionItem.getContent().getContentId(), sourceCollectionItem.getContent().getContentType().getName(), collectionId);
 		if(collectionType.equalsIgnoreCase(SHELF) || collectionType.equals(FOLDER)){
 			this.createCollectionItem(collectionItem, lesson, sourceCollectionItem.getContent(), user);
 		}
@@ -374,12 +374,13 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		}
 	}
 	
-	private String getParentCollection(Long collectionId, String collectionType){
+	private String getParentCollection(Long collectionId, String collectionType, String gooruOid){
 		CollectionItem lesson = this.getCollectionDao().getParentCollection(collectionId);
 		if(lesson.getCollection().getCollectionType().equalsIgnoreCase(LESSON)){
 			CollectionItem unit = this.getCollectionDao().getParentCollection(lesson.getCollection().getContentId());
 			CollectionItem course = this.getCollectionDao().getParentCollection(unit.getCollection().getContentId());
 			this.updateMetaDataSummary(course.getCollection().getContentId(), unit.getCollection().getContentId(), lesson.getCollection().getContentId(), collectionType, DELETE);
+			this.resetSequence(lesson.getCollection().getGooruOid(), gooruOid);
 		}
 		return lesson.getCollection().getCollectionType();
 	}
@@ -483,6 +484,12 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			rating.put(COUNT, content.get(COUNT));
 			content.put(RATING, rating);
 		}
+		Object thumbnail = content.get(THUMBNAIL);
+		if (thumbnail != null) {
+			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
+		}
+		content.put(ASSET_URI, ConfigProperties.getBaseRepoUrl());
+		content.remove(THUMBNAIL);
 		content.remove(VALUE);
 		content.remove(DISPLAY_NAME);
 		content.remove(AVERAGE);

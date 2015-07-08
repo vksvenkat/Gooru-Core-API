@@ -173,6 +173,13 @@ public class Resource extends Content implements Serializable {
 
 	private List<String> host;
 
+	private List<String> depthOfKnowledges;
+	
+	private List<String> educationalUse;
+	
+	private List<String> momentsOfLearning;
+	
+
 	private List<Map<String, Object>> resourceTags;
 	private String clusterUid;
 	private Integer isRepresentative;
@@ -793,5 +800,30 @@ public class Resource extends Content implements Serializable {
 	public void setEducationalUseIds(List<Integer> educationalUseIds) {
 		this.educationalUseIds = educationalUseIds;
 	}
+	
+	public List<String> getDepthOfKnowledges() {
+		return depthOfKnowledges;
+	}
+
+	public void setDepthOfKnowledges(List<String> depthOfKnowledges) {
+		this.depthOfKnowledges = depthOfKnowledges;
+	}
+	
+	public List<String> getEducationalUse() {
+		return educationalUse;
+	}
+	
+	public void setEducationalUse(List<String> educationalUse) {
+		this.educationalUse = educationalUse;
+	}
+
+	public List<String> getMomentsOfLearning() {
+		return momentsOfLearning;
+	}
+
+	public void setMomentsOfLearning(List<String> momentsOfLearning) {
+		this.momentsOfLearning = momentsOfLearning;
+	}
+
 
 }

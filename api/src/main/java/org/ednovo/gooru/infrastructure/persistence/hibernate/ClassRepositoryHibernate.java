@@ -32,8 +32,6 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	private static final String GET_CLASSES_COUNT = "select count(1) as count from class c inner join user_group ug  on ug.user_group_uid = c.class_uid inner join party p on p.party_uid = ug.user_group_uid inner join  user on  created_by_uid = gooru_uid inner join profile pr on pr.user_uid = gooru_uid left join content cc on cc.content_id = course_content_id ";
 
-	private static final String GET_CLASS_BY_CODE = "FROM UserClass uc  where uc.groupCode =:codeId";
-
 	@Override
 	public UserClass getClassById(String classUid) {
 		Criteria criteria = getSession().createCriteria(UserClass.class);
@@ -163,14 +161,6 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 		}
 		List<Integer> result = list(query);
 		return (result.size() > 0 ? result.get(0) : 0);
-	}
-
-	@Override
-	public UserClass getClassByClassCode(String classCode) {
-		Query query = getSession().createQuery(GET_CLASS_BY_CODE);
-		query.setParameter(CODE_ID, classCode);
-		List<UserClass> result = list(query);
-		return result != null && result.size() > 0 ? result.get(0) : null;
 	}
 
 }
