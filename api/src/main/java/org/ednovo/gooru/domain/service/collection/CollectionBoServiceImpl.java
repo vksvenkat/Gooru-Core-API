@@ -57,8 +57,6 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	private final static String COLLECTION_IMAGE_DIMENSION = "160x120,75x56,120x90,80x60,800x600";
 
-	private final static String DEPTHOF_KNOWLEDGE = "depthOfKnowledge";
-
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Collection> createCollection(User user, Collection collection) {
@@ -311,14 +309,14 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		for (Map<String, Object> item : collectionItems) {
 			String resourceType = (String) item.get(RESOURCE_TYPE);
 			if (resourceType.equalsIgnoreCase(ResourceType.Type.ASSESSMENT_QUESTION.getType())) {
-				// To-Do,  need fix later, by getting answer and hints details
+				// To-Do, need fix later, by getting answer and hints details
 				// without querying the assessment object
 				String gooruOid = (String) item.get(GOORU_OID);
 				AssessmentQuestion assessmentQuestion = this.getQuestionService().getQuestion(gooruOid);
 				if (assessmentQuestion != null && !assessmentQuestion.isQuestionNewGen()) {
 					item.put(ANSWERS, assessmentQuestion.getAnswers());
 					item.put(HINTS, assessmentQuestion.getHints());
-				} else { 
+				} else {
 					String json = getMongoQuestionsService().getQuestionByIdWithJsonAdjustments(gooruOid);
 					item.putAll(JsonDeserializer.deserialize(json, new TypeReference<Map<String, Object>>() {
 					}));
@@ -404,6 +402,11 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	private Map<String, Object> generateCollectionMetaData(Collection collection, Collection newCollection, User user) {
 		Map<String, Object> data = new HashMap<String, Object>();
+		if (newCollection.getStandardIds() != null) {
+			List<Map<String, Object>> standards = updateContentCode(collection, newCollection.getStandardIds(), MetaConstants.CONTENT_CLASSIFICATION_STANDARD_TYPE_ID);
+			data.put(STANDARDS, standards);
+		}
+
 		if (newCollection.getSkillIds() != null) {
 			List<Map<String, Object>> skills = updateContentCode(collection, newCollection.getSkillIds(), MetaConstants.CONTENT_CLASSIFICATION_SKILLS_TYPE_ID);
 			data.put(SKILLS, skills);
