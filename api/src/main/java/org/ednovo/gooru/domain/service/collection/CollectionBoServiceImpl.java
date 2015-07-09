@@ -85,11 +85,11 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(collection, GL0056, 404, COLLECTION);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user), GL0099, 403, COLLECTION);
 		Collection lesson = getCollectionDao().getCollectionByType(lessonId, LESSON);
-		rejectIfNull(lesson, GL0056, 404,LESSON);
+		rejectIfNull(lesson, GL0056, 404, LESSON);
 		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE);
-		rejectIfNull(course, GL0056,404, COURSE);
+		rejectIfNull(course, GL0056, 404, COURSE);
 		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT);
-		rejectIfNull(unit, GL0056,404, UNIT);
+		rejectIfNull(unit, GL0056, 404, UNIT);
 		this.resetSequence(lessonId, collection.getGooruOid());
 		this.deleteCollection(collectionId);
 		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getCollectionType(), DELETE);
@@ -101,11 +101,11 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		final Errors errors = validateCollection(collection);
 		if (!errors.hasErrors()) {
 			Collection course = getCollectionDao().getCollectionByType(courseId, COURSE);
-			rejectIfNull(course, GL0056, 404,COURSE);
+			rejectIfNull(course, GL0056, 404, COURSE);
 			Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT);
-			rejectIfNull(unit, GL0056, 404,UNIT);
+			rejectIfNull(unit, GL0056, 404, UNIT);
 			Collection lesson = getCollectionDao().getCollectionByType(lessonId, LESSON);
-			rejectIfNull(lesson, GL0056, 404,LESSON);
+			rejectIfNull(lesson, GL0056, 404, LESSON);
 			createCollection(user, collection, lesson);
 			Map<String, Object> data = generateCollectionMetaData(collection, collection, user);
 			data.put(SUMMARY, MetaConstants.COLLECTION_SUMMARY);
@@ -167,7 +167,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateCollectionItem(String collectionId, final String collectionItemId, CollectionItem newCollectionItem, User user) {
 		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
-		rejectIfNull(collectionItem, GL0056,404, _COLLECTION_ITEM);
+		rejectIfNull(collectionItem, GL0056, 404, _COLLECTION_ITEM);
 		Collection collection = this.getCollectionDao().getCollectionByType(collectionId, COLLECTION);
 		rejectIfNull(collection, GL0056, 404, COLLECTION);
 		if (newCollectionItem.getNarration() != null) {
@@ -345,14 +345,16 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		return mergeCollectionItemMetaData(collectionItems.get(0));
 	}
 
-	//Validation to check for the collection already played, should not be moved
+	// Validation to check for the collection already played, should not be
+	// moved
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void moveCollectionToLesson(String courseId, String unitId, String lessonId, String collectionId, User user) {
-		CollectionItem sourceCollectionItem = getCollectionDao().getCollectionItemById(collectionId, user);	
+		CollectionItem sourceCollectionItem = getCollectionDao().getCollectionItemById(collectionId, user);
 		rejectIfNull(sourceCollectionItem, GL0056, 404, COLLECTION);
-		//need to put validation for collaborator
-		//reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user), GL0099, 403, COLLECTION);
+		// need to put validation for collaborator
+		// reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId,
+		// user), GL0099, 403, COLLECTION);
 		Collection lesson = this.getCollectionDao().getCollectionByType(lessonId, LESSON);
 		rejectIfNull(lesson, GL0056, 404, LESSON);
 		Collection unit = this.getCollectionDao().getCollectionByType(unitId, UNIT);
@@ -360,23 +362,22 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE);
 		rejectIfNull(course, GL0056, 404, COURSE);
 		CollectionItem collectionItem = new CollectionItem();
-		if(sourceCollectionItem.getItemType() != null){
+		if (sourceCollectionItem.getItemType() != null) {
 			collectionItem.setItemType(sourceCollectionItem.getItemType());
 		}
 		String collectionType = getParentCollection(sourceCollectionItem.getContent().getContentId(), sourceCollectionItem.getContent().getContentType().getName(), collectionId);
-		if(collectionType.equalsIgnoreCase(SHELF) || collectionType.equals(FOLDER)){
+		if (collectionType.equalsIgnoreCase(SHELF) || collectionType.equals(FOLDER)) {
 			this.createCollectionItem(collectionItem, lesson, sourceCollectionItem.getContent(), user);
-		}
-		else{
+		} else {
 			this.getCollectionDao().deleteCollectionItem(sourceCollectionItem.getContent().getContentId());
 			this.createCollectionItem(collectionItem, lesson, sourceCollectionItem.getContent(), user);
-			this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), sourceCollectionItem.getContent().getContentType().getName() , ADD);
+			this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), sourceCollectionItem.getContent().getContentType().getName(), ADD);
 		}
 	}
-	
-	private String getParentCollection(Long collectionId, String collectionType, String gooruOid){
+
+	private String getParentCollection(Long collectionId, String collectionType, String gooruOid) {
 		CollectionItem lesson = this.getCollectionDao().getParentCollection(collectionId);
-		if(lesson.getCollection().getCollectionType().equalsIgnoreCase(LESSON)){
+		if (lesson.getCollection().getCollectionType().equalsIgnoreCase(LESSON)) {
 			CollectionItem unit = this.getCollectionDao().getParentCollection(lesson.getCollection().getContentId());
 			CollectionItem course = this.getCollectionDao().getParentCollection(unit.getCollection().getContentId());
 			this.updateMetaDataSummary(course.getCollection().getContentId(), unit.getCollection().getContentId(), lesson.getCollection().getContentId(), collectionType, DELETE);
@@ -384,7 +385,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		}
 		return lesson.getCollection().getCollectionType();
 	}
-	
+
 	private void updateMetaDataSummary(Long courseId, Long unitId, Long lessonId, String collectionType, String action) {
 		ContentMeta unitContentMeta = this.getContentRepository().getContentMeta(unitId);
 		ContentMeta courseContentMeta = this.getContentRepository().getContentMeta(courseId);
@@ -478,6 +479,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		resourceFormat.put(DISPLAY_NAME, content.get(DISPLAY_NAME));
 		content.put(RESOURCEFORMAT, resourceFormat);
 		Object ratingAverage = content.get(AVERAGE);
+		Map<String, Object> resourceType = new HashMap<String, Object>();
+		resourceType.put(RESOURCE_TYPE, content.get(RESOURCE_TYPE));
+		content.put(RESOURCE_TYPE, resourceType);
 		if (ratingAverage != null) {
 			Map<String, Object> rating = new HashMap<String, Object>();
 			rating.put(AVERAGE, content.get(AVERAGE));
@@ -488,12 +492,16 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if (thumbnail != null) {
 			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
 		}
+		content.put(USER, setUser(content.get(GOORU_UID), content.get(USER_NAME)));
+
 		content.put(ASSET_URI, ConfigProperties.getBaseRepoUrl());
 		content.remove(THUMBNAIL);
 		content.remove(VALUE);
 		content.remove(DISPLAY_NAME);
 		content.remove(AVERAGE);
 		content.remove(COUNT);
+		content.remove(GOORU_UID);
+		content.remove(USER_NAME);
 		return content;
 	}
 
