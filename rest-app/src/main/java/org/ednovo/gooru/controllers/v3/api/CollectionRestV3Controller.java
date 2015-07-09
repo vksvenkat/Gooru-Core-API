@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.RequestMappingUri;
 import org.ednovo.gooru.core.api.model.User;
@@ -33,6 +34,13 @@ public class CollectionRestV3Controller extends BaseController implements Consta
 	private CollectionBoService collectionBoService;
 
 	private static final String INCLUDE_ITEMS = "includeItems";
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
+	@RequestMapping(value = { RequestMappingUri.ID }, method = RequestMethod.PUT)
+	public void updateCollection(@PathVariable(value = ID) final String collectionId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
+		final User user = (User) request.getAttribute(Constants.USER);
+		this.getCollectionBoService().updateCollection(collectionId, buildCollection(data), user);
+	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@RequestMapping(value = { RequestMappingUri.COLLECTION_RESOURCE }, method = RequestMethod.POST)
@@ -120,6 +128,10 @@ public class CollectionRestV3Controller extends BaseController implements Consta
 	public ModelAndView getResource(@PathVariable(value = COLLECTION_ID) final String collectionId, @PathVariable(value = ID) final String collectionItemId, final HttpServletRequest request, final HttpServletResponse response) {
 		this.getCollectionBoService().getCollectionItem(collectionId, collectionItemId);
 		return toModelAndViewWithIoFilter(this.getCollectionBoService().getCollectionItem(collectionId, collectionItemId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
+	}
+
+	private Collection buildCollection(final String data) {
+		return JsonDeserializer.deserialize(data, Collection.class);
 	}
 
 	public CollectionBoService getCollectionBoService() {
