@@ -36,9 +36,6 @@ public class AbstractResourceServiceImpl extends AbstractCollectionServiceImpl i
 	private ResourceImageUtil resourceImageUtil;
 
 	@Autowired
-	private ContentService contentService;
-
-	@Autowired
 	private ResourceCassandraService resourceCassandraService;
 
 	@Autowired
@@ -187,10 +184,6 @@ public class AbstractResourceServiceImpl extends AbstractCollectionServiceImpl i
 
 	public ResourceImageUtil getResourceImageUtil() {
 		return resourceImageUtil;
-	}
-
-	public ContentService getContentService() {
-		return contentService;
 	}
 
 	public MongoQuestionsService getMongoQuestionsService() {
