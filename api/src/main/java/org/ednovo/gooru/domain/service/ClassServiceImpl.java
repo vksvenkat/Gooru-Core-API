@@ -236,6 +236,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteUserFromClass(final String classUid, final String userUid, User user) {
 		UserClass userClass = this.getClassRepository().getClassById(classUid);
+		userClass.setMemberCount(this.getClassRepository().getMemeberCount(classUid)-1);
 		rejectIfNull(userClass, GL0056, CLASS);
 		if (userClass.getUserUid().equals(user.getGooruUId()) || user.getGooruUId().equals(userUid)) {
 			this.getClassRepository().deleteUserFromClass(classUid, userUid);
@@ -262,6 +263,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		UserClass userClass = this.getClassRepository().getClassById(classUid);
 		rejectIfNull(userClass, GL0056, 404, CLASS);
 		Identity identity = this.getUserRepository().findUserByGooruId(user.getPartyUid());
+		userClass.setMemberCount(this.getClassRepository().getMemeberCount(classUid));
 		if (identity != null) {
 			UserGroupAssociation userGroupAssociation = this.getUserRepository().getUserGroupMemebrByGroupUid(userClass.getPartyUid(), identity.getUser().getPartyUid());
 			if (userGroupAssociation == null) {
