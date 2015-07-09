@@ -236,7 +236,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteUserFromClass(final String classUid, final String userUid, User user) {
 		UserClass userClass = this.getClassRepository().getClassById(classUid);
-		userClass.setMemberCount(this.getClassRepository().getMemeberCount(classUid)-1);
+		userClass.setMemberCount(userClass.getMemberCount() - 1);
 		rejectIfNull(userClass, GL0056, CLASS);
 		if (userClass.getUserUid().equals(user.getGooruUId()) || user.getGooruUId().equals(userUid)) {
 			this.getClassRepository().deleteUserFromClass(classUid, userUid);
