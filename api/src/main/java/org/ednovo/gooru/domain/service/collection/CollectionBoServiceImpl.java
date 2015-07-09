@@ -475,8 +475,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		content.put(RESOURCEFORMAT, resourceFormat);
 		Object ratingAverage = content.get(AVERAGE);
 		Map<String, Object> resourceType = new HashMap<String, Object>();
-		resourceType.put(RESOURCE_TYPE, content.get(RESOURCE_TYPE));
-		content.put(TYPE, resourceType);
+		resourceType.put(NAME, content.get(RESOURCE_TYPE));
+		content.put(RESOURCE_TYPE, resourceType);
 		if (ratingAverage != null) {
 			Map<String, Object> rating = new HashMap<String, Object>();
 			rating.put(AVERAGE, content.get(AVERAGE));
