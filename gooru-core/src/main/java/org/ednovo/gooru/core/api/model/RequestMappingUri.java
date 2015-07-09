@@ -32,7 +32,7 @@ public class RequestMappingUri {
 
 	public static final String LESSON_COLLECTION_ID = "/v1/course/{courseId}/unit/{unitId}/lesson/{lessonId}/collection/{id}";
 
-	public static final String TARGET_LESSON = "/v1/course/{courseId}/targetUnit/{unitId}/targetLesson/{lessonId}";
+	public static final String TARGET_LESSON = "/v1/targetCourse/{courseId}/targetUnit/{unitId}/targetLesson/{lessonId}";
 
 	public static final String CREATE_QUESTION = "/id}/question";
 
