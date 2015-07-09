@@ -56,7 +56,7 @@ public class SubjectRestController extends BaseController implements ConstantPro
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBJECT_ADD })
 	@RequestMapping(method = RequestMethod.POST)
-	public ModelAndView createSubject(HttpServletRequest request, HttpServletResponse response, @RequestBody String data) throws Exception {
+	public ModelAndView createSubject(HttpServletRequest request, HttpServletResponse response, @RequestBody String data)   {
 		User user = (User) request.getAttribute(Constants.USER);
 		final ActionResponseDTO<Subject> responseDTO = this.getSubjectService().createSubject(buildSubjectFromInputParameters(data), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
@@ -71,25 +71,25 @@ public class SubjectRestController extends BaseController implements ConstantPro
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBJECT_READ })
 	@RequestMapping(method = RequestMethod.GET)
-	public ModelAndView getSubjects(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletResponse response, HttpServletRequest request, @RequestParam(value = CLASSIFICATION_TYPE_ID, required = false) Integer classificationTypeId) throws Exception {
+	public ModelAndView getSubjects(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletResponse response, HttpServletRequest request, @RequestParam(value = CLASSIFICATION_TYPE_ID, required = false) Integer classificationTypeId)   {
 		return toModelAndViewWithIoFilter(this.getSubjectService().getSubjects(classificationTypeId,limit, offset), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBJECT_READ })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.GET)
-	public ModelAndView getSubject(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) Integer SubjectId) throws Exception {
+	public ModelAndView getSubject(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) Integer SubjectId)   {
 		return toModelAndViewWithIoFilter(this.getSubjectService().getSubject(SubjectId), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations ={GooruOperationConstants.OPERATION_SUBJECT_UPDATE})
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.PUT)
-	public void updateSubject(HttpServletResponse response, HttpServletRequest request, @RequestBody String data, @PathVariable(ID) Integer subjectId) throws Exception {
+	public void updateSubject(HttpServletResponse response, HttpServletRequest request, @RequestBody String data, @PathVariable(ID) Integer subjectId)   {
 		this.getSubjectService().updateSubject(buildSubjectFromInputParameters(data), subjectId);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBJECT_DELETE })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.DELETE)
-	public void deleteSubject(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) Integer subjectId) throws Exception {
+	public void deleteSubject(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) Integer subjectId)   {
 		this.getSubjectService().deleteSubject(subjectId);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}

@@ -274,7 +274,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setItemType(ADDED);
 		collectionItem = createCollectionItem(collectionItem, collection, question, user);
-		Map<String, Object> metaData = generateQuestionMetaData(question, collectionItem.getQuestion(), user);
+		Map<String, Object> metaData = generateQuestionMetaData(question, question, user);
 		createContentMeta(question, metaData);
 		return collectionItem;
 	}

@@ -56,7 +56,7 @@ public class TaxonomyCourseRestController extends BaseController implements Cons
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COURSE_ADD })
 	@RequestMapping(method = RequestMethod.POST)
-	public ModelAndView createCourse(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView createCourse(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		ActionResponseDTO<TaxonomyCourse> responseDTO = getTaxonomyCourseService().createTaxonomyCourse(buildCourseFromInputParameters(data), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
@@ -71,19 +71,19 @@ public class TaxonomyCourseRestController extends BaseController implements Cons
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COURSE_UPDATE })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.PUT)
-	public void updateCourse(@PathVariable(value = ID) Integer courseId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public void updateCourse(@PathVariable(value = ID) Integer courseId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) {
 		getTaxonomyCourseService().updateTaxonomyCourse(courseId, buildCourseFromInputParameters(data));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COURSE_READ })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.GET)
-	public ModelAndView getTaxonomyCourse(@PathVariable(value = ID) Integer courseId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView getTaxonomyCourse(@PathVariable(value = ID) Integer courseId, HttpServletRequest request, HttpServletResponse response)  {
 		return toModelAndViewWithIoFilter(getTaxonomyCourseService().getTaxonomyCourse(courseId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COURSE_);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COURSE_READ })
 	@RequestMapping(method = RequestMethod.GET)
-	public ModelAndView getTaxonomyCourses(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView getTaxonomyCourses(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request, HttpServletResponse response) {
 		return toModelAndViewWithIoFilter(getTaxonomyCourseService().getTaxonomyCourses(limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COURSE_);
 	}
 
