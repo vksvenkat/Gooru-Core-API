@@ -54,7 +54,7 @@ public class BlackListWordCassandraServiceImpl implements BlackListWordCassandra
 
 	private static final String WILD_CARD = "*";
 
-	private static final String[] EXPRESSIONS = { "\\s", "\\s*[^a-zA-Z0-9']+\\s*" };
+	//private static final String[] EXPRESSIONS = { "\\s", "\\s*[^a-zA-Z0-9']+\\s*" };
 
 	@PostConstruct
 	public final void init(){
@@ -70,15 +70,15 @@ public class BlackListWordCassandraServiceImpl implements BlackListWordCassandra
 		}
 		ServerValidationUtils.rejectIfNull(query, GL0006, PROFANITY_TEXT);
 		if (query != null && !query.equals(WILD_CARD)) {
-			for (String expression : EXPRESSIONS) {
-				String[] blackWords = query.split(expression);
+			
+				String[] blackWords = query.split(" ");
 				for (String blackWord : blackWords) {
 					blackWord = blackWord.trim();
 					if (blackListedWords.contains(blackWord.toLowerCase())) {
 						return true;
 					}
 				}
-			}
+			
 		}
 		return false;
 	}
