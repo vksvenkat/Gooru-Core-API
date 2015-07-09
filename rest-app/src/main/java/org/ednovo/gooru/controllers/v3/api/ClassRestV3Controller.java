@@ -49,7 +49,7 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_UPDATE })
 	@RequestMapping(value = RequestMappingUri.ID, method = { RequestMethod.PUT })
-	public void updateClass(@PathVariable(value = ID) final String classUId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response)   {
+	public void updateClass(@PathVariable(value = ID) final String classUId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		this.getClassService().updateClass(classUId, this.buildClass(data), user);
 	}
@@ -75,8 +75,7 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@RequestMapping(value = RequestMappingUri.CLASS_STUDY, method = RequestMethod.GET)
-	public ModelAndView getStudyClasses(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, final HttpServletRequest request, final HttpServletResponse response)
-			  {
+	public ModelAndView getStudyClasses(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		return toModelAndViewWithIoFilter(this.getClassService().getStudyClasses(user.getPartyUid(), limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CLASS_INCLUDES);
 	}
@@ -90,7 +89,7 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ADD })
 	@RequestMapping(value = RequestMappingUri.CLASS_MEMBER, method = RequestMethod.POST)
-	public void joinClass(@PathVariable(value = ID) final String classUId, final HttpServletRequest request, final HttpServletResponse response)   {
+	public void joinClass(@PathVariable(value = ID) final String classUId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		this.getClassService().joinClass(classUId, user);
 	}
@@ -98,7 +97,7 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@RequestMapping(value = RequestMappingUri.CLASS_MEMBER, method = RequestMethod.GET)
 	public ModelAndView getClassMemberList(@PathVariable(ID) final String classUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request,
-			final HttpServletResponse response)   {
+			final HttpServletResponse response) {
 		return toModelAndViewWithIoFilter(this.getClassService().getMember(classUid, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CLASS_FIELDS);
 	}
 
@@ -107,6 +106,20 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 	public void removeFromClass(@PathVariable(value = ID) final String classUid, @PathVariable(value = USER_UID) final String userUid, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		this.getClassService().deleteUserFromClass(classUid, userUid, user);
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
+	@RequestMapping(value = RequestMappingUri.CLASS_UNIT, method = RequestMethod.GET)
+	public ModelAndView getClassUnit(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit,
+			final HttpServletRequest request, final HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(this.getClassService().getClassUnit(courseId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE, true, CLASS_CONTENT);
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
+	@RequestMapping(value = RequestMappingUri.CLASS_UNIT_COLLECTION_SETTINGS, method = RequestMethod.GET)
+	public ModelAndView getClassCollectionSettings(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId, @PathVariable(UNIT_ID) final String unitId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset,
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request, final HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(this.getClassService().getClassCollectionSettings(classUid, unitId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE, true, CLASS_CONTENT);
 	}
 
 	private UserClass buildClass(final String data) {

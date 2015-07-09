@@ -34,9 +34,9 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	private static final String GET_MEMBERS_COUNT = "select count(1) as count from class c inner join user_group ug on c.class_uid = ug.user_group_uid inner join user_group_association uga on uga.user_group_uid = ug.user_group_uid inner join party p on uga.gooru_uid = p.party_uid left join identity i on i.user_uid = p.party_uid inner join user u on u.gooru_uid = p.party_uid where c.class_uid=:classUid";
 
-	private static final String COLLECTION_ITEM = "select cc.gooru_oid, title, cc.content_id  from  collection c inner join collection_item ci on ci.collection_content_id = c.content_id  inner join content cc on cc.content_id = c.content_id   where c.gooru_oid =:gooruOid";
+	private static final String COLLECTION_ITEM = "select cc.gooru_oid as gooruOid, title, cc.content_id as contentId  from  collection c inner join collection_item ci on ci.resource_content_id = c.content_id  inner join content cc on cc.content_id = ci.resource_content_id inner join content cr on cr.content_id = ci.collection_content_id   where cr.gooru_oid =:gooruOid ";
 
-	private static final String COLLECTION_CLASS_SETTINGS = "select cc.gooru_oid, title, cc.content_id, value  from  collection c inner join collection_item ci on ci.resource_content_id = c.content_id  inner join content cc on cc.content_id = c.content_id left join class_collection_settings on collection_id = c.content_id   where ci.collection_content_id =:contentId and class_id=:classId";
+	private static final String COLLECTION_CLASS_SETTINGS = "select cc.gooru_oid as gooruOid, title, cc.content_id as contentId , value  from  collection c inner join collection_item ci on ci.resource_content_id = c.content_id  inner join content cc on cc.content_id = c.content_id left join class_collection_settings on collection_id = c.content_id   where ci.collection_content_id =:contentId and class_uid=:classUid";
 
 	@Override
 	public UserClass getClassById(String classUid) {
@@ -178,10 +178,12 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 	}
 
 	@Override
-	public List<Map<String, Object>> getCollectionItem(String gooruOid) {
+	public List<Map<String, Object>> getCollectionItem(String gooruOid, int limit, int offset) {
 		Query query = getSession().createSQLQuery(COLLECTION_ITEM);
 		query.setParameter(GOORU_OID, gooruOid);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != 0 ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return list(query);
 	}
 
