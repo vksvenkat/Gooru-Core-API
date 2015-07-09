@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service;
 public class ResourceBoServiceImpl extends AbstractResourceServiceImpl implements ResourceBoService, ParameterProperties, ConstantProperties {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceBoServiceImpl.class);
-	private final static String COLLECTION_IMAGE_DIMENSION = "160x120,75x56,120x90,80x60,800x600";
+	private final static String RESOURCE_IMAGE_DIMENSION = "160x120,80x60";
 
 	@Autowired
 	private GooruImageUtil gooruImageUtil;
@@ -189,7 +189,7 @@ public class ResourceBoServiceImpl extends AbstractResourceServiceImpl implement
 		}
 		if (newResource.getMediaFilename() != null) {
 			String folderPath = Collection.buildResourceFolder(resource.getContentId());
-			this.getGooruImageUtil().imageUpload(newResource.getMediaFilename(), folderPath, COLLECTION_IMAGE_DIMENSION);
+			this.getGooruImageUtil().imageUpload(newResource.getMediaFilename(), folderPath, RESOURCE_IMAGE_DIMENSION);
 			StringBuilder basePath = new StringBuilder(folderPath);
 			basePath.append(File.separator).append(newResource.getMediaFilename());
 			resource.setThumbnail(basePath.toString());
