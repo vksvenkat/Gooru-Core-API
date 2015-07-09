@@ -119,13 +119,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateCollection(String collectionId, Collection newCollection, User user) {
 		boolean hasUnrestrictedContentAccess = this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user);
-		Collection collection = null;
-		if (hasUnrestrictedContentAccess) {
-			collection = getCollectionDao().getCollection(collectionId);
-		} else {
-			collection = getCollectionDao().getCollectionByUser(collectionId, user.getPartyUid());
-		}
-
+	    // TO-Do  add validation for collection type and collaborator validation
+		Collection collection = getCollectionDao().getCollection(collectionId);
 		if (newCollection.getSharing() != null && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 			if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 				collection.setPublishStatusId(null);
@@ -480,7 +475,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		content.put(RESOURCEFORMAT, resourceFormat);
 		Object ratingAverage = content.get(AVERAGE);
 		Map<String, Object> resourceType = new HashMap<String, Object>();
-		resourceType.put(RESOURCE_TYPE, content.get(RESOURCE_TYPE));
+		resourceType.put(NAME, content.get(RESOURCE_TYPE));
 		content.put(RESOURCE_TYPE, resourceType);
 		if (ratingAverage != null) {
 			Map<String, Object> rating = new HashMap<String, Object>();
