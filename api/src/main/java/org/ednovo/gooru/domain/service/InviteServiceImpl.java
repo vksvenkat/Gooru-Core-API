@@ -30,20 +30,23 @@
 package org.ednovo.gooru.domain.service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.Classpage;
+import org.ednovo.gooru.application.util.TaxonomyUtil;
+import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.InviteUser;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserClass;
+import org.ednovo.gooru.core.application.util.BaseUtil;
+import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.eventlogs.ClasspageEventLog;
+import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.mail.MailHandler;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
@@ -51,113 +54,112 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class InviteServiceImpl extends BaseServiceImpl implements InviteService, ParameterProperties, ConstantProperties {
 
 	@Autowired
-	private CollectionRepository collectionRepository;
-	
+	private ClassRepository classRepository;
+
 	@Autowired
 	private InviteRepository inviteRepository;
 
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
 	private CustomTableRepository customTableRepository;
-	
+
 	@Autowired
 	private MailHandler mailHandler;
-	
+
 	@Autowired
 	private ClasspageEventLog classpageEventLog;
-	
+
+	@Autowired
+	private SettingService settingService;
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(InviteServiceImpl.class);
 
+	private static final String INVITE_USER_STATUS_KEY = "invite_user_status_";
+
 	@Override
-	public List<Map<String, String>> inviteUserForClass(List<String> emails, final String classCode, final User apiCaller) {
-		final Classpage classPage = this.getCollectionRepository().getClasspageByCode(classCode);
-		if (classPage == null) {
-			throw new NotFoundException(generateErrorMessage(GL0006, CLASS), GL0006);
-		}
-		List<Map<String, String>> invites = new ArrayList<Map<String, String>>();
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void inviteUserForClass(List<String> emails, final String classUid, final User user) {
+		final UserClass userClass = this.getClassRepository().getClassById(classUid);
+		rejectIfNull(userClass, GL0056, 404, CLASS);
+		// To Do, Fix me
+		CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, PENDING);
 		List<String> emailIds = new ArrayList<String>();
+		User creator = getUserRepository().findByGooruId(userClass.getUserUid());
 		for (String email : emails) {
-			InviteUser inviteUser = this.getInviteRepository().findInviteUserById(email, classPage.getGooruOid(), null);
+			InviteUser inviteUser = this.getInviteRepository().findInviteUserById(email, userClass.getPartyUid(), null);
 			if (inviteUser == null) {
-				inviteUser = createInviteUserObj(email, classPage.getGooruOid(), CLASS, apiCaller);
+				inviteUser = new InviteUser(email, userClass.getPartyUid(), CLASS, user, status);
 				this.getInviteRepository().save(inviteUser);
-				Map<String, String> inviteMap = new HashMap<String, String>();
-				inviteMap.put(EMAIL_ID, email);
-				inviteMap.put(GOORU_OID, classPage.getGooruOid());
-				inviteMap.put(STATUS, PENDING);
-				invites.add(inviteMap);
 				emailIds.add(email);
-					
-			}	
+			}
 			try {
-				if(classPage.getSharing().equals(PUBLIC)){
-				  this.getMailHandler().sendMailToOpenClassUser(email, classPage.getGooruOid(), classPage.getUser(), classPage.getTitle(), apiCaller.getUsername(), classPage.getClasspageCode());
-				}else{
-				this.getMailHandler().sendMailToInviteUser( email,classPage.getGooruOid(),classPage.getUser(),classPage.getTitle() ,apiCaller.getUsername(),classPage.getClasspageCode());
+				if (userClass.getVisibility()) {
+					this.getMailHandler().sendMailToOpenClassUser(email, userClass.getPartyUid(), creator, userClass.getName(), user.getUsername(), userClass.getGroupCode());
+				} else {
+					this.getMailHandler().sendMailToInviteUser(email, userClass.getPartyUid(), creator, userClass.getName(), user.getUsername(), userClass.getGroupCode());
 				}
 			} catch (Exception e) {
-				LOGGER.error("Error"+ e.getMessage());
+				LOGGER.error(ERROR, e);
 			}
-			try { 
-				
-				  this.getClasspageEventLog().getEventLogs(classPage, inviteUser, apiCaller, emailIds);
-				} catch(Exception e){
-					e.printStackTrace();
-				}
 		}
-		
-		return invites;
+	}
 
-	}
-	
 	@Override
-	public InviteUser createInviteUserObj(final String email, final String gooruOid, final String invitationType, final User user) {
-		final InviteUser  inviteUser = new InviteUser();
-		inviteUser.setEmailId(email);
-		inviteUser.setCreatedDate(new Date());
-		inviteUser.setGooruOid(gooruOid);
-		inviteUser.setInvitationType(invitationType);
-		inviteUser.setStatus(this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, PENDING));
-		inviteUser.setAssociatedUser(user);
-		return inviteUser; 	
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public Map<String, Object> getInvites(String gooruOid, String status, int limit, int offset) {
+		StringBuilder key = new StringBuilder(INVITE_USER_STATUS_KEY).append(status);
+		List<Map<String, Object>> resultSet = getInviteRepository().getInvitee(gooruOid, key.toString(), limit, offset);
+		Map<String, Object> searchResults = new HashMap<String, Object>();
+		List<Map<String, Object>> users = new ArrayList<Map<String, Object>>();
+		int count = 0;
+		if (resultSet != null && resultSet.size() > 0) {
+			for (Map<String, Object> result : resultSet) {
+				Object gooruUid = result.get(GOORU_UID);
+				if (gooruUid != null) {
+					result.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf(gooruUid) + ".png");
+				}
+				users.add(result);
+			}
+			count = getInviteRepository().getInviteeCount(gooruOid, key.toString());
+		}
+
+		searchResults.put(TOTAL_HIT_COUNT, count);
+		searchResults.put(SEARCH_RESULT, users);
+		return searchResults;
 	}
-	
-	public CollectionRepository getCollectionRepository() {
-		return collectionRepository;
+
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void deleteInvitee(String gooruOid, String email) {
+		this.getInviteRepository().deleteInviteUser(gooruOid, email);
 	}
 
 	public UserRepository getUserRepository() {
 		return userRepository;
 	}
-	
+
 	public InviteRepository getInviteRepository() {
 		return inviteRepository;
-	}
-
-	public void setCustomTableRepository(CustomTableRepository customTableRepository) {
-		this.customTableRepository = customTableRepository;
 	}
 
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
 	}
 
-	public void setMailHandler(final MailHandler mailHandler) {
-		this.mailHandler = mailHandler;
-	}
-
 	public MailHandler getMailHandler() {
 		return mailHandler;
 	}
-	
-	public ClasspageEventLog getClasspageEventLog(){
-		return classpageEventLog;
+
+	public ClassRepository getClassRepository() {
+		return classRepository;
 	}
 }

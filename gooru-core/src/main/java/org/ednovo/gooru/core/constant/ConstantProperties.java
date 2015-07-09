@@ -421,7 +421,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 
 	static final String[] CLASS_MEMBER_FIELDS = { "*.totalHitCount", "*.searchResults", "*.emailId", "*.username", "*.gooruUid", "*.associatedDate", "*.status", "*.profileImageUrl", "*.firstName", "*.lastName" };
 
-	static final String[] CLASS_FIELDS = { "*.gooruUId","*.username", "*.emailId","*.associationDate", "*.profileImageUrl"};
+	static final String[] CLASS_FIELDS = { "*.totalHitCount", "*.searchResult", "*.gooruUId","*.username", "*.emailId","*.associationDate", "*.profileImageUrl"};
 	
 	static final String[] USER_CONTENT_TAGS_INCLUDES = { "*.totalHitCount", "*.searchResults", "*.count", "*.label", "*.tagGooruOid" };
 
@@ -943,4 +943,6 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	final static String CLASS_ID = "classId";
 	
 	final static String INCLUDE_COLLECTION_ITEMS[] = {"*.collectionItems", "*.user", "*.answer", "*.hints"};
+	
+	final static String SOURCE_COLLECTION = "sourceCollection";
 }

@@ -13,6 +13,7 @@ public class ContentType implements Serializable {
 	public static final String TASK = "task";
 	public static final String TAG = "tag";
 	public static final String POST = "post";
+	public static final String QUESTION = "question";
 	
 	
 	private String name;

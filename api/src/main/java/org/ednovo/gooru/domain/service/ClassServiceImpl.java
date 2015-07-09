@@ -172,14 +172,20 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public List<Map<String, Object>> getMember(String classUid, int limit, int offset) {
+	public Map<String, Object> getMember(String classUid, int limit, int offset) {
 		final List<Map<String, Object>> members = this.getClassRepository().getMember(classUid, limit, offset);
-		final List<Map<String, Object>> userList = new ArrayList<Map<String, Object>>();
-		for (Map<String, Object> user : members) {
-			user.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf(user.get(GOORU_UID)) + ".png");
-			userList.add(user);
+		Map<String, Object> searchResults = new HashMap<String, Object>();
+		List<Map<String, Object>> memberList = new ArrayList<Map<String, Object>>();
+		Integer count = 0;
+		if (members != null && members.size() > 0) {
+			for (Map<String, Object> result : members) {
+				memberList.add(setClass(result));
+			}
+			count = this.getClassRepository().getMemeberCount(classUid);
 		}
-		return userList;
+		searchResults.put(TOTAL_HIT_COUNT, count);
+		searchResults.put(SEARCH_RESULT, memberList);
+		return searchResults;
 	}
 
 	@Override

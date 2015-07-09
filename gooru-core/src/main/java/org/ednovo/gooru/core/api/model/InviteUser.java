@@ -19,6 +19,18 @@ public class InviteUser implements Serializable {
 	private CustomTableValue status;
 	private User associatedUser;
 
+	public InviteUser() {
+
+	}
+
+	public InviteUser(String email, String gooruOid, String invitationType, User user, CustomTableValue status) {
+		this.setEmailId(email);
+		this.setCreatedDate(new Date(System.currentTimeMillis()));
+		this.setGooruOid(gooruOid);
+		this.setInvitationType(invitationType);
+		this.setAssociatedUser(user);
+		this.setStatus(status);
+	}
 
 	public void setInvitationType(String invitationType) {
 		this.invitationType = invitationType;
@@ -83,7 +95,5 @@ public class InviteUser implements Serializable {
 	public User getAssociatedUser() {
 		return associatedUser;
 	}
-
-
 
 }

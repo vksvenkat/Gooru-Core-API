@@ -23,8 +23,10 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.subdomain;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Domain;
@@ -97,6 +99,25 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 		this.getSubdomainRepository().remove(subdomain);
 	}
 
+	@Override
+	public List<Map<String, Object>> getSubdomainStandards(Integer subdomainId) {
+		List<Map<String, Object>> codes = this.getSubdomainRepository().getSubdomainStandards(subdomainId);
+		if (codes != null) {
+			for (Map<String, Object> code : codes) {
+				code.put(NODE, getStandards(((Number) code.get(CODE_ID)).intValue()));
+			}
+		}
+		return codes;
+	}
+
+	private List<Map<String, Object>> getStandards(Integer codeId) {
+		List<Map<String, Object>> codes = this.getSubdomainRepository().getStandards(codeId);
+		for (Map<String, Object> code : codes) {
+			code.put(NODE, this.getSubdomainRepository().getStandards(((Number) code.get(CODE_ID)).intValue()));
+		}
+		return codes;
+	}
+
 	private Errors validateSubdomain(Subdomain subdomain) {
 		final Errors errors = new BindException(subdomain, SUBDOMAIN);
 		rejectIfNull(errors, subdomain.getTaxonomyCourseId(), COURSE_ID, generateErrorMessage(GL0006, COURSE_ID));
@@ -115,5 +136,4 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 	public DomainRepository getDomainRepository() {
 		return domainRepository;
 	}
-
 }

@@ -32,7 +32,7 @@ public class RequestMappingUri {
 
 	public static final String LESSON_COLLECTION_ID = "/v1/course/{courseId}/unit/{unitId}/lesson/{lessonId}/collection/{id}";
 
-	public static final String TARGET_LESSON = "/course/{courseId}/targetUnit/{unitId}/targetLesson/{lessonId}";
+	public static final String TARGET_LESSON = "/v1/course/{courseId}/targetUnit/{unitId}/targetLesson/{lessonId}";
 
 	public static final String CREATE_QUESTION = "/id}/question";
 
@@ -69,7 +69,7 @@ public class RequestMappingUri {
 	public static final String TAXONOMY_COURSE_BY_SUBJECT = "/{id}/taxonomycourse";
 
 	public static final String DOMAIN_BY_TAXONOMY_COURSE = "/{id}/domain";
-
+	
 	public static final String COLLECTION_QUESTION_ID = "/{collectionId}/question/{id}";
 
 	public static final String COLLECTION_RESOURCE_ID = "/{collectionId}/resource/{id}";
@@ -79,5 +79,7 @@ public class RequestMappingUri {
 	public static final String COLLECTION_QUESTION = "/{id}/question";
 
 	public static final String COLLECTION_RESOURCE = "/{id}/resource";
+	
+	public static final String SUBDOMAIN_STANDARDS = "/{id}/standards";
 
 }

@@ -24,20 +24,22 @@
 package org.ednovo.gooru.domain.service.subdomain;
 
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subdomain;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.domain.service.search.SearchResults;
 
 public interface SubdomainService {
 
 	ActionResponseDTO<Subdomain> createSubdomain(Subdomain subDomain, User user);
-	
+
 	Subdomain getSubdomain(Integer subdomainId);
-	
+
 	List<Subdomain> getSubdomains(Integer limit, Integer offset);
 
 	void deleteSubdomain(Integer subdomainId);
-	
+
+	List<Map<String, Object>> getSubdomainStandards(Integer subdomainId);
+
 }

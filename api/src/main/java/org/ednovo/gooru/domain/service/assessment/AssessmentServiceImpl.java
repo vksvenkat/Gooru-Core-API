@@ -261,13 +261,13 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			if (gooruOQuestionId == null) {
 				License license = (License) baseRepository.get(License.class, CREATIVE_COMMONS);
 				question.setLicense(license);
-				ContentType contentType = (ContentType) baseRepository.get(ContentType.class, ContentType.RESOURCE);
+				ContentType contentType = (ContentType) baseRepository.get(ContentType.class, ContentType.QUESTION);
 				question.setContentType(contentType);
 				if (question.getGooruOid() == null) {
 					question.setGooruOid(UUID.randomUUID().toString());
 				}
 				ServerValidationUtils.rejectIfNull(question.getQuestionText(), GL0006, QUESTION_TEXT);
-				question.setTitle(question.getQuestionText().substring(0, 999));
+				question.setTitle(question.getQuestionText().substring(0, question.getQuestionText().length() > 1000 ? 999 : question.getQuestionText().length()));
 				// Explicitly set to null to reset any content id sent by
 				// clients
 				question.setContentId(null);
@@ -313,7 +313,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 				if (question.getQuestionText() != null) {
 					existingQuestion.setQuestionText(question.getQuestionText());
-					existingQuestion.setTitle(question.getQuestionText().substring(0, 999));
+					existingQuestion.setTitle(question.getQuestionText().substring(0, question.getQuestionText().length() > 1000 ? 999 : question.getQuestionText().length()));
 				}
 				if (question.getDescription() != null) {
 					existingQuestion.setDescription(question.getDescription());

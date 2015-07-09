@@ -53,10 +53,10 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 	public AssessmentQuestion createQuestion(String data, User user) {
 		AssessmentQuestion question = buildQuestion(data);
 		ServerValidationUtils.rejectIfNull(question.getQuestionText(), GL0006, QUESTION_TEXT);
-		question.setTitle(question.getQuestionText().substring(0, 999));
+		question.setTitle(question.getQuestionText().substring(0, question.getQuestionText().length() > 1000 ? 999 :  question.getQuestionText().length()));
 		License license = (License) getBaseRepository().get(License.class, CREATIVE_COMMONS);
 		question.setLicense(license);
-		ContentType contentType = (ContentType) getBaseRepository().get(ContentType.class, ContentType.RESOURCE);
+		ContentType contentType = (ContentType) getBaseRepository().get(ContentType.class, ContentType.QUESTION);
 		question.setContentType(contentType);
 		question.setGooruOid(UUID.randomUUID().toString());
 		question.setCreatedOn(new Date(System.currentTimeMillis()));
@@ -106,7 +106,7 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		AssessmentQuestion newQuestion = buildQuestion(data);
 		if (newQuestion.getQuestionText() != null) {
 			question.setQuestionText(newQuestion.getQuestionText());
-			question.setTitle(newQuestion.getQuestionText().substring(0, 999));
+			question.setTitle(newQuestion.getQuestionText().substring(0, newQuestion.getQuestionText().length() > 1000 ? 999 :  newQuestion.getQuestionText().length()));
 		}
 		if (newQuestion.getDescription() != null) {
 			question.setDescription(newQuestion.getDescription());

@@ -39,35 +39,46 @@ import org.ednovo.gooru.domain.service.InviteService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
 @Controller
-@RequestMapping(value = "v2/invite")
-public class InviteUserRestV2Controller extends BaseController implements ConstantProperties  {
+@RequestMapping(value = "/v2/invite/class/{id}")
+public class InviteUserRestV2Controller extends BaseController implements ConstantProperties {
 
 	@Autowired
 	private InviteService inviteService;
-	
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_INVITE_CODE_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = { "/class/{id}" }, method = RequestMethod.POST)
-	public ModelAndView inviteUserForClass(@PathVariable(ID) String gooruOid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	@RequestMapping(method = RequestMethod.POST)
+	public void inviteUserToClass(@PathVariable(ID) String gooruOid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
-		return toJsonModelAndView(this.getInviteService().inviteUserForClass(JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
-		}), gooruOid, user), true);
+		this.getInviteService().inviteUserForClass(JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
+		}), gooruOid, user);
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_INVITE_CODE_LIST })
+	@RequestMapping(method = RequestMethod.GET)
+	public ModelAndView getInvitee(@PathVariable(ID) String gooruOid, @RequestParam(value = STATUS) String status, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
+			HttpServletRequest request, HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(this.getInviteService().getInvites(gooruOid, status, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE, true, "*");
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_INVITE_CODE_DELETE })
+	@RequestMapping(method = RequestMethod.DELETE)
+	public void delete(@PathVariable(ID) String gooruOid, @RequestParam(value = EMAIL) String email, HttpServletRequest request, HttpServletResponse response) {
+		this.getInviteService().deleteInvitee(gooruOid, email);
+		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 
 	public InviteService getInviteService() {
 		return inviteService;
 	}
-	
-	
+
 }

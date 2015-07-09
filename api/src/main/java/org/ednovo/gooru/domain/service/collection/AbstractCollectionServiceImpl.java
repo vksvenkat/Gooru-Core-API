@@ -159,12 +159,14 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 			this.getCollectionDao().saveAll(resetCollectionSequence);
 		}
 	}
-
-	public void resetSequence(String parentGooruOid, String gooruOid, Integer newSequence) {
-		List<CollectionItem> resetCollectionSequence = null;
-		int displaySequence;
-		CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(parentGooruOid, gooruOid);
-		if (collectionItem != null) {
+	
+	public void resetSequence(Collection parentCollection, String gooruOid, Integer newSequence){
+		int max = this.getCollectionDao().getCollectionItemMaxSequence(parentCollection.getContentId());
+		reject((max > newSequence), GL0007, 404, ITEM_SEQUENCE);
+		CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(parentCollection.getGooruOid(), gooruOid);
+		if(collectionItem != null){
+			List<CollectionItem> resetCollectionSequence = null;
+			int displaySequence;
 			int oldSequence = collectionItem.getItemSequence();
 			if (newSequence > oldSequence) {
 				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), oldSequence, newSequence);
