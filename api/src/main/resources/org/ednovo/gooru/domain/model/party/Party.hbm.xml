@@ -53,6 +53,7 @@
 			<joined-subclass name="org.ednovo.gooru.core.api.model.UserClass"
 				table="class" lazy="true">
 				<key column="class_uid" />
+				<property name="classId" column="class_id" not-null="false"/>
 				<property name="description" column="description" not-null="false" />
 				<property name="imagePath" column="image_path" not-null="false" />
 				<property name="grades" column="grades" not-null="false" />

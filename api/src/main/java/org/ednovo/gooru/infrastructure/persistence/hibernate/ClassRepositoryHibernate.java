@@ -34,6 +34,10 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	private static final String GET_MEMBERS_COUNT = "select count(1) as count from class c inner join user_group ug on c.class_uid = ug.user_group_uid inner join user_group_association uga on uga.user_group_uid = ug.user_group_uid inner join party p on uga.gooru_uid = p.party_uid left join identity i on i.user_uid = p.party_uid inner join user u on u.gooru_uid = p.party_uid where c.class_uid=:classUid";
 
+	private static final String COLLECTION_ITEM = "select cc.gooru_oid as gooruOid, title, cc.content_id as contentId  from  collection c inner join collection_item ci on ci.resource_content_id = c.content_id  inner join content cc on cc.content_id = ci.resource_content_id inner join content cr on cr.content_id = ci.collection_content_id   where cr.gooru_oid =:gooruOid ";
+
+	private static final String COLLECTION_CLASS_SETTINGS = "select cc.gooru_oid as gooruOid, title, cc.content_id as contentId , value  from  collection c inner join collection_item ci on ci.resource_content_id = c.content_id  inner join content cc on cc.content_id = c.content_id left join class_collection_settings on collection_id = c.content_id   where ci.collection_content_id =:contentId and class_uid=:classUid";
+
 	@Override
 	public UserClass getClassById(String classUid) {
 		Criteria criteria = getSession().createCriteria(UserClass.class);
@@ -171,6 +175,25 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 		query.setParameter(CLASS_UID, classUid);
 		List<Integer> result = list(query);
 		return (result.size() > 0 ? result.get(0) : 0);
+	}
+
+	@Override
+	public List<Map<String, Object>> getCollectionItem(String gooruOid, int limit, int offset) {
+		Query query = getSession().createSQLQuery(COLLECTION_ITEM);
+		query.setParameter(GOORU_OID, gooruOid);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != 0 ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		return list(query);
+	}
+
+	@Override
+	public List<Map<String, Object>> getClassCollectionSettings(Long contentId, String classUid) {
+		Query query = getSession().createSQLQuery(COLLECTION_CLASS_SETTINGS);
+		query.setParameter(CONTENT_ID, contentId);
+		query.setParameter(CLASS_UID, classUid);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		return list(query);
 	}
 
 }
