@@ -200,7 +200,10 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		rejectIfNull(result, GL0056, CLASS);
 		String creatorUid = (String) result.get(GOORU_UID);
 		if(creatorUid !=null && creatorUid.equals(gooruUid)){
-			result.put(IS_MEMBER, this.getClassRepository().isMember(gooruUid,classUid));
+			UserGroupAssociation userGroupAssociation = this.getUserRepository().getUserGroupMemebrByGroupUid(classUid,gooruUid);
+			if(userGroupAssociation != null){
+				result.put(IS_MEMBER,true);
+			}
 		}
 		setClass(result);
 		return result;
