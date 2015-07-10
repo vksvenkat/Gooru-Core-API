@@ -193,7 +193,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Map<String, Object> getClass(String classUid) {
+	public Map<String, Object> getClass(String classUid, String gooruUid) {
 		Map<String, Object> result = null;
 		if (BaseUtil.isUuid(classUid)) {
 			result = this.getClassRepository().getClass(classUid);
@@ -201,6 +201,9 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 			result = this.getClassRepository().getClassByCode(classUid);
 		}
 		rejectIfNull(result, GL0056, CLASS);
+		if(result.get("gooruUId") !=null && result.get("gooruUId").equals(gooruUid)){
+			result.put("isMember", true);
+		}
 		setClass(result);
 		return result;
 	}
