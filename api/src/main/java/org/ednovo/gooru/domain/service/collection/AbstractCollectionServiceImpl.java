@@ -63,9 +63,9 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	@Autowired
 	private SettingService settingService;
-
+	
 	protected final static String TAXONOMY_COURSE = "taxonomyCourse";
-
+	
 	protected final static String DEPTHOF_KNOWLEDGE = "depthOfKnowledge";
 
 	public Collection createCollection(Collection collection, User user) {

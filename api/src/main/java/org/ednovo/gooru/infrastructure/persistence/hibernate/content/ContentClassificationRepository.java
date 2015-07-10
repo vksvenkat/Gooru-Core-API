@@ -37,5 +37,7 @@ public interface ContentClassificationRepository extends BaseRepository {
 	
 	void deleteContentClassification(Long contentId, Short typeId);
 	
+	List<ContentClassification> getContentClassification(Long contentId);
+	
 	List<Code> getCodes(List<Integer> codeIds);
 }

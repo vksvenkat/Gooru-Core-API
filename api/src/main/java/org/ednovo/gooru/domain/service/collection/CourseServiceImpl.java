@@ -21,9 +21,6 @@ import org.springframework.validation.Errors;
 @Service
 public class CourseServiceImpl extends AbstractCollectionServiceImpl implements CourseService {
 
-	private static final String[] COURSE_TYPE = { "course" };
-
-
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Collection> createCourse(Collection collection, User user) {
@@ -90,7 +87,7 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCourse(String courseUId, User user) {
-		Collection course = getCollectionDao().getCollectionByType(courseUId, COURSE);
+		Collection course = getCollectionDao().getCollectionByType(courseUId, COURSE_TYPE);
 		rejectIfNull(course, GL0056, COURSE);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(courseUId, user), GL0099, 403, COURSE);
 		this.deleteValidation(course.getContentId(), COURSE);

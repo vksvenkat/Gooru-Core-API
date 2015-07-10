@@ -1,6 +1,5 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +22,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 
 	private static final String GET_COLLECTION = "FROM Collection where gooruOid=:collectionId";
 
-	private static final String COLLECTION_BY_TYPE = "FROM Collection where gooruOid=:collectionId and collectionType=:collectionType";
+	private static final String COLLECTION_BY_TYPE = "FROM Collection where gooruOid=:collectionId and collectionType in (:collectionType)";
 
 	private static final String GET_COLLECTION_BY_TYPE = "FROM Collection where user.partyUid=:partyUid and collectionType=:collectionType";
 
@@ -48,6 +47,10 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	private static final String COLLECTIONITEM_BY_USERUID = "FROM CollectionItem ci where ci.content.gooruOid=:gooruOid and ci.associatedUser=:user";
 
 	private static final String GET_PARENTCOLLECTION = "FROM CollectionItem ci where ci.content.contentId=:contentId";
+	
+	private static final String GET_COLLECTION_ITEM_ID = "FROM CollectionItem ci where ci.collectionItemId =:collectionItemId";
+	
+	private static final String GET_COLLECTION_ITEM_LIST = "FROM CollectionItem ci where ci.collection.gooruOid =:collectionId";
 
 	@Override
 	public Collection getCollection(String collectionId) {
@@ -58,10 +61,10 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	}
 
 	@Override
-	public Collection getCollectionByType(String collectionId, String collectionType) {
+	public Collection getCollectionByType(String collectionId, String[] collectionType) {
 		Query query = getSession().createQuery(COLLECTION_BY_TYPE);
 		query.setParameter(COLLECTION_ID, collectionId);
-		query.setParameter(COLLECTION_TYPE, collectionType);
+		query.setParameterList(COLLECTION_TYPE, collectionType);
 		List<Collection> collection = list(query);
 		return (collection != null && collection.size() > 0) ? collection.get(0) : null;
 	}
@@ -207,6 +210,20 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	public CollectionItem getParentCollection(Long contentId) {
 		Query query = getSession().createQuery(GET_PARENTCOLLECTION).setParameter(CONTENT_ID, contentId);
 		return (CollectionItem) (query.list().size() > 0 ? query.list().get(0) : null);
+	}
+
+	@Override
+	public CollectionItem getCollectionItem(String collectionItemId) {
+		Query query = getSession().createQuery(GET_COLLECTION_ITEM_ID);
+		query.setParameter(COLLECTION_ITEM_ID, collectionItemId);
+		return (CollectionItem) (query.list().size() > 0 ? query.list().get(0) : null);
+	}
+
+	@Override
+	public List<CollectionItem> getCollectionItems(String collectionId) {
+		Query query = getSession().createQuery(GET_COLLECTION_ITEM_LIST);
+		query.setParameter(COLLECTION_ID, collectionId);
+		return list(query);
 	}
 
 }
