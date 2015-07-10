@@ -10,6 +10,7 @@ import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.User;
 
 public interface CollectionBoService extends AbstractCollectionService {
+	
 	ActionResponseDTO<Collection> createCollection(User user, Collection collection);
 
 	ActionResponseDTO<Collection> createCollection(String courseId, String unitId, String lessonId, User user, Collection collection);
@@ -42,6 +43,4 @@ public interface CollectionBoService extends AbstractCollectionService {
 
 	void moveCollectionToLesson(String courseId, String unitId, String lessonId, String collectionId, User user);
 	
-	Collection copyCollection(String courseId,String unitId,String lessonId,String collectionId,User user,Collection newCollection) throws Exception;
-
 }

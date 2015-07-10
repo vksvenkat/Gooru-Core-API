@@ -2,14 +2,9 @@ package org.ednovo.gooru.domain.service.collection;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
 
 import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.application.util.GooruImageUtil;
@@ -18,9 +13,7 @@ import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
-import org.ednovo.gooru.core.api.model.ContentClassification;
 import org.ednovo.gooru.core.api.model.ContentMeta;
-import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
 import org.ednovo.gooru.core.api.model.ContentSettings;
 import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Resource;
@@ -395,7 +388,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		return lesson.getCollection().getCollectionType();
 	}
 
-	private void updateMetaDataSummary(Long courseId, Long unitId, Long lessonId, String collectionType, String action) {
+	public void updateMetaDataSummary(Long courseId, Long unitId, Long lessonId, String collectionType, String action) {
 		ContentMeta unitContentMeta = this.getContentRepository().getContentMeta(unitId);
 		ContentMeta courseContentMeta = this.getContentRepository().getContentMeta(courseId);
 		ContentMeta lessonContentMeta = this.getContentRepository().getContentMeta(lessonId);
@@ -588,116 +581,6 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			}
 		}
 		return errors;
-	}
-
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Collection copyCollection(String courseId, String unitId, String lessonId, String collectionId, User user, Collection newCollection) throws Exception {
-		Collection sourceCollection = this.getCollectionDao().getCollectionByType(collectionId, COLLECTION_TYPES);
-		rejectIfNull(sourceCollection, GL0056, 404, _COLLECTION);
-		final Collection lesson = this.getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
-		rejectIfNull(lesson, GL0056, 404, LESSON);
-		Collection destCollection = new Collection();
-		if (newCollection.getTitle() != null) {
-			destCollection.setTitle(newCollection.getTitle());
-		} else {
-			destCollection.setTitle(sourceCollection.getTitle());
-		}
-		destCollection.setCopiedCollectionId(sourceCollection.getGooruOid());
-		destCollection.setCollectionType(sourceCollection.getCollectionType());
-		destCollection.setDescription(sourceCollection.getDescription());
-		destCollection.setNotes(sourceCollection.getNotes());
-		destCollection.setLanguage(sourceCollection.getLanguage());
-		destCollection.setImagePath(sourceCollection.getImagePath());
-		destCollection.setGooruOid(UUID.randomUUID().toString());
-		destCollection.setContentType(sourceCollection.getContentType());
-		destCollection.setLastModified(new Date(System.currentTimeMillis()));
-		destCollection.setCreatedOn(new Date(System.currentTimeMillis()));
-		if (newCollection != null && newCollection.getSharing() != null) {
-			destCollection.setSharing(newCollection.getSharing());
-		} else {
-			destCollection.setSharing(sourceCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) ? Sharing.ANYONEWITHLINK.getSharing() : sourceCollection.getSharing());
-		}
-		destCollection.setUser(user);
-		destCollection.setOrganization(sourceCollection.getOrganization());
-		destCollection.setCreator(sourceCollection.getCreator());
-		this.getCollectionDao().save(destCollection);
-		// copy resource and question items to collection
-		copyCollectionItems(lesson, sourceCollection, destCollection, user);
-		// associating the copied collection to lesson
-		CollectionItem newCollectionItem = new CollectionItem();
-		newCollectionItem.setItemType(ADDED);
-		createCollectionItem(newCollectionItem, lesson, destCollection, user);
-		final Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
-		final Collection unit = this.getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
-		updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), destCollection.getCollectionType(), LESSON);
-		copyContentClassification(sourceCollection.getContentId(), destCollection);
-		copyContentMetaAssoc(sourceCollection.getContentId(), destCollection);
-		// copy content meta details
-		ContentMeta contentMeta = this.getContentRepository().getContentMeta(sourceCollection.getContentId());
-		ContentMeta newContentMeta = new ContentMeta();
-		if (contentMeta != null) {
-			newContentMeta.setContent(destCollection);
-			newContentMeta.setMetaData(contentMeta.getMetaData());
-			this.getContentRepository().save(newContentMeta);
-		}
-		copyCollectionRepoStroage(sourceCollection, destCollection);
-		return destCollection;
-	}
-
-	private void copyCollectionItems(Collection lesson, Collection sourceCollection, Collection destCollection, User user) {
-		List<CollectionItem> collectionItems = this.getCollectionDao().getCollectionItems(sourceCollection.getGooruOid());
-		for (CollectionItem sourceCollectionItem : collectionItems) {
-			final CollectionItem destCollectionItem = new CollectionItem();
-			if (sourceCollectionItem.getContent().getContentType().getName().equalsIgnoreCase(QUESTION)) {
-				final AssessmentQuestion assessmentQuestion = this.getQuestionService().copyQuestion(sourceCollectionItem.getContent().getGooruOid(), user);
-				destCollectionItem.setContent(assessmentQuestion);
-			} else {
-				destCollectionItem.setContent(sourceCollectionItem.getContent());
-			}
-			destCollectionItem.setItemType(sourceCollectionItem.getItemType());
-			destCollectionItem.setItemSequence(sourceCollectionItem.getItemSequence());
-			destCollectionItem.setNarration(sourceCollectionItem.getNarration());
-			destCollectionItem.setNarrationType(sourceCollectionItem.getNarrationType());
-			destCollectionItem.setStart(sourceCollectionItem.getStart());
-			destCollectionItem.setAssociatedUser(user);
-			destCollectionItem.setStop(sourceCollectionItem.getStop());
-			destCollectionItem.setCollection(destCollection);
-			destCollectionItem.setContent(sourceCollectionItem.getContent());
-			this.getCollectionDao().save(destCollectionItem);
-		}
-
-	}
-
-	private void copyContentClassification(Long sourceContentId, Collection desCollection) {
-		List<ContentClassification> contentClassifications = this.getContentClassificationRepository().getContentClassification(sourceContentId);
-		for (ContentClassification contentClassification : contentClassifications) {
-			ContentClassification newContentClassification = new ContentClassification();
-			newContentClassification.setCode(contentClassification.getCode());
-			newContentClassification.setContent(desCollection);
-			newContentClassification.setTypeId(contentClassification.getTypeId());
-			this.getContentRepository().save(newContentClassification);
-		}
-	}
-
-	private void copyContentMetaAssoc(Long sourceContentId, Collection destCollection) {
-		List<ContentMetaAssociation> contentMetaAssocs = this.getContentRepository().getContentMetaAssoc(sourceContentId);
-		for (ContentMetaAssociation contentMetaAssoc : contentMetaAssocs) {
-			ContentMetaAssociation newContentMetaAssoc = new ContentMetaAssociation();
-			newContentMetaAssoc.setContent(destCollection);
-			newContentMetaAssoc.setCreatedOn(new Date(System.currentTimeMillis()));
-			newContentMetaAssoc.setTypeId(contentMetaAssoc.getTypeId());
-			newContentMetaAssoc.setUser(destCollection.getUser());
-			this.getCollectionDao().save(newContentMetaAssoc);
-		}
-	}
-
-	private void copyCollectionRepoStroage(Collection sourceCollection, Collection destCollection) {
-		StringBuilder sourceFilepath = new StringBuilder(sourceCollection.getOrganization().getNfsStorageArea().getInternalPath());
-		sourceFilepath.append(sourceCollection.getImagePath()).append(File.separator);
-		StringBuilder targetFilepath = new StringBuilder(destCollection.getOrganization().getNfsStorageArea().getInternalPath());
-		targetFilepath.append(destCollection.getImagePath()).append(File.separator);
-		getAsyncExecutor().copyResourceFolder(sourceFilepath.toString(), targetFilepath.toString());
 	}
 
 	public CollectionDao getCollectionDao() {
