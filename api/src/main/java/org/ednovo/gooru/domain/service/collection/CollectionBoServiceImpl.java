@@ -196,7 +196,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			resource = getResourceBoService().createResource(resource, user);
 			collectionItem.setItemType(ADDED);
 			collectionItem = createCollectionItem(collectionItem, collection, resource, user);
-			updateCollectionMetaDataSummary(collection.getContentId(), RESOURCE);
+			updateCollectionMetaDataSummary(collection.getContentId(), RESOURCE, ADD);
 			Map<String, Object> data = generateResourceMetaData(resource, collectionItem.getResource(), user);
 			createContentMeta(resource, data);
 
@@ -228,7 +228,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		collectionItem = createCollectionItem(collectionItem, collection, question, user);
 		collectionItem.setQuestion(question);
 		collectionItem.setTitle(question.getTitle());
-		updateCollectionMetaDataSummary(collection.getContentId(), QUESTION);
+		updateCollectionMetaDataSummary(collection.getContentId(), QUESTION, ADD);
 		Map<String, Object> metaData = generateQuestionMetaData(question, question, user);
 		createContentMeta(question, metaData);
 		return collectionItem;
@@ -254,7 +254,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(collection, GL0056, 404, COLLECTION);
 		Resource resource = getResourceBoService().getResource(resourceId);
 		rejectIfNull(resource, GL0056, 404, RESOURCE);
-		updateCollectionMetaDataSummary(collection.getContentId(), QUESTION);
+		updateCollectionMetaDataSummary(collection.getContentId(), QUESTION, ADD);
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setItemType(ADDED);
 		return createCollectionItem(collectionItem, collection, resource, user);
@@ -493,23 +493,40 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	}
 
 	@SuppressWarnings("unchecked")
-	private void updateCollectionMetaDataSummary(Long collectionId, String type) {
+	private void updateCollectionMetaDataSummary(Long collectionId, String type, String action) {
 		ContentMeta lessonContentMeta = this.getContentRepository().getContentMeta(collectionId);
 		if (lessonContentMeta != null) {
 			Map<String, Object> metaData = JsonDeserializer.deserialize(lessonContentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
 			});
 			Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
+			int resourceCount = ((Number) summary.get(MetaConstants.RESOURCE_COUNT)).intValue();
+			int questionCount = ((Number) summary.get(MetaConstants.QUESTION_COUNT)).intValue();
 			if (type.equalsIgnoreCase(RESOURCE)) {
-				int resourceCount = ((Number) summary.get(MetaConstants.RESOURCE_COUNT)).intValue() + 1;
-				summary.put(MetaConstants.RESOURCE_COUNT, resourceCount);
+				summary.put(MetaConstants.RESOURCE_COUNT, action.equalsIgnoreCase(ADD) ? (resourceCount + 1) : (resourceCount - 1));
 			}
 			if (type.equalsIgnoreCase(QUESTION)) {
-				int questionCount = ((Number) summary.get(MetaConstants.QUESTION_COUNT)).intValue() + 1;
-				summary.put(MetaConstants.QUESTION_COUNT, questionCount);
+				summary.put(MetaConstants.QUESTION_COUNT, action.equalsIgnoreCase(ADD) ? (questionCount + 1) : (questionCount - 1));
 			}
 			metaData.put(SUMMARY, summary);
 			updateContentMeta(lessonContentMeta, metaData);
 		}
+	}
+
+	@Override
+	public void deleteCollectionItem(String collectionId, String collectionItemId) {
+		CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(collectionId, collectionItemId);
+		rejectIfNull(collectionItem, GL0056, 404, _COLLECTION_ITEM);
+		Resource resource = this.getResourceBoService().getResource(collectionItem.getContent().getGooruOid());
+		rejectIfNull(resource, GL0056, 404, RESOURCE);
+		String contentType = resource.getContentType().getName();
+		Long collectionContentId = collectionItem.getCollection().getContentId();
+		if (contentType.equalsIgnoreCase(QUESTION)) {
+			getCollectionDao().remove(resource);
+		} else {
+			getCollectionDao().remove(collectionItem);
+		}
+		updateCollectionMetaDataSummary(collectionContentId, RESOURCE, contentType);
+        // yet to handle reset sequence
 	}
 
 	private Errors validateResource(final Resource resource) {
@@ -564,5 +581,4 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	public CollaboratorRepository getCollaboratorRepository() {
 		return collaboratorRepository;
 	}
-
 }

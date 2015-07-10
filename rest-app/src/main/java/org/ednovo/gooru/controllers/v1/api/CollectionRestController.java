@@ -33,10 +33,9 @@ public class CollectionRestController extends BaseController implements Constant
 
 	@Autowired
 	private CollectionBoService collectionBoService;
-	
+
 	@Autowired
 	private CopyCollectionService copyCollectionService;
-
 
 	private static final String COLLECTION_TYPES = "collection,assessment,assessment/url";
 
@@ -155,7 +154,7 @@ public class CollectionRestController extends BaseController implements Constant
 			final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
 		final Collection collection = this.getCopyCollectionService().copyCollection(courseId, unitId, lessonId, collectionId, user, buildCollection(data));
-		collection.setUri(buildUri(RequestMappingUri.V3_COLLECTION,collection.getGooruOid()));
+		collection.setUri(buildUri(RequestMappingUri.V3_COLLECTION, collection.getGooruOid()));
 		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(collection, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
@@ -200,7 +199,7 @@ public class CollectionRestController extends BaseController implements Constant
 	public CollectionBoService getCollectionBoService() {
 		return collectionBoService;
 	}
-	
+
 	public CopyCollectionService getCopyCollectionService() {
 		return copyCollectionService;
 	}
