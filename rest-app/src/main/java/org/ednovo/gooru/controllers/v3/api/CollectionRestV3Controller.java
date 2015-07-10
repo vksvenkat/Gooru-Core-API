@@ -111,6 +111,12 @@ public class CollectionRestV3Controller extends BaseController implements Consta
 		this.getCollectionBoService().updateCollectionItem(collectionId, collectionItemId, buildCollectionItem(data), user);
 	}
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_DELETE })
+	@RequestMapping(value = { RequestMappingUri.COLLECTION_ITEM_ID }, method = RequestMethod.DELETE)
+	public void deleteCollectionItem(@PathVariable(value = COLLECTION_ID) final String collectionId, @PathVariable(value = ID) final String collectionItemId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
+		this.getCollectionBoService().deleteCollectionItem(collectionId, collectionItemId);
+	}
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(value = { RequestMappingUri.ID }, method = RequestMethod.GET)
 	public ModelAndView getCollection(@PathVariable(value = ID) final String collectionId, @RequestParam(value = INCLUDE_ITEMS, required = false, defaultValue = FALSE) final boolean includeItems, final HttpServletRequest request, final HttpServletResponse response) {
