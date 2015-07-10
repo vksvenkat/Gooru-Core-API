@@ -501,6 +501,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		content.put(USER, setUser(content.get(GOORU_UID), content.get(USER_NAME)));
 		content.put(ASSET_URI, ConfigProperties.getBaseRepoUrl());
 		content.remove(THUMBNAIL);
+		content.remove(META_DATA);
 		content.remove(VALUE);
 		content.remove(DISPLAY_NAME);
 		content.remove(AVERAGE);

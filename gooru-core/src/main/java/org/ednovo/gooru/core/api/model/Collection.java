@@ -89,8 +89,6 @@ public class Collection extends Content implements Versionable {
 
 	private String lastAccessedTime;
 
-	private String mediaFilename;
-
 	private List<Integer> taxonomyCourseIds;
 
 	private List<Integer> subdomainIds;
@@ -390,14 +388,6 @@ public class Collection extends Content implements Versionable {
 
 	public String getType() {
 		return getCollectionType();
-	}
-
-	public String getMediaFilename() {
-		return mediaFilename;
-	}
-
-	public void setMediaFilename(String mediaFilename) {
-		this.mediaFilename = mediaFilename;
 	}
 
 	public List<Integer> getAudienceIds() {
