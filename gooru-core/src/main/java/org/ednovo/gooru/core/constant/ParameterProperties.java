@@ -2908,4 +2908,6 @@ public interface ParameterProperties {
     
     String CLASS_EMPTY_COURSE_FILTER = "flt.exclude.empty.course";
     
+    String FOLDER_ID = "folderId";
+    
 }
