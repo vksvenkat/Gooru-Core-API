@@ -13,7 +13,6 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.ClassCollectionSettings;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionType;
-import org.ednovo.gooru.core.api.model.ContentSettings;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.InviteUser;
 import org.ednovo.gooru.core.api.model.User;
@@ -205,7 +204,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	}
 
 	private Map<String, Object> setClass(Map<String, Object> result) {
-		result.put(USER, setUser(result.get(GOORU_UID), result.get(USER_NAME), result.get(GENDER)));
+		result.put(USER, setUser(result.get(GOORU_UID), result.get(USER_NAME)));
 		Object thumbnail = result.get(THUMBNAIL);
 		if (thumbnail != null) {
 			result.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
@@ -213,11 +212,10 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		return result;
 	}
 
-	private Map<String, Object> setUser(Object userUid, Object username, Object gender) {
+	private Map<String, Object> setUser(Object userUid, Object username) {
 		Map<String, Object> user = new HashMap<String, Object>();
 		user.put(GOORU_UID, userUid);
 		user.put(USER_NAME, username);
-		user.put(GENDER, gender);
 		user.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf(user.get(GOORU_UID)) + ".png");
 		return user;
 	}

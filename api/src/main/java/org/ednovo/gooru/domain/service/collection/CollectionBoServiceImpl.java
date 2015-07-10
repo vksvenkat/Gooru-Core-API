@@ -499,11 +499,6 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				}));
 			}
 		}
-		Object metaData = content.get(META_DATA);
-		if (metaData != null) {
-			content.putAll(JsonDeserializer.deserialize(String.valueOf(content.get(META_DATA)), new TypeReference<Map<String, Object>>() {
-			}));
-		}
 		content.put(USER, setUser(content.get(GOORU_UID), content.get(USER_NAME)));
 		content.put(ASSET_URI, ConfigProperties.getBaseRepoUrl());
 		content.remove(THUMBNAIL);
