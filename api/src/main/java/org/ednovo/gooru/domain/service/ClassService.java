@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.ClassCollectionSettings;
-import org.ednovo.gooru.core.api.model.ContentSettings;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserClass;
 
@@ -17,7 +16,7 @@ public interface ClassService {
 
 	UserClass getClassById(String classUid);
 
-	Map<String, Object> getClass(String classUid, String gooruUid);
+	Map<String, Object> getClass(String classUid, User user);
 
 	Map<String, Object> getClasses(String gooruUid, int limit, int offset);
 
