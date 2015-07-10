@@ -949,10 +949,6 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	final static String SOURCE_COLLECTION = "sourceCollection";
 	
 	static final String CLASS_CONTENT[] = {"*.gooruOid", "*.title", "*.settings", "*.items"};
-	
-    final static String TAXONOMY_COURSE = "taxonomyCourse";
-
-	final static String DEPTHOF_KNOWLEDGE = "depthOfKnowledge";
 
 	static final String[] COLLECTION_TYPES = { "collection", "assessment", "assessment/url" };
 	
