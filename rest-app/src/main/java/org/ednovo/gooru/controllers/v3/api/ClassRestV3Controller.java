@@ -63,20 +63,21 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.GET)
 	public ModelAndView getClass(@PathVariable(value = ID) final String classUId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		return toModelAndViewWithIoFilter(this.getClassService().getClass(classUId, user.getGooruUId()), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CLASS_INCLUDES);
+		return toModelAndViewWithIoFilter(this.getClassService().getClass(classUId, user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CLASS_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView getClasses(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") final int limit, final HttpServletRequest request, final HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(this.getClassService().getClasses(null, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CLASS_INCLUDES);
+		return toModelAndViewWithIoFilter(this.getClassService().getClasses(null, null, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CLASS_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@RequestMapping(value = RequestMappingUri.CLASS_TEACH, method = RequestMethod.GET)
-	public ModelAndView getTeachClasses(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, final HttpServletRequest request, final HttpServletResponse response) {
+	public ModelAndView getTeachClasses(@RequestParam(value = CLASS_EMPTY_COURSE_FILTER, required = false, defaultValue = FALSE) boolean courseFilter, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		return toModelAndViewWithIoFilter(this.getClassService().getClasses(user.getPartyUid(), limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CLASS_INCLUDES);
+		return toModelAndViewWithIoFilter(this.getClassService().getClasses(user.getPartyUid(), courseFilter, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CLASS_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
