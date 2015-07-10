@@ -255,6 +255,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteUserFromClass(final String classUid, final String userUid, User user) {
 		UserClass userClass = this.getClassRepository().getClassById(classUid);
+		userClass.setMemberCount(userClass.getMemberCount() - 1);
 		rejectIfNull(userClass, GL0056, CLASS);
 		if (userClass.getUserUid().equals(user.getGooruUId()) || user.getGooruUId().equals(userUid)) {
 			this.getClassRepository().deleteUserFromClass(classUid, userUid);
@@ -286,6 +287,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 			if (userGroupAssociation == null) {
 				userGroupAssociation = new UserGroupAssociation(0, identity.getUser(), new Date(System.currentTimeMillis()), userClass);
 				this.getUserRepository().save(userGroupAssociation);
+				userClass.setMemberCount(userClass.getMemberCount() + 1);
 				userClass.setLastModifiedOn(new Date(System.currentTimeMillis()));
 				this.getClassRepository().save(userClass);
 				InviteUser inviteUser = this.getInviteRepository().findInviteUserById(identity.getExternalId(), userClass.getPartyUid(), null);
