@@ -15,7 +15,7 @@ public interface ClassService {
 
 	UserClass getClassById(String classUid);
 
-	Map<String, Object> getClass(String classUid, String string);
+	Map<String, Object> getClass(String classUid, String gooruUid);
 
 	Map<String, Object> getClasses(String gooruUid, int limit, int offset);
 

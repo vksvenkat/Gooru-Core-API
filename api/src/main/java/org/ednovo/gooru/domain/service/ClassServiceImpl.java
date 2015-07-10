@@ -201,8 +201,8 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 			result = this.getClassRepository().getClassByCode(classUid);
 		}
 		rejectIfNull(result, GL0056, CLASS);
-		if(result.get("gooruUId") !=null && result.get("gooruUId").equals(gooruUid)){
-			result.put("isMember", true);
+		if(result.get(GOORU_UID) !=null && result.get(GOORU_UID).equals(gooruUid)){
+			result.put(IS_MEMBER, this.getClassRepository().isMember(gooruUid,classUid));
 		}
 		setClass(result);
 		return result;

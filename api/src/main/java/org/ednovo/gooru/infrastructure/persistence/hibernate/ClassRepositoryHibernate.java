@@ -196,4 +196,14 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 		return list(query);
 	}
 
+	@Override
+	public boolean isMember(String gooruUid, String classUid) {
+		Query query = getSession().createSQLQuery("select * from user_group_association where user_group_uid=:classUid and gooru_uid=:gooruUId");
+		query.setParameter(GOORU_UID, gooruUid);
+		query.setParameter(CLASS_UID, classUid);
+		return (query.list().size()>0? true:false);
+	}
+	
+	
+
 }
