@@ -41,4 +41,7 @@ public interface CollectionBoService extends AbstractCollectionService {
 	CollectionItem addQuestion(String collectionId, String questionId, User user);
 
 	void moveCollectionToLesson(String courseId, String unitId, String lessonId, String collectionId, User user);
+	
+	Collection copyCollection(String courseId,String unitId,String lessonId,String collectionId,User user,Collection newCollection) throws Exception;
+
 }

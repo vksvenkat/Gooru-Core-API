@@ -46,8 +46,6 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 	@Autowired
 	private AssetManager assetManager;
 
-	@Autowired
-	private AsyncExecutor asyncExecutor;
 
 	@Override
 	public AssessmentQuestion createQuestion(String data, User user) {
@@ -411,9 +409,6 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		return questionRepository;
 	}
 
-	public AsyncExecutor getAsyncExecutor() {
-		return asyncExecutor;
-	}
 
 	public AssetManager getAssetManager() {
 		return assetManager;

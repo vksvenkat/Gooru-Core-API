@@ -102,7 +102,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 			userClass.setGrades(newUserClass.getGrades());
 		}
 		if (newUserClass.getCourseGooruOid() != null) {
-			Collection collection = this.getCollectionDao().getCollectionByType(newUserClass.getCourseGooruOid(), CollectionType.COURSE.getCollectionType());
+			Collection collection = this.getCollectionDao().getCollectionByType(newUserClass.getCourseGooruOid(), COURSE_TYPE);
 			rejectIfNull(collection, GL0056, COURSE);
 			userClass.setCourseContentId(collection.getContentId());
 		}

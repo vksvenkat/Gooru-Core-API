@@ -39,6 +39,9 @@ public class ContentClassificationRepositoryHibernate extends BaseRepositoryHibe
 	private static final String DELETE_CONTENT_CLASSIFICATION = "DELETE FROM ContentClassification where content.contentId=:contentId and typeId=:typeId";
 
 	private static final String GET_CODE_BY_IDS = "FROM Code where codeId in (:codeId)";
+	
+	private static final String CONTENT_CLASSIFICATION = "FROM ContentClassification where content.contentId=:contentId";
+
 
 	@SuppressWarnings("unchecked")
 	public ContentClassification findByContent(Long contentId) {
@@ -64,6 +67,13 @@ public class ContentClassificationRepositoryHibernate extends BaseRepositoryHibe
 	public List<Code> getCodes(List<Integer> codeIds) {
 		Query query = getSession().createQuery(GET_CODE_BY_IDS);
 		query.setParameterList(CODE_ID, codeIds);
+		return list(query);
+	}
+	
+	@Override
+	public List<ContentClassification> getContentClassification(Long contentId) {
+		Query query = getSession().createQuery(CONTENT_CLASSIFICATION);
+		query.setParameter(CONTENT_ID, contentId);
 		return list(query);
 	}
 

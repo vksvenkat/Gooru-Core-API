@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Content;
@@ -43,6 +44,9 @@ public class AbstractResourceServiceImpl extends AbstractCollectionServiceImpl i
 
 	@Autowired
 	private DashboardCassandraService dashboardCassandraService;
+	
+	@Autowired
+	private AsyncExecutor asyncExecutor;
 
 	protected static final String HINTS = "hints";
 
@@ -192,6 +196,10 @@ public class AbstractResourceServiceImpl extends AbstractCollectionServiceImpl i
 
 	public DashboardCassandraService getDashboardCassandraService() {
 		return dashboardCassandraService;
+	}
+
+	public AsyncExecutor getAsyncExecutor() {
+		return asyncExecutor;
 	}
 
 }

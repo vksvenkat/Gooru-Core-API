@@ -4,12 +4,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.RequestMappingUri;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
@@ -145,9 +147,13 @@ public class CollectionRestController extends BaseController implements Constant
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_COPY })
 	@RequestMapping(value = { RequestMappingUri.TARGET_LESSON }, method = RequestMethod.POST)
-	public ModelAndView copyCollection(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = LESSON_ID) final String lessonUId, @RequestBody final String data, final HttpServletRequest request,
-			final HttpServletResponse response) {
-		return null;
+	public ModelAndView copyCollection(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @PathVariable(value = LESSON_ID) final String lessonId, @PathVariable(value = ID) final String collectionId, @RequestBody final String data,
+			final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final Collection collection = this.getCollectionBoService().copyCollection(courseId, unitId, lessonId, collectionId, user, buildCollection(data));
+		collection.setUri(buildUri(RequestMappingUri.V3_COLLECTION,collection.getGooruOid()));
+		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(collection, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_MOVE })
@@ -198,5 +204,6 @@ public class CollectionRestController extends BaseController implements Constant
 	private CollectionItem buildCollectionItem(final String data) {
 		return JsonDeserializer.deserialize(data, CollectionItem.class);
 	}
+
 
 }

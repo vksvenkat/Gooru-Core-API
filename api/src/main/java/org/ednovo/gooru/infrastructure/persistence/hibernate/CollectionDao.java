@@ -10,7 +10,7 @@ import org.ednovo.gooru.core.api.model.User;
 public interface CollectionDao extends BaseRepository {
 	Collection getCollection(String collectionId);
 	
-	Collection getCollectionByType(String collectionId, String collectionType);
+	Collection getCollectionByType(String collectionId, String[] collectionType);
 
 	Collection getCollection(String userUid, String collectionType);
 
@@ -35,4 +35,8 @@ public interface CollectionDao extends BaseRepository {
 	CollectionItem getCollectionItemById(String gooruOid, User user);
 	
 	CollectionItem getParentCollection(Long contentId);
+	
+	CollectionItem getCollectionItem(String collectionItemId);
+	
+	List<CollectionItem> getCollectionItems(String collectionId);
 }
