@@ -23,9 +23,11 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.service.v2.ContentService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,6 +57,12 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Autowired
 	private QuestionService questionService;
+
+	@Autowired
+	private ContentService contentService;
+
+	@Autowired
+	private CollaboratorRepository collaboratorRepository;
 
 	private final static String COLLECTION_IMAGE_DIMENSION = "160x120,75x56,120x90,80x60,800x600";
 
@@ -119,13 +127,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateCollection(String collectionId, Collection newCollection, User user) {
 		boolean hasUnrestrictedContentAccess = this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user);
-		Collection collection = null;
-		if (hasUnrestrictedContentAccess) {
-			collection = getCollectionDao().getCollection(collectionId);
-		} else {
-			collection = getCollectionDao().getCollectionByUser(collectionId, user.getPartyUid());
-		}
-
+		// TO-Do add validation for collection type and collaborator validation
+		Collection collection = getCollectionDao().getCollection(collectionId);
 		if (newCollection.getSharing() != null && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 			if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 				collection.setPublishStatusId(null);
@@ -278,7 +281,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Map<String, Object> getCollection(String collectionId, String collectionType, boolean includeItems) {
+	public Map<String, Object> getCollection(String collectionId, String collectionType, User user, boolean includeItems) {
 		Map<String, Object> collection = super.getCollection(collectionId, collectionType);
 		StringBuilder key = new StringBuilder(ALL_);
 		key.append(collection.get(GOORU_OID));
@@ -286,6 +289,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if (includeItems) {
 			collection.put(COLLECTION_ITEMS, this.getCollectionItems(collectionId, MAX_LIMIT, 0));
 		}
+		final boolean isCollaborator = this.getCollaboratorRepository().findCollaboratorById(collectionId, user.getGooruUId()) != null ? true : false;
+		collection.put(PERMISSIONS, getContentService().getContentPermission(collectionId, user));
+		collection.put(IS_COLLABORATOR, isCollaborator);
 		return collection;
 	}
 
@@ -312,21 +318,6 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		List<Map<String, Object>> collectionItems = this.getCollectionDao().getCollectionItem(filters, limit, offset);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> item : collectionItems) {
-			String resourceType = (String) item.get(RESOURCE_TYPE);
-			if (resourceType.equalsIgnoreCase(ResourceType.Type.ASSESSMENT_QUESTION.getType())) {
-				// To-Do, need fix later, by getting answer and hints details
-				// without querying the assessment object
-				String gooruOid = (String) item.get(GOORU_OID);
-				AssessmentQuestion assessmentQuestion = this.getQuestionService().getQuestion(gooruOid);
-				if (assessmentQuestion != null && !assessmentQuestion.isQuestionNewGen()) {
-					item.put(ANSWERS, assessmentQuestion.getAnswers());
-					item.put(HINTS, assessmentQuestion.getHints());
-				} else {
-					String json = getMongoQuestionsService().getQuestionByIdWithJsonAdjustments(gooruOid);
-					item.putAll(JsonDeserializer.deserialize(json, new TypeReference<Map<String, Object>>() {
-					}));
-				}
-			}
 			StringBuilder key = new StringBuilder(ALL_);
 			key.append(item.get(GOORU_OID));
 			item.put(VIEWS, getDashboardCassandraService().readAsLong(key.toString(), COUNT_VIEWS));
@@ -479,8 +470,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		resourceFormat.put(DISPLAY_NAME, content.get(DISPLAY_NAME));
 		content.put(RESOURCEFORMAT, resourceFormat);
 		Object ratingAverage = content.get(AVERAGE);
+		String typeName = (String) content.get(RESOURCE_TYPE);
 		Map<String, Object> resourceType = new HashMap<String, Object>();
-		resourceType.put(RESOURCE_TYPE, content.get(RESOURCE_TYPE));
+		resourceType.put(NAME, typeName);
 		content.put(RESOURCE_TYPE, resourceType);
 		if (ratingAverage != null) {
 			Map<String, Object> rating = new HashMap<String, Object>();
@@ -492,10 +484,24 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if (thumbnail != null) {
 			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
 		}
+		if (typeName.equalsIgnoreCase(ResourceType.Type.ASSESSMENT_QUESTION.getType())) {
+			// To-Do, need fix later, by getting answer and hints details
+			// without querying the assessment object
+			String gooruOid = (String) content.get(GOORU_OID);
+			AssessmentQuestion assessmentQuestion = this.getQuestionService().getQuestion(gooruOid);
+			if (assessmentQuestion != null && !assessmentQuestion.isQuestionNewGen()) {
+				content.put(ANSWERS, assessmentQuestion.getAnswers());
+				content.put(HINTS, assessmentQuestion.getHints());
+			} else {
+				String json = getMongoQuestionsService().getQuestionByIdWithJsonAdjustments(gooruOid);
+				content.putAll(JsonDeserializer.deserialize(json, new TypeReference<Map<String, Object>>() {
+				}));
+			}
+		}
 		content.put(USER, setUser(content.get(GOORU_UID), content.get(USER_NAME)));
-
 		content.put(ASSET_URI, ConfigProperties.getBaseRepoUrl());
 		content.remove(THUMBNAIL);
+		content.remove(META_DATA);
 		content.remove(VALUE);
 		content.remove(DISPLAY_NAME);
 		content.remove(AVERAGE);
@@ -598,6 +604,14 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	public QuestionService getQuestionService() {
 		return questionService;
+	}
+
+	public ContentService getContentService() {
+		return contentService;
+	}
+
+	public CollaboratorRepository getCollaboratorRepository() {
+		return collaboratorRepository;
 	}
 
 }

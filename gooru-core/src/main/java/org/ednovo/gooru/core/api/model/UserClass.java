@@ -8,7 +8,7 @@ public class UserClass extends UserGroup implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 6653728358644358796L;
-
+	
 	private String description;
 
 	private String imagePath;

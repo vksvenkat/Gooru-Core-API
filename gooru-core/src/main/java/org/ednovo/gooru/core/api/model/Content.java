@@ -78,7 +78,7 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 
 	private Map<String, Object> meta;
 
-	private Map<String, String> settings = new HashMap<String, String>();
+	private Map<String, String> settings;
 
 	private Set<ContentSettings> contentSettings;
 
@@ -93,6 +93,16 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 	private List<Integer> skillIds;
 	
 	private List<Integer> depthOfKnowledgeIds;
+
+	private String mediaFilename;
+
+	public String getMediaFilename() {
+		return mediaFilename;
+	}
+
+	public void setMediaFilename(String mediaFilename) {
+		this.mediaFilename = mediaFilename;
+	}
 
 	public Long getContentId() {
 		return contentId;
