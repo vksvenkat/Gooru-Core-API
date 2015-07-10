@@ -64,7 +64,7 @@ public class CollectionRestV3Controller extends BaseController implements Consta
 	public ModelAndView addResource(@PathVariable(value = COLLECTION_ID) final String collectionId, @PathVariable(value = ID) final String resourceId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		CollectionItem collectionItem = this.getCollectionBoService().addResource(collectionId, resourceId, user);
-		collectionItem.setUri(generateUri(request.getRequestURI(), collectionItem.getCollectionItemId()));
+		collectionItem.setUri(generateUri(StringUtils.substringBeforeLast(request.getRequestURI(), RequestMappingUri.SEPARATOR), collectionItem.getCollectionItemId()));
 		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(collectionItem, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
@@ -92,7 +92,7 @@ public class CollectionRestV3Controller extends BaseController implements Consta
 	public ModelAndView addQuestion(@PathVariable(value = COLLECTION_ID) final String collectionId, @PathVariable(value = ID) final String questionId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		CollectionItem collectionItem = this.getCollectionBoService().addQuestion(collectionId, questionId, user);
-		collectionItem.setUri(generateUri(request.getRequestURI(), collectionItem.getCollectionItemId()));
+		collectionItem.setUri(generateUri(StringUtils.substringBeforeLast(request.getRequestURI(), RequestMappingUri.SEPARATOR), collectionItem.getCollectionItemId()));
 		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(collectionItem, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
