@@ -36,7 +36,7 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	private static final String COLLECTION_ITEM = "select cc.gooru_oid as gooruOid, title, cc.content_id as contentId  from  collection c inner join collection_item ci on ci.resource_content_id = c.content_id  inner join content cc on cc.content_id = ci.resource_content_id inner join content cr on cr.content_id = ci.collection_content_id   where cr.gooru_oid =:gooruOid ";
 
-	private static final String COLLECTION_CLASS_SETTINGS = "select cc.gooru_oid as gooruOid, title, cc.content_id as contentId , value  from  collection c inner join collection_item ci on ci.resource_content_id = c.content_id  inner join content cc on cc.content_id = c.content_id left join class_collection_settings on collection_id = c.content_id   where ci.collection_content_id =:contentId and class_uid=:classUid";
+	private static final String COLLECTION_CLASS_SETTINGS = "select value from  ClassCollectionSettings where lessonId =:lessonId";
 
 	@Override
 	public UserClass getClassById(String classUid) {
@@ -188,12 +188,12 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 	}
 
 	@Override
-	public List<Map<String, Object>> getClassCollectionSettings(Long contentId, String classUid) {
-		Query query = getSession().createSQLQuery(COLLECTION_CLASS_SETTINGS);
-		query.setParameter(CONTENT_ID, contentId);
-		query.setParameter(CLASS_UID, classUid);
-		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
-		return list(query);
+	public Map<String, Object> getClassCollectionSettings(Long lessonId) {
+		Query query = getSession().createQuery(COLLECTION_CLASS_SETTINGS);
+		query.setParameter(LESSON_ID, lessonId);
+		List<Map<String, Object>> results = list(query);
+		//Map<String, Object> result = n
+		return (Map<String, Object>) list(query);
 	}
 
 	@Override
