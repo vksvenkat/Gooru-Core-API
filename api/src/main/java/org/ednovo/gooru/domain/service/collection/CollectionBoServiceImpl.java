@@ -480,6 +480,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			rating.put(COUNT, content.get(COUNT));
 			content.put(RATING, rating);
 		}
+
 		Object thumbnail = content.get(THUMBNAIL);
 		if (thumbnail != null) {
 			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
@@ -498,6 +499,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				}));
 			}
 		}
+		content.putAll(JsonDeserializer.deserialize(String.valueOf(content.get(META_DATA)), new TypeReference<Map<String, Object>>() {
+		}));
 		content.put(USER, setUser(content.get(GOORU_UID), content.get(USER_NAME)));
 		content.put(ASSET_URI, ConfigProperties.getBaseRepoUrl());
 		content.remove(THUMBNAIL);
