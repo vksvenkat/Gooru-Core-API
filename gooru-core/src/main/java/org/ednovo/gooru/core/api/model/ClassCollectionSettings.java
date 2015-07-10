@@ -10,6 +10,8 @@ public class ClassCollectionSettings implements Serializable {
 	private Long lessonId;
 	private Long collectionId;
 	private String value;
+	private Boolean visibility;
+	private Short scoreTypeId;
 
 	public Long getCollectionId() {
 		return collectionId;
@@ -41,6 +43,22 @@ public class ClassCollectionSettings implements Serializable {
 
 	public void setLessonId(Long lessonId) {
 		this.lessonId = lessonId;
+	}
+
+	public Boolean getVisibility() {
+		return visibility;
+	}
+
+	public void setVisibility(Boolean visibility) {
+		this.visibility = visibility;
+	}
+
+	public Short getScoreTypeId() {
+		return scoreTypeId;
+	}
+
+	public void setScoreTypeId(Short scoreTypeId) {
+		this.scoreTypeId = scoreTypeId;
 	}
 
 }
