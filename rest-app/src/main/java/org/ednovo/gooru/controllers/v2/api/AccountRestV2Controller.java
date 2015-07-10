@@ -41,7 +41,6 @@ import org.ednovo.gooru.core.api.model.UserAccountType;
 import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.core.constant.ConstantProperties;
-import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
@@ -51,8 +50,6 @@ import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -75,7 +72,6 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	private Properties serverConstants;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_SIGNIN })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "/login")
 	public ModelAndView login(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final JSONObject json = requestData(data);
@@ -99,7 +95,6 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_SIGNIN })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.PUT }, value = "/switch-session")
 	public ModelAndView swithSession(@RequestParam(value = SESSIONTOKEN, required = true) final String sessionToken, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		ActionResponseDTO<UserToken> responseDTO = null;
@@ -117,7 +112,6 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_SIGNOUT })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/logout")
 	public void logout(final HttpServletRequest request, final HttpServletResponse response, @RequestParam(value = SESSIONTOKEN, required = false) final String sessionToken) throws Exception {
 		getAccountService().logOut(sessionToken);
@@ -128,7 +122,6 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_SIGNIN })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "/loginas/{id}")
 	public ModelAndView loginAs(@PathVariable(value = ID) final String gooruUid, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final UserToken userToken = this.getAccountService().loginAs(gooruUid, request);
@@ -143,7 +136,6 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_SIGNIN })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/authenticate")
 	public ModelAndView authenticateUser(@RequestBody final String data, @RequestParam(value = API_KEY, required = false) final String apiKey, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final JSONObject json = requestData(data);

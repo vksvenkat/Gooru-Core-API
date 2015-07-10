@@ -75,6 +75,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
@@ -167,6 +169,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<UserToken> logIn(final String username, final String password, final boolean isSsoLogin, final HttpServletRequest request) throws Exception {
 		final UserToken userToken = new UserToken();
 		final Errors errors = new BindException(userToken, SESSIONTOKEN);
@@ -330,6 +333,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void logOut(final String sessionToken) {
 		UserToken userToken = this.getUserTokenRepository().findByToken(sessionToken);
 		if (userToken != null) {
@@ -391,6 +395,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public UserToken loginAs(final String gooruUid, final HttpServletRequest request) throws Exception {
 		UserToken userToken = null;
 		if (gooruUid != null) {
@@ -431,6 +436,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public User userAuthentication(User newUser, final String secretKey, final String apiKey, final String source, final HttpServletRequest request) {
 		if (secretKey == null || !secretKey.equalsIgnoreCase(settingService.getConfigSetting(ConfigConstants.GOORU_AUTHENTICATION_SECERT_KEY, 0, TaxonomyUtil.GOORU_ORG_UID))) {
 			throw new UnauthorizedException(generateErrorMessage(GL0082, "secret") + secretKey, GL0082);
@@ -499,6 +505,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<UserToken> switchSession(final String sessionToken) throws Exception {
 		final UserToken userToken = userTokenRepository.findByToken(sessionToken);
 		return new ActionResponseDTO<UserToken>(userToken, new BindException(userToken, SESSIONTOKEN));

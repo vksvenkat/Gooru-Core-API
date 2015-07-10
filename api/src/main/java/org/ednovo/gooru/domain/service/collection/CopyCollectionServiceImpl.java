@@ -34,21 +34,9 @@ public class CopyCollectionServiceImpl extends AbstractResourceServiceImpl imple
 	private GooruImageUtil gooruImageUtil;
 
 	@Autowired
-	private ResourceBoService resourceBoService;
-
-	@Autowired
 	private QuestionService questionService;
 
-	@Autowired
-	private ContentService contentService;
-
-	@Autowired
-	private CollaboratorRepository collaboratorRepository;
 	
-	@Autowired
-	private CollectionBoServiceImpl collectionBoServiceImpl;
-
-
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Collection copyCollection(String courseId, String unitId, String lessonId, String collectionId, User user, Collection newCollection) throws Exception {
@@ -89,7 +77,7 @@ public class CopyCollectionServiceImpl extends AbstractResourceServiceImpl imple
 		createCollectionItem(newCollectionItem, lesson, destCollection, user);
 		final Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		final Collection unit = this.getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
-		this.getCollectionBoServiceImpl().updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), destCollection.getCollectionType(), LESSON);
+		updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), destCollection.getCollectionType(), LESSON);
 		copyContentClassification(sourceCollection.getContentId(), destCollection);
 		copyContentMetaAssoc(sourceCollection.getContentId(), destCollection);
 		// copy content meta details
@@ -167,24 +155,8 @@ public class CopyCollectionServiceImpl extends AbstractResourceServiceImpl imple
 		return gooruImageUtil;
 	}
 
-	public ResourceBoService getResourceBoService() {
-		return resourceBoService;
-	}
-
 	public QuestionService getQuestionService() {
 		return questionService;
-	}
-
-	public ContentService getContentService() {
-		return contentService;
-	}
-
-	public CollaboratorRepository getCollaboratorRepository() {
-		return collaboratorRepository;
-	}
-	
-	public CollectionBoServiceImpl getCollectionBoServiceImpl() {
-		return collectionBoServiceImpl;
 	}
 
 }

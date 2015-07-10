@@ -373,48 +373,6 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		return lesson.getCollection().getCollectionType();
 	}
 
-	public void updateMetaDataSummary(Long courseId, Long unitId, Long lessonId, String collectionType, String action) {
-		ContentMeta unitContentMeta = this.getContentRepository().getContentMeta(unitId);
-		ContentMeta courseContentMeta = this.getContentRepository().getContentMeta(courseId);
-		ContentMeta lessonContentMeta = this.getContentRepository().getContentMeta(lessonId);
-		if (lessonContentMeta != null) {
-			updateSummaryMeta(collectionType, lessonContentMeta, action);
-		}
-		if (unitContentMeta != null) {
-			updateSummaryMeta(collectionType, unitContentMeta, action);
-		}
-		if (courseContentMeta != null) {
-			updateSummaryMeta(collectionType, courseContentMeta, action);
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private void updateSummaryMeta(String collectionType, ContentMeta contentMeta, String action) {
-		Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
-		});
-		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
-		if (collectionType.equalsIgnoreCase(CollectionType.ASSESSMENT.getCollectionType())) {
-			int assessmentCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue();
-			if (action.equalsIgnoreCase(DELETE)) {
-				assessmentCount -= 1;
-			} else if (action.equalsIgnoreCase(ADD)) {
-				assessmentCount += 1;
-			}
-			summary.put(MetaConstants.ASSESSMENT_COUNT, assessmentCount);
-		}
-		if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
-			int collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue();
-			if (action.equalsIgnoreCase(DELETE)) {
-				collectionCount -= 1;
-			} else if (action.equalsIgnoreCase(ADD)) {
-				collectionCount += 1;
-			}
-			summary.put(MetaConstants.COLLECTION_COUNT, collectionCount);
-		}
-		metaData.put(SUMMARY, summary);
-		updateContentMeta(contentMeta, metaData);
-	}
-
 	private Map<String, Object> generateCollectionMetaData(Collection collection, Collection newCollection, User user) {
 		Map<String, Object> data = new HashMap<String, Object>();
 		if (newCollection.getStandardIds() != null) {

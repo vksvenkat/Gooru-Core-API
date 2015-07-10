@@ -13,6 +13,7 @@ import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
+import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentClassification;
 import org.ednovo.gooru.core.api.model.ContentMeta;
@@ -63,9 +64,9 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	@Autowired
 	private SettingService settingService;
-	
+
 	protected final static String TAXONOMY_COURSE = "taxonomyCourse";
-	
+
 	protected final static String DEPTHOF_KNOWLEDGE = "depthOfKnowledge";
 
 	public Collection createCollection(Collection collection, User user) {
@@ -375,6 +376,48 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		user.put(USER_NAME, username);
 		user.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(getSettingService().getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf(user.get(GOORU_UID)) + ".png");
 		return user;
+	}
+
+	protected void updateMetaDataSummary(Long courseId, Long unitId, Long lessonId, String collectionType, String action) {
+		ContentMeta unitContentMeta = this.getContentRepository().getContentMeta(unitId);
+		ContentMeta courseContentMeta = this.getContentRepository().getContentMeta(courseId);
+		ContentMeta lessonContentMeta = this.getContentRepository().getContentMeta(lessonId);
+		if (lessonContentMeta != null) {
+			updateSummaryMeta(collectionType, lessonContentMeta, action);
+		}
+		if (unitContentMeta != null) {
+			updateSummaryMeta(collectionType, unitContentMeta, action);
+		}
+		if (courseContentMeta != null) {
+			updateSummaryMeta(collectionType, courseContentMeta, action);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	protected void updateSummaryMeta(String collectionType, ContentMeta contentMeta, String action) {
+		Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
+		});
+		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
+		if (collectionType.equalsIgnoreCase(CollectionType.ASSESSMENT.getCollectionType())) {
+			int assessmentCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue();
+			if (action.equalsIgnoreCase(DELETE)) {
+				assessmentCount -= 1;
+			} else if (action.equalsIgnoreCase(ADD)) {
+				assessmentCount += 1;
+			}
+			summary.put(MetaConstants.ASSESSMENT_COUNT, assessmentCount);
+		}
+		if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
+			int collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue();
+			if (action.equalsIgnoreCase(DELETE)) {
+				collectionCount -= 1;
+			} else if (action.equalsIgnoreCase(ADD)) {
+				collectionCount += 1;
+			}
+			summary.put(MetaConstants.COLLECTION_COUNT, collectionCount);
+		}
+		metaData.put(SUMMARY, summary);
+		updateContentMeta(contentMeta, metaData);
 	}
 
 	public CollectionDao getCollectionDao() {
