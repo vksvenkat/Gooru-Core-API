@@ -94,6 +94,16 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 	
 	private List<Integer> depthOfKnowledgeIds;
 
+	private String mediaFilename;
+
+	public String getMediaFilename() {
+		return mediaFilename;
+	}
+
+	public void setMediaFilename(String mediaFilename) {
+		this.mediaFilename = mediaFilename;
+	}
+
 	public Long getContentId() {
 		return contentId;
 	}

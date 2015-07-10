@@ -27,6 +27,7 @@ import org.ednovo.gooru.domain.service.v2.ContentService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -59,6 +60,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Autowired
 	private ContentService contentService;
+
+	@Autowired
+	private CollaboratorRepository collaboratorRepository;
 
 	private final static String COLLECTION_IMAGE_DIMENSION = "160x120,75x56,120x90,80x60,800x600";
 
@@ -285,7 +289,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if (includeItems) {
 			collection.put(COLLECTION_ITEMS, this.getCollectionItems(collectionId, MAX_LIMIT, 0));
 		}
+		final boolean isCollaborator = this.getCollaboratorRepository().findCollaboratorById(collectionId, user.getGooruUId()) != null ? true : false;
 		collection.put(PERMISSIONS, getContentService().getContentPermission(collectionId, user));
+		collection.put(IS_COLLABORATOR, isCollaborator);
 		return collection;
 	}
 
@@ -496,6 +502,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 		content.put(ASSET_URI, ConfigProperties.getBaseRepoUrl());
 		content.remove(THUMBNAIL);
+		content.remove(META_DATA);
 		content.remove(VALUE);
 		content.remove(DISPLAY_NAME);
 		content.remove(AVERAGE);
@@ -602,6 +609,10 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	public ContentService getContentService() {
 		return contentService;
+	}
+
+	public CollaboratorRepository getCollaboratorRepository() {
+		return collaboratorRepository;
 	}
 
 }

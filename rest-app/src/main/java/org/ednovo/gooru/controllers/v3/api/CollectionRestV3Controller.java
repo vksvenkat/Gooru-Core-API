@@ -125,7 +125,7 @@ public class CollectionRestV3Controller extends BaseController implements Consta
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
-	@RequestMapping(value = { RequestMappingUri.COLLECTION_RESOURCE_ID, RequestMappingUri.LESSON_COLLECTION_QUESTION_ID }, method = RequestMethod.GET)
+	@RequestMapping(value = { RequestMappingUri.COLLECTION_RESOURCE_ID, RequestMappingUri.COLLECTION_QUESTION_ID }, method = RequestMethod.GET)
 	public ModelAndView getResource(@PathVariable(value = COLLECTION_ID) final String collectionId, @PathVariable(value = ID) final String collectionItemId, final HttpServletRequest request, final HttpServletResponse response) {
 		this.getCollectionBoService().getCollectionItem(collectionId, collectionItemId);
 		return toModelAndViewWithIoFilter(this.getCollectionBoService().getCollectionItem(collectionId, collectionItemId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
