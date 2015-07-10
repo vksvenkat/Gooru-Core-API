@@ -23,7 +23,6 @@ import org.ednovo.gooru.core.cassandra.model.ResourceCio;
 import org.ednovo.gooru.core.cassandra.model.ResourceMetadataCo;
 import org.ednovo.gooru.domain.cassandra.service.DashboardCassandraService;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
-import org.ednovo.gooru.domain.service.content.ContentService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.mongodb.assessments.questions.services.MongoQuestionsService;
 import org.springframework.beans.factory.annotation.Autowired;

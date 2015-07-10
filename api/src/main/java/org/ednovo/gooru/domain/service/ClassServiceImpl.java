@@ -10,6 +10,7 @@ import java.util.Map;
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.ClassCollectionSettings;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.Identity;
@@ -27,7 +28,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
-import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -35,8 +35,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
-
-import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
 public class ClassServiceImpl extends BaseServiceImpl implements ClassService, ConstantProperties, ParameterProperties {
@@ -193,7 +191,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Map<String, Object> getClass(String classUid) {
+	public Map<String, Object> getClass(String classUid, String gooruUid) {
 		Map<String, Object> result = null;
 		if (BaseUtil.isUuid(classUid)) {
 			result = this.getClassRepository().getClass(classUid);
@@ -201,12 +199,20 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 			result = this.getClassRepository().getClassByCode(classUid);
 		}
 		rejectIfNull(result, GL0056, CLASS);
+		String creatorUid = (String) result.get(GOORU_UID);
+		result.put(IS_MEMBER,false);
+		if(creatorUid !=null && creatorUid.equals(gooruUid)){
+			UserGroupAssociation userGroupAssociation = this.getUserRepository().getUserGroupMemebrByGroupUid(classUid,gooruUid);
+			if(userGroupAssociation != null){
+				result.put(IS_MEMBER,true);
+			}
+		}
 		setClass(result);
 		return result;
 	}
 
 	private Map<String, Object> setClass(Map<String, Object> result) {
-		result.put(USER, setUser(result.get(GOORU_UID), result.get(USER_NAME), result.get(GENDER)));
+		result.put(USER, setUser(result.get(GOORU_UID), result.get(USER_NAME)));
 		Object thumbnail = result.get(THUMBNAIL);
 		if (thumbnail != null) {
 			result.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
@@ -214,11 +220,10 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		return result;
 	}
 
-	private Map<String, Object> setUser(Object userUid, Object username, Object gender) {
+	private Map<String, Object> setUser(Object userUid, Object username) {
 		Map<String, Object> user = new HashMap<String, Object>();
 		user.put(GOORU_UID, userUid);
 		user.put(USER_NAME, username);
-		user.put(GENDER, gender);
 		user.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf(user.get(GOORU_UID)) + ".png");
 		return user;
 	}
@@ -283,6 +288,18 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	}
 
 	@Override
+	public void updateClassSettings(String classUid, List<ClassCollectionSettings> classCollectionSettings) {
+		UserClass userClass = this.getClassRepository().getClassById(classUid);
+		rejectIfNull(userClass, GL0056, 404, CLASS);
+		List<ClassCollectionSettings> settings = new ArrayList<ClassCollectionSettings>();
+		for (ClassCollectionSettings classCollectionSetting : classCollectionSettings) {
+			classCollectionSetting.setClassId(userClass.getClassId());
+			settings.add(classCollectionSetting);
+		}
+		this.getClassRepository().saveAll(settings);
+	}
+
+	@Override
 	public List<Map<String, Object>> getClassUnit(String unitId, int limit, int offset) {
 		List<Map<String, Object>> units = getClassRepository().getCollectionItem(unitId, limit, offset);
 		List<Map<String, Object>> unitList = new ArrayList<Map<String, Object>>();
@@ -295,24 +312,35 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Override
 	public List<Map<String, Object>> getClassCollectionSettings(String classUid, String unitId, int limit, int offset) {
-		List<Map<String, Object>> lessons = getClassRepository().getCollectionItem(unitId, limit, offset);
-		List<Map<String, Object>> lessonList = new ArrayList<Map<String, Object>>();
-		for (Map<String, Object> lesson : lessons) {
-			Long contentId = ((Number) lesson.get(CONTENT_ID)).longValue();
-			List<Map<String, Object>> classCollectionSettings = this.getClassRepository().getClassCollectionSettings(contentId, classUid);
-			List<Map<String, Object>> collectionSettings = new ArrayList<Map<String, Object>>();
-			for (Map<String, Object> collection : classCollectionSettings) {
-				Object value = collection.get(VALUE);
-				if (value != null) {
-					collection.put(SETTINGS, JsonDeserializer.deserialize(String.valueOf(value), new TypeReference<Map<String, Object>>() {
-					}));
-				}
-				collectionSettings.add(collection);
-			}
-			lesson.put(ITEMS, collectionSettings);
-			lessonList.add(lesson);
-		}
-		return lessonList;
+		// Map<String, Object> data =
+		// this.getClassRepository().getClassCollectionSettings(null, classUid);
+		// System.out.println(data);
+		// List<Map<String, Object>> lessons =
+		// getClassRepository().getCollectionItem(unitId, limit, offset);
+		// List<Map<String, Object>> lessonList = new ArrayList<Map<String,
+		// Object>>();
+		// for (Map<String, Object> lesson : lessons) {
+		// Long contentId = ((Number) lesson.get(CONTENT_ID)).longValue();
+		// // List<Map<String, Object>> classCollectionSettings =
+		// this.getClassRepository().getClassCollectionSettings(contentId,
+		// classUid);
+		// List<Map<String, Object>> collectionSettings = new
+		// ArrayList<Map<String, Object>>();
+		// for (Map<String, Object> collection : classCollectionSettings) {
+		// Object value = collection.get(VALUE);
+		// if (value != null) {
+		// collection.put(SETTINGS,
+		// JsonDeserializer.deserialize(String.valueOf(value), new
+		// TypeReference<Map<String, Object>>() {
+		// }));
+		// }
+		// collectionSettings.add(collection);
+		// }
+		// lesson.put(ITEMS, collectionSettings);
+		// lessonList.add(lesson);
+		// }
+		// return lessonList;
+		return null;
 	}
 
 	public CollectionDao getCollectionDao() {

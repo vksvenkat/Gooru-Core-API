@@ -925,6 +925,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		xstream.alias(_EDUCATIONAL_USE, ContentMetaDTO.class);
 		xstream.addImplicitCollection(AssessmentQuestion.class, "deletedMediaFiles", String.class);
 		xstream.addImplicitCollection(AssessmentQuestion.class, "mediaFiles", String.class);
+		xstream.addImplicitCollection(AssessmentQuestion.class, "depthOfKnowledgeIds", Integer.class);
 
 		/*
 		 * The change to make sure that if we add some other attributes

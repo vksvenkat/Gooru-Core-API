@@ -922,7 +922,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	
 	final static String SUBDOMAIN_ID = "subdomainId";
 
-	final static String CLASS_INCLUDES[] = { "*.classUid", "*.classCode", "*.name", "*.description", "*.visibility", "*.minimumScore", "*.memberCount", "*.username", "*.gooruUId", "*.gender", "*.profileImageUrl", "*.thumbnails", "*.user", "*.url", "courseGooruOid", "*.grades", "*.searchResult", "*.totalHitCount" };
+	final static String CLASS_INCLUDES[] = { "*.classUid", "*.classCode", "*.name", "*.description", "*.visibility", "*.minimumScore", "*.memberCount", "*.username", "*.gooruUId", "*.gender", "*.profileImageUrl", "*.thumbnails", "*.user", "*.url", "courseGooruOid", "*.grades", "*.searchResult", "*.totalHitCount", "*.isMember" };
 
 	final static String UNIT_ID = "unitId";
 
@@ -942,7 +942,9 @@ public interface ConstantProperties extends ErrorCodeProperties {
 		
 	final static String CLASS_ID = "classId";
 	
-	final static String INCLUDE_COLLECTION_ITEMS[] = {"*.collectionItems", "*.user", "*.answers", "*.hints", "*.permissions"};
+	final static String INCLUDE_COLLECTION_ITEMS[] = {"*.collectionItems", "*.user", "*.answers", "*.hints", "*.permissions", "*.educationalUse", "*.standards", "*.depthOfKnowledge", "*.skills", "*.momentsOfLearning"};
+	
+	final static String EXCLUDE_COLLECTION_ITEMS[] = {"*.class", "*.answers.question"};
 	
 	final static String SOURCE_COLLECTION = "sourceCollection";
 	
@@ -959,4 +961,6 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	static final String[] UNIT_TYPE = { "unit" };
 	
 	static final String[] LESSON_TYPE = { "lesson" };
+	
+	final static String IS_MEMBER = "isMember"; 
 }

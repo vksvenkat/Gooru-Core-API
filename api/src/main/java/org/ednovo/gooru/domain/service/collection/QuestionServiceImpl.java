@@ -378,6 +378,7 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		xstream.alias(_EDUCATIONAL_USE, ContentMetaDTO.class);
 		xstream.addImplicitCollection(AssessmentQuestion.class, "mediaFiles", String.class);
 		xstream.addImplicitCollection(AssessmentQuestion.class, "deletedMediaFiles", String.class);
+		xstream.addImplicitCollection(AssessmentQuestion.class, "depthOfKnowledgeIds", Integer.class);
 		/*
 		 * The change to make sure that if we add some other attributes
 		 * tomorrow, or as we have added today, we don't have to make them parse
