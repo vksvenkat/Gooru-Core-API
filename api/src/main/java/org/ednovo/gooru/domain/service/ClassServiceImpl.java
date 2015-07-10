@@ -119,7 +119,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Map<String, Object> getClasses(String gooruUid, int limit, int offset) {
+	public Map<String, Object> getClasses(String gooruUid, Boolean emptyCourse,  int limit, int offset) {
 		List<Map<String, Object>> resultSet = null;
 		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
 		if (gooruUid != null) {
