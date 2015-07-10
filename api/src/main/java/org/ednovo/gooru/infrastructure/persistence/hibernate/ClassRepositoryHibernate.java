@@ -61,7 +61,7 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 		StringBuilder sql = new StringBuilder(GET_CLASSES);
 		sql.append("where gooru_uid = :gooruUId ");
 		if (filterByEmptyCourse) {
-			sql.append(" and course_content_id is not null ");
+			sql.append(" and course_content_id is null ");
 		}
 		sql.append(" order by p.created_on desc");
 		
