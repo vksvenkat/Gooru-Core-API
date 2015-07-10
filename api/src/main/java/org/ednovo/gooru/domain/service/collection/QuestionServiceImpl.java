@@ -53,7 +53,7 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 	public AssessmentQuestion createQuestion(String data, User user) {
 		AssessmentQuestion question = buildQuestion(data);
 		ServerValidationUtils.rejectIfNull(question.getQuestionText(), GL0006, QUESTION_TEXT);
-		question.setTitle(question.getQuestionText().substring(0, question.getQuestionText().length() > 1000 ? 999 :  question.getQuestionText().length()));
+		question.setTitle(question.getQuestionText().substring(0, question.getQuestionText().length() > 1000 ? 999 : question.getQuestionText().length()));
 		License license = (License) getBaseRepository().get(License.class, CREATIVE_COMMONS);
 		question.setLicense(license);
 		ContentType contentType = (ContentType) getBaseRepository().get(ContentType.class, ContentType.QUESTION);
@@ -106,7 +106,7 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		AssessmentQuestion newQuestion = buildQuestion(data);
 		if (newQuestion.getQuestionText() != null) {
 			question.setQuestionText(newQuestion.getQuestionText());
-			question.setTitle(newQuestion.getQuestionText().substring(0, newQuestion.getQuestionText().length() > 1000 ? 999 :  newQuestion.getQuestionText().length()));
+			question.setTitle(newQuestion.getQuestionText().substring(0, newQuestion.getQuestionText().length() > 1000 ? 999 : newQuestion.getQuestionText().length()));
 		}
 		if (newQuestion.getDescription() != null) {
 			question.setDescription(newQuestion.getDescription());
@@ -381,6 +381,8 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		xstream.addImplicitCollection(AssessmentQuestion.class, "mediaFiles", String.class);
 		xstream.addImplicitCollection(AssessmentQuestion.class, "deletedMediaFiles", String.class);
 		xstream.addImplicitCollection(AssessmentQuestion.class, "depthOfKnowledgeIds", Integer.class);
+		xstream.addImplicitCollection(AssessmentQuestion.class, "standardIds", Integer.class);
+		xstream.addImplicitCollection(AssessmentQuestion.class, "skillIds", Integer.class);
 		/*
 		 * The change to make sure that if we add some other attributes
 		 * tomorrow, or as we have added today, we don't have to make them parse
