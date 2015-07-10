@@ -56,6 +56,13 @@ public class CollectionRestV3Controller extends BaseController implements Consta
 		return toModelAndViewWithIoFilter(collection, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_MOVE })
+	@RequestMapping(value = { RequestMappingUri.V3_SOURCE_COLLECTION_ID }, method = RequestMethod.PUT)
+	public void moveCollection(@PathVariable(value = ID) final String collectionId, @RequestParam(value = FOLDER_ID, required = false) final String folderId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		getCollectionBoService().moveCollection(folderId, collectionId, user);
+	}
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@RequestMapping(value = { RequestMappingUri.COLLECTION_RESOURCE }, method = RequestMethod.POST)
 	public ModelAndView createResource(@PathVariable(value = ID) final String collectionId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {

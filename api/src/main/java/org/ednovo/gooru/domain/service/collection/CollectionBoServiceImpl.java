@@ -336,30 +336,51 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	// moved
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void moveCollectionToLesson(String courseId, String unitId, String lessonId, String collectionId, User user) {
-		CollectionItem sourceCollectionItem = getCollectionDao().getCollectionItemById(collectionId, user);
-		rejectIfNull(sourceCollectionItem, GL0056, 404, COLLECTION);
-		// need to put validation for collaborator
-		// reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId,
-		// user), GL0099, 403, COLLECTION);
+	public void moveCollection(String courseId, String unitId, String lessonId, String collectionId, User user) {
 		Collection lesson = this.getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
 		rejectIfNull(lesson, GL0056, 404, LESSON);
 		Collection unit = this.getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
 		rejectIfNull(unit, GL0056, 404, UNIT);
 		Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(course, GL0056, 404, COURSE);
+		CollectionItem sourceCollectionItem = moveCollection(collectionId, lesson, user);
+		String collectionType = getParentCollection(sourceCollectionItem.getContent().getContentId(), sourceCollectionItem.getContent().getContentType().getName(), collectionId);
+		if (!(collectionType.equalsIgnoreCase(SHELF) || collectionType.equals(FOLDER))) {
+			updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), sourceCollectionItem.getContent().getContentType().getName(), ADD);
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void moveCollection(String folderId, String collectionId, User user) {
+		Collection targetCollection = null;
+		if (folderId != null) {
+			targetCollection = this.getCollectionDao().getCollectionByType(folderId, FOLDER_TYPE);
+			rejectIfNull(targetCollection, GL0056, 404, FOLDER);
+		} else {
+			targetCollection = getCollectionDao().getCollection(user.getPartyUid(), CollectionType.SHElf.getCollectionType());
+			if (targetCollection == null) {
+				targetCollection = new Collection();
+				targetCollection.setCollectionType(CollectionType.SHElf.getCollectionType());
+				targetCollection.setTitle(CollectionType.SHElf.getCollectionType());
+				super.createCollection(targetCollection, user);
+			}
+		}
+		moveCollection(collectionId, targetCollection, user);
+	}
+
+	private CollectionItem moveCollection(String collectionId, Collection targetCollection, User user) {
+		CollectionItem sourceCollectionItem = getCollectionDao().getCollectionItemById(collectionId, user);
+		rejectIfNull(sourceCollectionItem, GL0056, 404, COLLECTION);
+		// need to put validation for collaborator
 		CollectionItem collectionItem = new CollectionItem();
 		if (sourceCollectionItem.getItemType() != null) {
 			collectionItem.setItemType(sourceCollectionItem.getItemType());
 		}
-		String collectionType = getParentCollection(sourceCollectionItem.getContent().getContentId(), sourceCollectionItem.getContent().getContentType().getName(), collectionId);
-		if (collectionType.equalsIgnoreCase(SHELF) || collectionType.equals(FOLDER)) {
-			this.createCollectionItem(collectionItem, lesson, sourceCollectionItem.getContent(), user);
-		} else {
-			this.getCollectionDao().deleteCollectionItem(sourceCollectionItem.getContent().getContentId());
-			this.createCollectionItem(collectionItem, lesson, sourceCollectionItem.getContent(), user);
-			this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), sourceCollectionItem.getContent().getContentType().getName(), ADD);
-		}
+		createCollectionItem(collectionItem, targetCollection, sourceCollectionItem.getContent(), user);
+		resetSequence(sourceCollectionItem.getCollection().getGooruOid(), sourceCollectionItem.getContent().getGooruOid());
+		getCollectionDao().remove(sourceCollectionItem);
+		return sourceCollectionItem;
 	}
 
 	private String getParentCollection(Long collectionId, String collectionType, String gooruOid) {
@@ -368,7 +389,6 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			CollectionItem unit = this.getCollectionDao().getParentCollection(lesson.getCollection().getContentId());
 			CollectionItem course = this.getCollectionDao().getParentCollection(unit.getCollection().getContentId());
 			this.updateMetaDataSummary(course.getCollection().getContentId(), unit.getCollection().getContentId(), lesson.getCollection().getContentId(), collectionType, DELETE);
-			this.resetSequence(lesson.getCollection().getGooruOid(), gooruOid);
 		}
 		return lesson.getCollection().getCollectionType();
 	}
@@ -526,7 +546,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			getCollectionDao().remove(collectionItem);
 		}
 		updateCollectionMetaDataSummary(collectionContentId, RESOURCE, contentType);
-        // yet to handle reset sequence
+		// yet to handle reset sequence
 	}
 
 	private Errors validateResource(final Resource resource) {
@@ -581,4 +601,5 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	public CollaboratorRepository getCollaboratorRepository() {
 		return collaboratorRepository;
 	}
+
 }
