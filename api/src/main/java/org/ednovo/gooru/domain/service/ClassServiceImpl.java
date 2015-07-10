@@ -266,12 +266,12 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		UserClass userClass = this.getClassRepository().getClassById(classUid);
 		rejectIfNull(userClass, GL0056, 404, CLASS);
 		Identity identity = this.getUserRepository().findUserByGooruId(user.getPartyUid());
-		userClass.setMemberCount(this.getClassRepository().getMemeberCount(classUid));
 		if (identity != null) {
 			UserGroupAssociation userGroupAssociation = this.getUserRepository().getUserGroupMemebrByGroupUid(userClass.getPartyUid(), identity.getUser().getPartyUid());
 			if (userGroupAssociation == null) {
 				userGroupAssociation = new UserGroupAssociation(0, identity.getUser(), new Date(System.currentTimeMillis()), userClass);
 				this.getUserRepository().save(userGroupAssociation);
+				userClass.setMemberCount(userClass.getMemberCount() + 1);
 				userClass.setLastModifiedOn(new Date(System.currentTimeMillis()));
 				this.getClassRepository().save(userClass);
 				InviteUser inviteUser = this.getInviteRepository().findInviteUserById(identity.getExternalId(), userClass.getPartyUid(), null);
