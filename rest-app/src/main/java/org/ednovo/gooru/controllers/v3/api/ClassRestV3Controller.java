@@ -1,11 +1,14 @@
 package org.ednovo.gooru.controllers.v3.api;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.ClassCollectionSettings;
 import org.ednovo.gooru.core.api.model.RequestMappingUri;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserClass;
@@ -24,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 
 @RequestMapping(value = { RequestMappingUri.V3_CLASS })
 @Controller
@@ -116,14 +121,26 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
-	@RequestMapping(value = RequestMappingUri.CLASS_UNIT_COLLECTION_SETTINGS, method = RequestMethod.GET)
+	@RequestMapping(value = RequestMappingUri.CLASS_COLLECTION_SETTINGS, method = RequestMethod.GET)
 	public ModelAndView getClassCollectionSettings(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId, @PathVariable(UNIT_ID) final String unitId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset,
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request, final HttpServletResponse response) {
 		return toModelAndViewWithIoFilter(this.getClassService().getClassCollectionSettings(classUid, unitId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE, true, CLASS_CONTENT);
 	}
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_UPDATE })
+	@RequestMapping(value = RequestMappingUri.CLASS_COLLECTION_SETTINGS, method = { RequestMethod.PUT })
+	public void updateCollectionSettings(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId, @PathVariable(UNIT_ID) final String unitId, @PathVariable(LESSON_ID) final String lessonId, @RequestBody final String data, final HttpServletRequest request,
+			final HttpServletResponse response) {
+		this.getClassService().updateClassSettings(classUid, this.buildClassCollectionSettings(data));
+	}
+
 	private UserClass buildClass(final String data) {
 		return JsonDeserializer.deserialize(data, UserClass.class);
+	}
+
+	private List<ClassCollectionSettings> buildClassCollectionSettings(final String data) {
+		return JsonDeserializer.deserialize(data, new TypeReference<List<ClassCollectionSettings>>() {
+		});
 	}
 
 	public ClassService getClassService() {
