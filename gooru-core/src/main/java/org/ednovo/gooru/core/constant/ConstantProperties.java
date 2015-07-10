@@ -958,5 +958,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	
 	static final String[] LESSON_TYPE = { "lesson" };
 	
+	static final String[] FOLDER_TYPE = { "folder" };
+	
 	final static String IS_MEMBER = "isMember"; 
 }
