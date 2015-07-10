@@ -65,6 +65,8 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 
 	private final static String GET_CONTENT_META_ASSOCATION = "FROM ContentMetaAssociation where content.gooruOid =:gooruOid and  typeId.customTable.name =:key";
 
+	private static final String CONTENT_META_ASSOC = "FROM ContentMetaAssociation where content.contentId=:contentId";
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Content findByContent(Long contentId) {
@@ -348,6 +350,12 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		Query query = getSession().createQuery(GET_CONTENT_META_ASSOCATION);
 		query.setParameter(GOORU_OID, gooruOid);
 		query.setParameter(KEY, key);
+		return list(query);
+	}
+	
+	public List<ContentMetaAssociation> getContentMetaAssoc(Long contentId) {
+		Query query = getSession().createQuery(CONTENT_META_ASSOC);
+        	query.setParameter(CONTENT_ID, contentId);
 		return list(query);
 	}
 }
