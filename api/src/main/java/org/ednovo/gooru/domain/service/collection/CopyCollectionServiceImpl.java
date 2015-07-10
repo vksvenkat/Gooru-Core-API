@@ -59,12 +59,12 @@ public class CopyCollectionServiceImpl extends AbstractResourceServiceImpl imple
 			targetCollection = this.getCollectionDao().getCollectionByType(folderId, FOLDER_TYPE);
 			rejectIfNull(targetCollection, GL0056, 404, FOLDER);
 		} else {
-			Collection parentCollection = getCollectionDao().getCollection(user.getPartyUid(), CollectionType.SHElf.getCollectionType());
-			if (parentCollection == null) {
-				parentCollection = new Collection();
-				parentCollection.setCollectionType(CollectionType.SHElf.getCollectionType());
-				parentCollection.setTitle(CollectionType.SHElf.getCollectionType());
-				targetCollection = super.createCollection(parentCollection, user);
+			targetCollection = getCollectionDao().getCollection(user.getPartyUid(), CollectionType.SHElf.getCollectionType());
+			if (targetCollection == null) {
+				targetCollection = new Collection();
+				targetCollection.setCollectionType(CollectionType.SHElf.getCollectionType());
+				targetCollection.setTitle(CollectionType.SHElf.getCollectionType());
+				super.createCollection(targetCollection, user);
 			}
 		}
 

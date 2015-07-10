@@ -192,13 +192,6 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	}
 
 	@Override
-	public void deleteCollectionItem(Long contentId) {
-		Query query = getSession().createSQLQuery(DELETE_COLLECTIONITEM);
-		query.setParameter(CONTENT_ID, contentId);
-		query.executeUpdate();
-	}
-
-	@Override
 	public CollectionItem getCollectionItemById(String gooruOid, User user) {
 		Query query = getSession().createQuery(COLLECTIONITEM_BY_USERUID);
 		query.setParameter(GOORU_OID, gooruOid);
