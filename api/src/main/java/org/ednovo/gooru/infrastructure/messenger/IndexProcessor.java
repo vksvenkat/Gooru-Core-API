@@ -36,6 +36,7 @@ import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.domain.service.content.ContentService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.ConfigSettingRepository;
 import org.ednovo.gooru.kafka.producer.KafkaProducer;
 import org.restlet.data.Form;
 import org.restlet.representation.Representation;
@@ -68,6 +69,8 @@ public class IndexProcessor extends BaseComponent {
 	
 	private static final JSONSerializer SERIALIZER = new JSONSerializer();
 
+	@Autowired
+	private ConfigSettingRepository configSettingRepository;
 	
 	@Autowired
 	private ContentService contentService;
@@ -91,11 +94,17 @@ public class IndexProcessor extends BaseComponent {
 	public static final String INDEX = "index";
 
 	public static final String DELETE = "delete";
+	
+
+	private Map<String,String> queueNames = new HashMap<String, String>();
 
 	@PostConstruct
 	public void init() {
 		transactionTemplate = new TransactionTemplate(transactionManager);
 		transactionTemplate.setReadOnly(true);
+		queueNames.put(Constants.RESOURCE,configSettingRepository.getConfigSetting(RESOURCE_QUEUE_KEY));
+		queueNames.put(Constants.SCOLLECTION,configSettingRepository.getConfigSetting(SCOLLECTION_QUEUE_KEY));
+		queueNames.put(Constants.USER,configSettingRepository.getConfigSetting(USER_QUEUE_KEY));
 	}
 
 	public void index(final String uuids, final String action, final String type) {
@@ -104,16 +113,16 @@ public class IndexProcessor extends BaseComponent {
 
 	public void indexStas(final String uuids, final String action, final String type) {
 		String indexMode = redisService.getValue("index-mode");
-		if(indexMode != null && indexMode.equalsIgnoreCase("kafka")){
+		if(indexMode != null && indexMode.equalsIgnoreCase("kafka")) {
 			Map<String, Object> indexData = new HashMap<String, Object>();
 			indexData.put("indexableIds", uuids);
 			indexData.put("type", type);
 			indexData.put("action", action);
 			indexData.put("priority", "0");
 			String indexMsg = SERIALIZER.deepSerialize(indexData);
-			kafkaProducer.send(indexMsg, type, Constants.REINDEX_TYPES.get(type));
+			kafkaProducer.send(indexMsg, type, queueNames.get(type));
 		}
-		else{
+		else {
 			index(uuids, action, type, false, false);
 		}
 	}
@@ -163,7 +172,7 @@ public class IndexProcessor extends BaseComponent {
 		indexData.put(INDEX_ACTION, action);
 		indexData.put(IS_UPDATE_USER_CONTENT, isUpdateUserContent);
 		String indexMsg = SERIALIZER.deepSerialize(indexData);
-		kafkaProducer.send(indexMsg, type, Constants.REINDEX_TYPES.get(type));
+		kafkaProducer.send(indexMsg, type, queueNames.get(type));
 	}
 
 	public void index(final String uuids, final String action, final String type, final String sessionToken, final GooruAuthenticationToken authentication, final boolean isUpdateUserContent, final boolean isUpdateStas) {
