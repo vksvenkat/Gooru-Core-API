@@ -922,7 +922,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	
 	final static String SUBDOMAIN_ID = "subdomainId";
 
-	final static String CLASS_INCLUDES[] = { "*.classUid", "*.classCode", "*.name", "*.description", "*.visibility", "*.minimumScore", "*.memberCount", "*.username", "*.gooruUId", "*.gender", "*.profileImageUrl", "*.thumbnails", "*.user", "*.url", "courseGooruOid", "*.grades", "*.searchResult", "*.totalHitCount" };
+	final static String CLASS_INCLUDES[] = { "*.classUid", "*.classCode", "*.name", "*.description", "*.visibility", "*.minimumScore", "*.memberCount", "*.username", "*.gooruUId", "*.gender", "*.profileImageUrl", "*.thumbnails", "*.user", "*.url", "courseGooruOid", "*.grades", "*.searchResult", "*.totalHitCount", "*.isMember" };
 
 	final static String UNIT_ID = "unitId";
 
@@ -949,4 +949,6 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	final static String SOURCE_COLLECTION = "sourceCollection";
 	
 	static final String CLASS_CONTENT[] = {"*.gooruOid", "*.title", "*.settings", "*.items"};
+	
+	final static String IS_MEMBER = "isMember"; 
 }
