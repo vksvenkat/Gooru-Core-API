@@ -57,9 +57,14 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 	}
 
 	@Override
-	public List<Map<String, Object>> getClasses(String gooruUid, int limit, int offset) {
+	public List<Map<String, Object>> getClasses(String gooruUid, boolean filterByEmptyCourse, int limit, int offset) {
 		StringBuilder sql = new StringBuilder(GET_CLASSES);
-		sql.append("where gooru_uid = :gooruUId order by p.created_on desc");
+		sql.append("where gooru_uid = :gooruUId ");
+		if (filterByEmptyCourse) {
+			sql.append(" and course_content_id is null ");
+		}
+		sql.append(" order by p.created_on desc");
+		
 		Query query = getSession().createSQLQuery(sql.toString());
 		query.setParameter(GOORU_UID, gooruUid);
 		query.setFirstResult(offset);

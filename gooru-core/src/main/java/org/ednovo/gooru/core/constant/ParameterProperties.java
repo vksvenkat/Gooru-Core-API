@@ -2906,5 +2906,6 @@ public interface ParameterProperties {
        
     String RESOURCE_QUEUE_KEY = "search.setting.resource.queue.name";
     
-
+    String CLASS_EMPTY_COURSE_FILTER = "flt.exclude.empty.course";
+    
 }

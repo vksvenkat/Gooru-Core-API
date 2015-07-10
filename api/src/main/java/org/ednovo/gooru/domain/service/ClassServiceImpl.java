@@ -119,11 +119,11 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Map<String, Object> getClasses(String gooruUid, int limit, int offset) {
+	public Map<String, Object> getClasses(String gooruUid, Boolean emptyCourse, int limit, int offset) {
 		List<Map<String, Object>> resultSet = null;
 		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
 		if (gooruUid != null) {
-			resultSet = this.getClassRepository().getClasses(gooruUid, limit, offset);
+			resultSet = this.getClassRepository().getClasses(gooruUid, emptyCourse, limit, offset);
 		} else {
 			resultSet = this.getClassRepository().getClasses(limit, offset);
 		}
@@ -191,7 +191,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Map<String, Object> getClass(String classUid, String gooruUid) {
+	public Map<String, Object> getClass(String classUid, User user) {
 		Map<String, Object> result = null;
 		if (BaseUtil.isUuid(classUid)) {
 			result = this.getClassRepository().getClass(classUid);
@@ -200,13 +200,24 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		}
 		rejectIfNull(result, GL0056, CLASS);
 		String creatorUid = (String) result.get(GOORU_UID);
-		result.put(IS_MEMBER,false);
-		if(creatorUid !=null && creatorUid.equals(gooruUid)){
-			UserGroupAssociation userGroupAssociation = this.getUserRepository().getUserGroupMemebrByGroupUid(classUid,gooruUid);
-			if(userGroupAssociation != null){
-				result.put(IS_MEMBER,true);
+		String mailId = null;
+		String status = NOTINVITED;
+		if (creatorUid != null && !user.getPartyUid().equalsIgnoreCase(ANONYMOUS)) {
+			boolean isMember = this.getUserRepository().getUserGroupMemebrByGroupUid(creatorUid, user.getPartyUid()) != null ? true : false;
+			if (isMember) {
+				status = ACTIVE;
+			}
+			if (user.getIdentities().size() > 0) {
+				mailId = user.getIdentities().iterator().next().getExternalId();
+			}
+			if (mailId != null && !creatorUid.equalsIgnoreCase(user.getGooruUId())) {
+				InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, String.valueOf(result.get(CLASS_UID)), PENDING);
+				if (inviteUser != null) {
+					status = PENDING;
+				}
 			}
 		}
+		result.put(STATUS, status);
 		setClass(result);
 		return result;
 	}
