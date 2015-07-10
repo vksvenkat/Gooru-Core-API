@@ -27,7 +27,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
-import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -35,8 +34,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
-
-import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
 public class ClassServiceImpl extends BaseServiceImpl implements ClassService, ConstantProperties, ParameterProperties {
@@ -295,24 +292,27 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Override
 	public List<Map<String, Object>> getClassCollectionSettings(String classUid, String unitId, int limit, int offset) {
-		List<Map<String, Object>> lessons = getClassRepository().getCollectionItem(unitId, limit, offset);
-		List<Map<String, Object>> lessonList = new ArrayList<Map<String, Object>>();
-		for (Map<String, Object> lesson : lessons) {
-			Long contentId = ((Number) lesson.get(CONTENT_ID)).longValue();
-			List<Map<String, Object>> classCollectionSettings = this.getClassRepository().getClassCollectionSettings(contentId, classUid);
-			List<Map<String, Object>> collectionSettings = new ArrayList<Map<String, Object>>();
-			for (Map<String, Object> collection : classCollectionSettings) {
-				Object value = collection.get(VALUE);
-				if (value != null) {
-					collection.put(SETTINGS, JsonDeserializer.deserialize(String.valueOf(value), new TypeReference<Map<String, Object>>() {
-					}));
-				}
-				collectionSettings.add(collection);
-			}
-			lesson.put(ITEMS, collectionSettings);
-			lessonList.add(lesson);
-		}
-		return lessonList;
+		//Map<String, Object> data = this.getClassRepository().getClassCollectionSettings(null, classUid);
+		//System.out.println(data);
+//		List<Map<String, Object>> lessons = getClassRepository().getCollectionItem(unitId, limit, offset);
+//		List<Map<String, Object>> lessonList = new ArrayList<Map<String, Object>>();
+//		for (Map<String, Object> lesson : lessons) {
+//			Long contentId = ((Number) lesson.get(CONTENT_ID)).longValue();
+//	//		List<Map<String, Object>> classCollectionSettings = this.getClassRepository().getClassCollectionSettings(contentId, classUid);
+//			List<Map<String, Object>> collectionSettings = new ArrayList<Map<String, Object>>();
+//			for (Map<String, Object> collection : classCollectionSettings) {
+//				Object value = collection.get(VALUE);
+//				if (value != null) {
+//					collection.put(SETTINGS, JsonDeserializer.deserialize(String.valueOf(value), new TypeReference<Map<String, Object>>() {
+//					}));
+//				}
+//				collectionSettings.add(collection);
+//			}
+//			lesson.put(ITEMS, collectionSettings);
+//			lessonList.add(lesson);
+//		}
+		//return lessonList;
+		return null;
 	}
 
 	public CollectionDao getCollectionDao() {

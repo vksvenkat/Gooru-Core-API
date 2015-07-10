@@ -318,21 +318,6 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		List<Map<String, Object>> collectionItems = this.getCollectionDao().getCollectionItem(filters, limit, offset);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> item : collectionItems) {
-			String resourceType = (String) item.get(RESOURCE_TYPE);
-			if (resourceType.equalsIgnoreCase(ResourceType.Type.ASSESSMENT_QUESTION.getType())) {
-				// To-Do, need fix later, by getting answer and hints details
-				// without querying the assessment object
-				String gooruOid = (String) item.get(GOORU_OID);
-				AssessmentQuestion assessmentQuestion = this.getQuestionService().getQuestion(gooruOid);
-				if (assessmentQuestion != null && !assessmentQuestion.isQuestionNewGen()) {
-					item.put(ANSWERS, assessmentQuestion.getAnswers());
-					item.put(HINTS, assessmentQuestion.getHints());
-				} else {
-					String json = getMongoQuestionsService().getQuestionByIdWithJsonAdjustments(gooruOid);
-					item.putAll(JsonDeserializer.deserialize(json, new TypeReference<Map<String, Object>>() {
-					}));
-				}
-			}
 			StringBuilder key = new StringBuilder(ALL_);
 			key.append(item.get(GOORU_OID));
 			item.put(VIEWS, getDashboardCassandraService().readAsLong(key.toString(), COUNT_VIEWS));
@@ -485,8 +470,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		resourceFormat.put(DISPLAY_NAME, content.get(DISPLAY_NAME));
 		content.put(RESOURCEFORMAT, resourceFormat);
 		Object ratingAverage = content.get(AVERAGE);
+		String typeName = (String) content.get(RESOURCE_TYPE);
 		Map<String, Object> resourceType = new HashMap<String, Object>();
-		resourceType.put(NAME, content.get(RESOURCE_TYPE));
+		resourceType.put(NAME, typeName);
 		content.put(RESOURCE_TYPE, resourceType);
 		if (ratingAverage != null) {
 			Map<String, Object> rating = new HashMap<String, Object>();
@@ -498,8 +484,21 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if (thumbnail != null) {
 			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
 		}
+		if (typeName.equalsIgnoreCase(ResourceType.Type.ASSESSMENT_QUESTION.getType())) {
+			// To-Do, need fix later, by getting answer and hints details
+			// without querying the assessment object
+			String gooruOid = (String) content.get(GOORU_OID);
+			AssessmentQuestion assessmentQuestion = this.getQuestionService().getQuestion(gooruOid);
+			if (assessmentQuestion != null && !assessmentQuestion.isQuestionNewGen()) {
+				content.put(ANSWERS, assessmentQuestion.getAnswers());
+				content.put(HINTS, assessmentQuestion.getHints());
+			} else {
+				String json = getMongoQuestionsService().getQuestionByIdWithJsonAdjustments(gooruOid);
+				content.putAll(JsonDeserializer.deserialize(json, new TypeReference<Map<String, Object>>() {
+				}));
+			}
+		}
 		content.put(USER, setUser(content.get(GOORU_UID), content.get(USER_NAME)));
-
 		content.put(ASSET_URI, ConfigProperties.getBaseRepoUrl());
 		content.remove(THUMBNAIL);
 		content.remove(VALUE);

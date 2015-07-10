@@ -122,6 +122,8 @@
 				</value>
 				<value>org/ednovo/gooru/domain/model/content/ContentSubdomainAssoc.hbm.xml
 				</value>
+				<value>org/ednovo/gooru/domain/model/content/ClassCollectionSettings.hbm.xml
+				</value>
 
 
 				<!-- Resource Domain -->
@@ -210,7 +212,7 @@
 				<value>/org/ednovo/gooru/domain/model/comment/Comment.hbm.xml
 				</value>
 
-				
+
 				<!-- Response FieldSet -->
 				<value>org/ednovo/gooru/domain/model/responseFieldSet/ResponseFieldSet.hbm.xml
 				</value>
