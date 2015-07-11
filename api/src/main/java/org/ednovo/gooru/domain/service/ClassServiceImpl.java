@@ -222,20 +222,25 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	}
 
 	private Map<String, Object> setClass(Map<String, Object> result) {
-		result.put(USER, setUser(result.get(GOORU_UID), result.get(USER_NAME)));
+		result.put(USER, setUser(result.get(GOORU_UID), result.get(USER_NAME), result.get(FIRSTNAME), result.get(LASTNAME)));
 		Object thumbnail = result.get(THUMBNAIL);
 		if (thumbnail != null) {
 			result.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
 		}
+		// do to -- need to fix
 		result.remove(GOORU_UID);
 		result.remove(USER_NAME);
+		result.remove(FIRSTNAME);
+		result.remove(LASTNAME);
 		return result;
 	}
 
-	private Map<String, Object> setUser(Object userUid, Object username) {
+	private Map<String, Object> setUser(Object userUid, Object username, Object firstname, Object lastname) {
 		Map<String, Object> user = new HashMap<String, Object>();
 		user.put(GOORU_UID, userUid);
 		user.put(USER_NAME, username);
+		user.put(FIRSTNAME, firstname);
+		user.put(LASTNAME, lastname);
 		user.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf(user.get(GOORU_UID)) + ".png");
 		return user;
 	}
