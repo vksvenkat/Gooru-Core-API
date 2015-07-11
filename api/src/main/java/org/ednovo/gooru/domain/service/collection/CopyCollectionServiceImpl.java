@@ -67,7 +67,7 @@ public class CopyCollectionServiceImpl extends AbstractResourceServiceImpl imple
 				super.createCollection(targetCollection, user);
 			}
 		}
-
+		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + targetCollection.getUser().getPartyUid() + "*");
 		return copyCollection(sourceCollection, targetCollection, user, newCollection);
 	}
 
