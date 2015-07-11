@@ -365,6 +365,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				super.createCollection(targetCollection, user);
 			}
 		}
+		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + targetCollection.getUser().getPartyUid() + "*");
 		moveCollection(collectionId, targetCollection, user);
 	}
 

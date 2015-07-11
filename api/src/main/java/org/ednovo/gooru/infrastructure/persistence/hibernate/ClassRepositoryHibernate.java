@@ -18,17 +18,17 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	private static final String GET_CLASSES = "select class_uid as classUid,name, user_group_code as classCode, minimum_score as minimumScore, visibility, username, gooru_uid as gooruUId, image_path as thumbnail,  member_count as memberCount, cc.gooru_oid as courseGooruOid, grades from class c inner join user_group ug  on ug.user_group_uid = c.class_uid inner join party p on p.party_uid = ug.user_group_uid inner join  user on  created_by_uid = gooru_uid left join content cc on cc.content_id = course_content_id ";
 
-	private static final String GET_STUDY_CLASSES = "select class_uid as classUid,name, user_group_code as classCode, minimum_score as minimumScore, visibility, username, u.gooru_uid as gooruUId, image_path as thumbnail, member_count as memberCount, grades from class c inner join user_group ug  on ug.user_group_uid = c.class_uid inner join party p on p.party_uid = ug.user_group_uid inner join  user u on  created_by_uid = gooru_uid inner join content cc on cc.content_id = course_content_id inner join user_group_association uga on uga.user_group_uid = ug.user_group_uid where u.gooru_uid =:gooruUId order by uga.association_date desc";
+	private static final String GET_STUDY_CLASSES = "select class_uid as classUid,name, user_group_code as classCode, minimum_score as minimumScore, visibility, username, u.gooru_uid as gooruUId, image_path as thumbnail, member_count as memberCount, grades from class c inner join user_group ug  on ug.user_group_uid = c.class_uid inner join party p on p.party_uid = ug.user_group_uid inner join  user u on  created_by_uid = gooru_uid left join content cc on cc.content_id = course_content_id inner join user_group_association uga on uga.user_group_uid = ug.user_group_uid where uga.gooru_uid =:gooruUId order by uga.association_date desc";
 
 	private static final String DELETE_USER_FROM_CLASS = "delete uga from class c inner join user_group ug on c.class_uid=ug.user_group_uid inner join user_group_association uga on ug.user_group_uid=uga.user_group_uid where uga.gooru_uid=:gooruUId and c.class_uid=:classUid";
 
-	private static final String GET_MEMBERS = "select p.party_uid as gooruUId,u.username as username,i.external_id as emailId,uga.association_date as associationDate, grades from class c inner join user_group ug on c.class_uid = ug.user_group_uid inner join user_group_association uga on uga.user_group_uid = ug.user_group_uid inner join party p on uga.gooru_uid = p.party_uid left join identity i on i.user_uid = p.party_uid inner join user u on u.gooru_uid = p.party_uid where c.class_uid=:classUid";
+	private static final String GET_MEMBERS = "select p.party_uid as gooruUId,u.username as username,i.external_id as emailId,uga.association_date as associationDate, grades, u.firstname, u.lastname from class c inner join user_group ug on c.class_uid = ug.user_group_uid inner join user_group_association uga on uga.user_group_uid = ug.user_group_uid inner join party p on uga.gooru_uid = p.party_uid left join identity i on i.user_uid = p.party_uid inner join user u on u.gooru_uid = p.party_uid where c.class_uid=:classUid";
 
 	private static final String FIND_STUDENT_AND_CLASS_ID = "SELECT IFNULL(c.class_id,0) AS classId,COALESCE(true,false) isStudent FROM  class c INNER JOIN user_group ug on c.class_uid = ug.user_group_uid LEFT JOIN user_group_association uga ON ug.user_group_uid = uga.user_group_uid AND uga.gooru_uid =:gooruUId WHERE ug.user_group_uid =:classGooruId";
 
 	private static final String GET_CLASS_ID = "SELECT class_id AS classId from class where class_uid =:classGooruId";
 
-	private static final String GET_STUDY_CLASSES_COUNT = "select count(1) as count from class c inner join user_group ug  on ug.user_group_uid = c.class_uid inner join party p on p.party_uid = ug.user_group_uid inner join  user u on  created_by_uid = gooru_uid inner join content cc on cc.content_id = course_content_id inner join user_group_association uga on uga.user_group_uid = ug.user_group_uid where u.gooru_uid =:gooruUId ";
+	private static final String GET_STUDY_CLASSES_COUNT = "select count(1) as count from class c inner join user_group ug  on ug.user_group_uid = c.class_uid inner join party p on p.party_uid = ug.user_group_uid inner join  user u on  created_by_uid = gooru_uid left join content cc on cc.content_id = course_content_id inner join user_group_association uga on uga.user_group_uid = ug.user_group_uid where uga.gooru_uid =:gooruUId ";
 
 	private static final String GET_CLASSES_COUNT = "select count(1) as count from class c inner join user_group ug  on ug.user_group_uid = c.class_uid inner join party p on p.party_uid = ug.user_group_uid inner join  user on  created_by_uid = gooru_uid left join content cc on cc.content_id = course_content_id ";
 
@@ -36,7 +36,7 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	private static final String COLLECTION_ITEM = "select cc.gooru_oid as gooruOid, title, cc.content_id as contentId  from  collection c inner join collection_item ci on ci.resource_content_id = c.content_id  inner join content cc on cc.content_id = ci.resource_content_id inner join content cr on cr.content_id = ci.collection_content_id   where cr.gooru_oid =:gooruOid ";
 
-	private static final String COLLECTION_CLASS_SETTINGS = "select value from  ClassCollectionSettings where lessonId =:lessonId";
+	private static final String COLLECTION_CLASS_SETTINGS = "select collection.collection_id as collectionId, title, gooru_oid as gooruOid, visibility, score_type_id as scoreTypeId   from (select cr.content_id as collection_id, cr.title, co.gooru_oid   from collection c inner join collection_item ci on ci.collection_content_id = c.content_id inner join collection cr on cr.content_id = ci.resource_content_id inner join content co on  co.content_id = cr.content_id   where collection_content_id =:lessonId) as collection left join (select c.class_id, c.class_uid, collection_id, cs.visibility, score_type_id  from class c  left join class_collection_settings cs  on c.class_id = cs.class_id where class_uid =:classUid) as class_setting on class_setting.collection_id = collection.collection_id";
 
 	@Override
 	public UserClass getClassById(String classUid) {
@@ -193,12 +193,12 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 	}
 
 	@Override
-	public Map<String, Object> getClassCollectionSettings(Long lessonId) {
-		Query query = getSession().createQuery(COLLECTION_CLASS_SETTINGS);
+	public List<Map<String, Object>> getClassCollectionSettings(Long lessonId, String classUid) {
+		Query query = getSession().createSQLQuery(COLLECTION_CLASS_SETTINGS);
 		query.setParameter(LESSON_ID, lessonId);
-		List<Map<String, Object>> results = list(query);
-		//Map<String, Object> result = n
-		return (Map<String, Object>) list(query);
+		query.setParameter(CLASS_UID, classUid);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		return list(query);
 	}
 
 }

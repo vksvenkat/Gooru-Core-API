@@ -421,7 +421,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 
 	static final String[] CLASS_MEMBER_FIELDS = { "*.totalHitCount", "*.searchResults", "*.emailId", "*.username", "*.gooruUid", "*.associatedDate", "*.status", "*.profileImageUrl", "*.firstName", "*.lastName" };
 
-	static final String[] CLASS_FIELDS = { "*.totalHitCount", "*.searchResult", "*.gooruUId","*.username", "*.emailId","*.associationDate", "*.profileImageUrl"};
+	static final String[] CLASS_FIELDS = { "*.totalHitCount", "*.searchResult", "*.gooruUId","*.username", "*.emailId","*.associationDate", "*.profileImageUrl", "*.user"};
 	
 	static final String[] USER_CONTENT_TAGS_INCLUDES = { "*.totalHitCount", "*.searchResults", "*.count", "*.label", "*.tagGooruOid" };
 
@@ -826,7 +826,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 
 	static final String COURSE_[] = { "*.courseId", "*.name", "*.thumbnails", "thumbnails.url" };
 
-	static final String DOMAIN_INCLUDES[] = { "*.thumbnails", "thumbnails.url", "*.domainId", "*.name", "*.subdomainId"};
+	static final String DOMAIN_INCLUDES[] = { "*.thumbnails", "thumbnails.url", "*.domainId", "*.name", "*.subdomainId", "*.description"};
 
 	static final String STATE[] = { "*.stateUid", "*.stateCode", "*.name", "*.totalHitCount", "*.searchResults" };
 
@@ -960,5 +960,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	
 	final static String IS_MEMBER = "isMember"; 
 	
+	final static String MEMBER = "member";
+
 	final static String GL0111 = "GL0111";
 }
