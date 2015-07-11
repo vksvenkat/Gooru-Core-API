@@ -23,6 +23,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
@@ -50,6 +51,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Autowired
 	private ResourceBoService resourceBoService;
+
+	@Autowired
+	private UserService userService;
 
 	@Autowired
 	private QuestionService questionService;
@@ -129,6 +133,13 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 				collection.setPublishStatusId(null);
 			}
+			if (!collection.getCollectionType().equalsIgnoreCase(ResourceType .Type.ASSESSMENT_URL.getType()) && newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(user)){ 
+				 collection.setPublishStatusId(Constants.PUBLISH_PENDING_STATUS_ID);
+				 newCollection.setSharing(collection.getSharing());
+			 } 
+			 if (collection .getCollectionType().equalsIgnoreCase(ResourceType. Type.ASSESSMENT_URL.getType()) || newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(user)) {
+				 collection.setPublishStatusId(Constants.PUBLISH_REVIEWED_STATUS_ID);
+			 }
 			collection.setSharing(newCollection.getSharing());
 		}
 		if (newCollection.getSettings() != null) {
@@ -343,10 +354,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(unit, GL0056, 404, UNIT);
 		Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(course, GL0056, 404, COURSE);
-		CollectionItem sourceCollectionItem = moveCollection(collectionId, lesson, user);
-		String collectionType = getParentCollection(sourceCollectionItem.getContent().getContentId(), sourceCollectionItem.getContent().getContentType().getName(), collectionId);
-		if (!(collectionType.equalsIgnoreCase(SHELF) || collectionType.equals(FOLDER))) {
-			updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), sourceCollectionItem.getContent().getContentType().getName(), ADD);
+		String collectionType = moveCollection(collectionId, lesson, user);
+		if (collectionType != null) {
+			updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collectionType, ADD);
 		}
 	}
 
@@ -370,7 +380,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		moveCollection(collectionId, targetCollection, user);
 	}
 
-	private CollectionItem moveCollection(String collectionId, Collection targetCollection, User user) {
+	private String moveCollection(String collectionId, Collection targetCollection, User user) {
 		CollectionItem sourceCollectionItem = getCollectionDao().getCollectionItemById(collectionId, user);
 		rejectIfNull(sourceCollectionItem, GL0056, 404, COLLECTION);
 		// need to put validation for collaborator
@@ -378,14 +388,20 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if (sourceCollectionItem.getItemType() != null) {
 			collectionItem.setItemType(sourceCollectionItem.getItemType());
 		}
+		String collectionType = getParentCollection(sourceCollectionItem.getContent().getContentId(), sourceCollectionItem.getContent().getContentType().getName(), collectionId, targetCollection);
+		String contentType = null;
+		if(collectionType.equalsIgnoreCase(LESSON)){
+			contentType =  sourceCollectionItem.getContent().getContentType().getName();
+		}
 		createCollectionItem(collectionItem, targetCollection, sourceCollectionItem.getContent(), user);
 		resetSequence(sourceCollectionItem.getCollection().getGooruOid(), sourceCollectionItem.getContent().getGooruOid());
 		getCollectionDao().remove(sourceCollectionItem);
-		return sourceCollectionItem;
+		return contentType;
 	}
 
-	private String getParentCollection(Long collectionId, String collectionType, String gooruOid) {
+	private String getParentCollection(Long collectionId, String collectionType, String gooruOid, Collection targetCollection) {
 		CollectionItem lesson = this.getCollectionDao().getParentCollection(collectionId);
+		reject(!(lesson.getCollection().getGooruOid().equalsIgnoreCase(targetCollection.getGooruOid())),GL0111, 404, lesson.getCollection().getCollectionType());
 		if (lesson.getCollection().getCollectionType().equalsIgnoreCase(LESSON)) {
 			CollectionItem unit = this.getCollectionDao().getParentCollection(lesson.getCollection().getContentId());
 			CollectionItem course = this.getCollectionDao().getParentCollection(unit.getCollection().getContentId());

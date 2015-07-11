@@ -961,4 +961,6 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	final static String IS_MEMBER = "isMember"; 
 	
 	final static String MEMBER = "member";
+
+	final static String GL0111 = "GL0111";
 }
