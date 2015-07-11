@@ -151,7 +151,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 			for (Map<String, Object> result : resultSet) {
 				results.add(setClass(result));
 			}
-			count = this.getClassRepository().getClassesCount(gooruUid);
+			count = this.getClassRepository().getStudyClassesCount(gooruUid);
 		}
 		searchResults.put(TOTAL_HIT_COUNT, count);
 		searchResults.put(SEARCH_RESULT, results);
