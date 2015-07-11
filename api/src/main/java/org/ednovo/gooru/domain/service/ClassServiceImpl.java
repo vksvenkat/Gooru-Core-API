@@ -227,7 +227,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		if (thumbnail != null) {
 			result.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
 		}
-		// do to -- need to fix
+		// to do -- need to fix
 		result.remove(GOORU_UID);
 		result.remove(USER_NAME);
 		result.remove(FIRSTNAME);
