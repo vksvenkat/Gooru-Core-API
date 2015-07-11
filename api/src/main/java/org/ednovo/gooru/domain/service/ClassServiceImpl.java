@@ -323,45 +323,23 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		List<Map<String, Object>> units = getClassRepository().getCollectionItem(unitId, limit, offset);
 		List<Map<String, Object>> unitList = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> unit : units) {
-			unit.remove(CONTENT_ID);
 			unitList.add(unit);
 		}
 		return unitList;
 	}
 
-	// @Override
-	// public List<Map<String, Object>> getClassCollectionSettings(String
-	// classUid, String unitId, int limit, int offset) {
-	// Map<String, Object> data =
-	// this.getClassRepository().getClassCollectionSettings(null, classUid);
-	// System.out.println(data);
-	// List<Map<String, Object>> lessons =
-	// getClassRepository().getCollectionItem(unitId, limit, offset);
-	// List<Map<String, Object>> lessonList = new ArrayList<Map<String,
-	// Object>>();
-	// for (Map<String, Object> lesson : lessons) {
-	// Long contentId = ((Number) lesson.get(CONTENT_ID)).longValue();
-	// List<Map<String, Object>> classCollectionSettings =
-	// this.getClassRepository().getClassCollectionSettings(contentId,
-	// classUid);
-	// List<Map<String, Object>> collectionSettings = new ArrayList<Map<String,
-	// Object>>();
-	// for (Map<String, Object> collection : classCollectionSettings) {
-	// Object value = collection.get(VALUE);
-	// if (value != null) {
-	// collection.put(SETTINGS,
-	// JsonDeserializer.deserialize(String.valueOf(value), new
-	// TypeReference<Map<String, Object>>() {
-	// }));
-	// }
-	// collectionSettings.add(collection);
-	// }
-	// lesson.put(ITEMS, collectionSettings);
-	// lessonList.add(lesson);
-	// }
-	// return lessonList;
-	// return null;
-	// }
+	@Override
+	public List<Map<String, Object>> getClassCollectionSettings(String classUid, String unitId, int limit, int offset) {
+		List<Map<String, Object>> lessons = getClassRepository().getCollectionItem(unitId, limit, offset);
+		List<Map<String, Object>> lessonList = new ArrayList<Map<String, Object>>();
+		for (Map<String, Object> lesson : lessons) {
+			Long contentId = ((Number) lesson.get(CONTENT_ID)).longValue();
+			List<Map<String, Object>> classCollectionSettings = this.getClassRepository().getClassCollectionSettings(contentId, classUid);
+			lesson.put(ITEMS, classCollectionSettings);
+			lessonList.add(lesson);
+		}
+		return lessonList;
+	}
 
 	public CollectionDao getCollectionDao() {
 		return collectionDao;
