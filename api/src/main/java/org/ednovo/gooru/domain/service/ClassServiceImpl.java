@@ -307,6 +307,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateClassSettings(String classUid, List<ClassCollectionSettings> classCollectionSettings) {
 		UserClass userClass = this.getClassRepository().getClassById(classUid);
 		rejectIfNull(userClass, GL0056, 404, CLASS);
@@ -319,16 +320,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	}
 
 	@Override
-	public List<Map<String, Object>> getClassUnit(String unitId, int limit, int offset) {
-		List<Map<String, Object>> units = getClassRepository().getCollectionItem(unitId, limit, offset);
-		List<Map<String, Object>> unitList = new ArrayList<Map<String, Object>>();
-		for (Map<String, Object> unit : units) {
-			unitList.add(unit);
-		}
-		return unitList;
-	}
-
-	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getClassCollectionSettings(String classUid, String unitId, int limit, int offset) {
 		List<Map<String, Object>> lessons = getClassRepository().getCollectionItem(unitId, limit, offset);
 		List<Map<String, Object>> lessonList = new ArrayList<Map<String, Object>>();
