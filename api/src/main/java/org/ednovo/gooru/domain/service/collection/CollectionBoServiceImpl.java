@@ -127,7 +127,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		Collection collection = getCollectionDao().getCollection(collectionId);
 		if (newCollection.getSharing() != null && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 			if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
-				collection.setPublishStatusId(null);
+				collection.setPublishStatusId(Constants.PUBLISH_PENDING_STATUS_ID);
 			}
 			collection.setSharing(newCollection.getSharing());
 		}
