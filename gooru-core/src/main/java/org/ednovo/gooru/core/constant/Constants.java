@@ -231,6 +231,8 @@ public class Constants implements ParameterProperties {
 	public static final Map<Object, String> PUBLISH_STATUS;
 
 	public static final Short PUBLISH_PENDING_STATUS_ID = 244;
+	
+	public static final short PUBLISH_REWIVED_STATUS_ID = 245;
 
 	public static final Short BUILD_WEB_TYPE_ID = 78;
 
