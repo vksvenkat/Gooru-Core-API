@@ -138,7 +138,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				 newCollection.setSharing(collection.getSharing());
 			 } 
 			 if (collection .getCollectionType().equalsIgnoreCase(ResourceType. Type.ASSESSMENT_URL.getType()) || newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(user)) {
-				 collection.setPublishStatusId(Constants.PUBLISH_REWIVED_STATUS_ID);
+				 collection.setPublishStatusId(Constants.PUBLISH_REVIEWED_STATUS_ID);
 			 }
 			collection.setSharing(newCollection.getSharing());
 		}
@@ -390,7 +390,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		}
 		String collectionType = getParentCollection(sourceCollectionItem.getContent().getContentId(), sourceCollectionItem.getContent().getContentType().getName(), collectionId, targetCollection);
 		String contentType = null;
-		if(!(collectionType.equalsIgnoreCase(SHELF) || collectionType.equals(FOLDER))){
+		if(collectionType.equalsIgnoreCase(LESSON)){
 			contentType =  sourceCollectionItem.getContent().getContentType().getName();
 		}
 		createCollectionItem(collectionItem, targetCollection, sourceCollectionItem.getContent(), user);

@@ -423,7 +423,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					 newCollection.setSharing(collection.getSharing());
 				 } 
 				 if (collection .getCollectionType().equalsIgnoreCase(ResourceType. Type.ASSESSMENT_URL.getType()) || newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(apiCallerUser)) {
-					 collection.setPublishStatusId(Constants.PUBLISH_REWIVED_STATUS_ID);
+					 collection.setPublishStatusId(Constants.PUBLISH_REVIEWED_STATUS_ID);
 				 }
 
 				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
@@ -1612,7 +1612,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					newCollection.setSharing(collection.getSharing());
 				}
 				if (collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) || newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(updateUser)) {
-					collection.setPublishStatusId(Constants.PUBLISH_REWIVED_STATUS_ID);
+					collection.setPublishStatusId(Constants.PUBLISH_REVIEWED_STATUS_ID);
 				}
 				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 					final UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
