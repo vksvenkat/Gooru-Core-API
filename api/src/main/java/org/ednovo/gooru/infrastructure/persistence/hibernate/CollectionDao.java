@@ -24,11 +24,11 @@ public interface CollectionDao extends BaseRepository {
 
 	int getCollectionItemCount(Long contentId, String collectionType);
 
-	List<CollectionItem> getCollectionItems(String gooruOid, int parameterOne, int parameterTwo);
+	List<CollectionItem> getCollectionItems(String gooruOid, int parameterOne, int parameterTwo, String collectionType);
 
 	CollectionItem getCollectionItem(String parentGooruOid, String gooruOid);
 
-	List<CollectionItem> getCollectionItems(String gooruOid, int sequence);
+	List<CollectionItem> getCollectionItems(String gooruOid, int sequence, String collectionType);
 
 	CollectionItem getCollectionItemById(String gooruOid, User user);
 

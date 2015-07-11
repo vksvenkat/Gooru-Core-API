@@ -699,8 +699,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + scollection.getUser().getPartyUid() + "*");
 					// TO DO
 					if (scollection.getPublishStatusId() != null) {
-						// scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS,
-						// REVIEWED));
+						 scollection.setPublishStatusId(Constants.PUBLISH_REWIVED_STATUS_ID);
 						collectionIds.append(scollection.getGooruOid());
 						if (!scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 							final UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
