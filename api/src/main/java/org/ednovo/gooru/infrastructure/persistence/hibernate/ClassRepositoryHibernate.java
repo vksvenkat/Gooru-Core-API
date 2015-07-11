@@ -38,6 +38,10 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	private static final String COLLECTION_CLASS_SETTINGS = "select collection.collection_id as collectionId, title, gooru_oid as gooruOid, visibility, score_type_id as scoreTypeId   from (select cr.content_id as collection_id, cr.title, co.gooru_oid   from collection c inner join collection_item ci on ci.collection_content_id = c.content_id inner join collection cr on cr.content_id = ci.resource_content_id inner join content co on  co.content_id = cr.content_id   where collection_content_id =:lessonId) as collection left join (select c.class_id, c.class_uid, collection_id, cs.visibility, score_type_id  from class c  left join class_collection_settings cs  on c.class_id = cs.class_id where class_uid =:classUid) as class_setting on class_setting.collection_id = collection.collection_id";
 
+	private static final String LESSON_COLLECTIONS = "select re.title, cr.gooru_oid as gooruOid, re.collection_type as collectionType, re.image_path as imagePath, ci.collection_item_id as collectionItemId, ci.item_sequence as itemSequence, re.description, re.url, cm.meta_data as metaData  from  collection c  inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join collection re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id  inner join organization o  on  o.organization_uid = cr.organization_uid  left join collection co on co.content_id = re.content_id left join content_meta cm  on  cm.content_id = re.content_id  left join class_collection_settings css on css.collection_id = cr.content_id  where cc.gooru_oid =:gooruOid and visibility is not null and visibility = 1 order by ci.item_sequence";
+	
+	private static final String COLLECTION_ITEMS = "select r.title, c.gooru_oid as gooruOid, r.type_name as resourceType, r.folder, r.thumbnail, ct.value, ct.display_name as displayName, ci.collection_item_id as collectionItemId, r.url, rsummary.rating_star_avg as average, rsummary.rating_star_count as count, ci.item_sequence as itemSequence, cm.meta_data as metaData from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join content_meta cm on cm.content_id = c.content_id  left join resource_summary rsummary on   c.gooru_oid = rsummary.resource_gooru_oid  where rc.gooru_oid =:gooruOid  order by ci.item_sequence";
+	
 	@Override
 	public UserClass getClassById(String classUid) {
 		Criteria criteria = getSession().createCriteria(UserClass.class);
@@ -198,6 +202,28 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 		query.setParameter(LESSON_ID, lessonId);
 		query.setParameter(CLASS_UID, classUid);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		query.setFirstResult(0);
+		query.setMaxResults(MAX_LIMIT);
+		return list(query);
+	}
+
+	@Override
+	public List<Map<String, Object>> getCollections(String gooruOid, int limit, int offset) {
+		Query query = getSession().createSQLQuery(LESSON_COLLECTIONS);
+		query.setParameter(GOORU_OID, gooruOid);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != 0 ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		return list(query);
+	}
+
+	@Override
+	public List<Map<String, Object>> getCollectionItems(String  gooruOid) {
+		Query query = getSession().createSQLQuery(COLLECTION_ITEMS);
+		query.setParameter(GOORU_OID, gooruOid);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		query.setFirstResult(0);
+		query.setMaxResults(MAX_LIMIT);
 		return list(query);
 	}
 
