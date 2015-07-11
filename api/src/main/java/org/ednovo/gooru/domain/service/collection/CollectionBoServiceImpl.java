@@ -343,10 +343,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(unit, GL0056, 404, UNIT);
 		Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(course, GL0056, 404, COURSE);
-		CollectionItem sourceCollectionItem = moveCollection(collectionId, lesson, user);
-		String collectionType = getParentCollection(sourceCollectionItem.getContent().getContentId(), sourceCollectionItem.getContent().getContentType().getName(), collectionId);
-		if (!(collectionType.equalsIgnoreCase(SHELF) || collectionType.equals(FOLDER))) {
-			updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), sourceCollectionItem.getContent().getContentType().getName(), ADD);
+		String collectionType = moveCollection(collectionId, lesson, user);
+		if (collectionType != null) {
+			updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collectionType, ADD);
 		}
 	}
 
@@ -369,7 +368,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		moveCollection(collectionId, targetCollection, user);
 	}
 
-	private CollectionItem moveCollection(String collectionId, Collection targetCollection, User user) {
+	private String moveCollection(String collectionId, Collection targetCollection, User user) {
 		CollectionItem sourceCollectionItem = getCollectionDao().getCollectionItemById(collectionId, user);
 		rejectIfNull(sourceCollectionItem, GL0056, 404, COLLECTION);
 		// need to put validation for collaborator
@@ -377,14 +376,20 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if (sourceCollectionItem.getItemType() != null) {
 			collectionItem.setItemType(sourceCollectionItem.getItemType());
 		}
+		String collectionType = getParentCollection(sourceCollectionItem.getContent().getContentId(), sourceCollectionItem.getContent().getContentType().getName(), collectionId, targetCollection);
+		String contentType = null;
+		if(!(collectionType.equalsIgnoreCase(SHELF) || collectionType.equals(FOLDER))){
+			contentType =  sourceCollectionItem.getContent().getContentType().getName();
+		}
 		createCollectionItem(collectionItem, targetCollection, sourceCollectionItem.getContent(), user);
 		resetSequence(sourceCollectionItem.getCollection().getGooruOid(), sourceCollectionItem.getContent().getGooruOid());
 		getCollectionDao().remove(sourceCollectionItem);
-		return sourceCollectionItem;
+		return contentType;
 	}
 
-	private String getParentCollection(Long collectionId, String collectionType, String gooruOid) {
+	private String getParentCollection(Long collectionId, String collectionType, String gooruOid, Collection targetCollection) {
 		CollectionItem lesson = this.getCollectionDao().getParentCollection(collectionId);
+		reject(!(lesson.getCollection().getGooruOid().equalsIgnoreCase(targetCollection.getGooruOid())),GL0111, 404, lesson.getCollection().getCollectionType());
 		if (lesson.getCollection().getCollectionType().equalsIgnoreCase(LESSON)) {
 			CollectionItem unit = this.getCollectionDao().getParentCollection(lesson.getCollection().getContentId());
 			CollectionItem course = this.getCollectionDao().getParentCollection(unit.getCollection().getContentId());
