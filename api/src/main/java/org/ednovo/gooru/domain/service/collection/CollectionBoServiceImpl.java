@@ -23,6 +23,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
@@ -50,6 +51,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Autowired
 	private ResourceBoService resourceBoService;
+
+	@Autowired
+	private UserService userService;
 
 	@Autowired
 	private QuestionService questionService;
@@ -127,8 +131,15 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		Collection collection = getCollectionDao().getCollection(collectionId);
 		if (newCollection.getSharing() != null && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 			if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
-				collection.setPublishStatusId(Constants.PUBLISH_PENDING_STATUS_ID);
+				collection.setPublishStatusId(null);
 			}
+			if (!collection.getCollectionType().equalsIgnoreCase(ResourceType .Type.ASSESSMENT_URL.getType()) && newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(user)){ 
+				 collection.setPublishStatusId(Constants.PUBLISH_PENDING_STATUS_ID);
+				 newCollection.setSharing(collection.getSharing());
+			 } 
+			 if (collection .getCollectionType().equalsIgnoreCase(ResourceType. Type.ASSESSMENT_URL.getType()) || newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(user)) {
+				 collection.setPublishStatusId(Constants.PUBLISH_REWIVED_STATUS_ID);
+			 }
 			collection.setSharing(newCollection.getSharing());
 		}
 		if (newCollection.getSettings() != null) {
