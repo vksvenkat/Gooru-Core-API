@@ -42,8 +42,6 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 
 	private final static String GET_COLLECTIONITEM_BY_SEQUENCE = "FROM CollectionItem where collection.gooruOid=:gooruOid and content.contentType.name=:collectionType and itemSequence>:sequence order by itemSequence";
 
-	private static final String DELETE_COLLECTIONITEM = "delete from collection_item where resource_content_id=:contentId";
-
 	private static final String COLLECTIONITEM_BY_USERUID = "FROM CollectionItem ci where ci.content.gooruOid=:gooruOid and ci.associatedUser=:user";
 
 	private static final String GET_PARENTCOLLECTION = "FROM CollectionItem ci where ci.content.contentId=:contentId";

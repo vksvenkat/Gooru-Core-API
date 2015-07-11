@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
@@ -21,12 +22,14 @@ import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.service.collection.LessonService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
+import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -34,6 +37,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
 public class ClassServiceImpl extends BaseServiceImpl implements ClassService, ConstantProperties, ParameterProperties {
@@ -58,6 +63,9 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Autowired
 	private GooruImageUtil gooruImageUtil;
+
+	@Autowired
+	private LessonService lessonService;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -334,6 +342,82 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		return lessonList;
 	}
 
+	@Override
+	public Map<String, Object> getClassCollections(String lessonId, int limit, int offset) {
+		Map<String, Object> lesson = this.getLessonService().getLesson(lessonId);
+		Object gooruOid = lesson.get(GOORU_OID);
+		if (gooruOid != null) {
+			List<Map<String, Object>> collections = this.getClassRepository().getCollections(lessonId, limit, offset);
+			List<Map<String, Object>> collectionList = new ArrayList<Map<String, Object>>();
+			for (Map<String, Object> collection : collections) {
+				Object collectionId = collection.get(GOORU_OID);
+				List<Map<String, Object>> collectionItems = this.getClassRepository().getCollectionItems(String.valueOf(collectionId));
+				List<Map<String, Object>> collectionItemList = new ArrayList<Map<String, Object>>();
+				for (Map<String, Object> collectionItem : collectionItems) {
+					collectionItemList.add(mergeCollectionItemMetaData(collectionItem));
+				}
+				collection.put(ITEMS, collectionItemList);
+				collectionList.add(mergeMetaData(collection));
+			}
+			lesson.put(ITEMS, collectionList);
+		}
+
+		return lesson;
+	}
+
+	private Map<String, Object> mergeCollectionItemMetaData(Map<String, Object> content) {
+		Object data = content.get(META_DATA);
+		if (data != null) {
+			Map<String, Object> metaData = JsonDeserializer.deserialize(String.valueOf(data), new TypeReference<Map<String, Object>>() {
+			});
+			content.putAll(metaData);
+		}
+		Map<String, Object> resourceFormat = new HashMap<String, Object>();
+		resourceFormat.put(VALUE, content.get(VALUE));
+		resourceFormat.put(DISPLAY_NAME, content.get(DISPLAY_NAME));
+		content.put(RESOURCEFORMAT, resourceFormat);
+		Object ratingAverage = content.get(AVERAGE);
+		String typeName = (String) content.get(RESOURCE_TYPE);
+		Map<String, Object> resourceType = new HashMap<String, Object>();
+		resourceType.put(NAME, typeName);
+		content.put(RESOURCE_TYPE, resourceType);
+		if (ratingAverage != null) {
+			Map<String, Object> rating = new HashMap<String, Object>();
+			rating.put(AVERAGE, content.get(AVERAGE));
+			rating.put(COUNT, content.get(COUNT));
+			content.put(RATING, rating);
+		}
+
+		Object thumbnail = content.get(THUMBNAIL);
+		if (thumbnail != null) {
+			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
+		}
+		content.put(ASSET_URI, ConfigProperties.getBaseRepoUrl());
+		content.remove(THUMBNAIL);
+		content.remove(META_DATA);
+		content.remove(VALUE);
+		content.remove(DISPLAY_NAME);
+		content.remove(AVERAGE);
+		content.remove(COUNT);
+		return content;
+	}
+
+	private Map<String, Object> mergeMetaData(Map<String, Object> content) {
+		Object data = content.get(META_DATA);
+		if (data != null) {
+			Map<String, Object> metaData = JsonDeserializer.deserialize(String.valueOf(data), new TypeReference<Map<String, Object>>() {
+			});
+			content.putAll(metaData);
+		}
+		Object thumbnail = content.get(IMAGE_PATH);
+		if (thumbnail != null) {
+			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
+		}
+		content.remove(META_DATA);
+		content.remove(IMAGE_PATH);
+		return content;
+	}
+
 	public CollectionDao getCollectionDao() {
 		return collectionDao;
 	}
@@ -356,5 +440,9 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	public GooruImageUtil getGooruImageUtil() {
 		return gooruImageUtil;
+	}
+
+	public LessonService getLessonService() {
+		return lessonService;
 	}
 }
