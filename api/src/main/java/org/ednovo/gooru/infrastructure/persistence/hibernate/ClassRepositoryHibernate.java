@@ -36,7 +36,7 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	private static final String COLLECTION_ITEM = "select cc.gooru_oid as gooruOid, title, cc.content_id as contentId  from  collection c inner join collection_item ci on ci.resource_content_id = c.content_id  inner join content cc on cc.content_id = ci.resource_content_id inner join content cr on cr.content_id = ci.collection_content_id   where cr.gooru_oid =:gooruOid ";
 
-	private static final String COLLECTION_CLASS_SETTINGS = "select value from  ClassCollectionSettings where lessonId =:lessonId";
+	private static final String COLLECTION_CLASS_SETTINGS = "select collection.collection_id as collectionId, title, gooru_oid as gooruOid, visibility, score_type_id as scoreTypeId   from (select cr.content_id as collection_id, cr.title, co.gooru_oid   from collection c inner join collection_item ci on ci.collection_content_id = c.content_id inner join collection cr on cr.content_id = ci.resource_content_id inner join content co on  co.content_id = cr.content_id   where collection_content_id =:lessonId) as collection left join (select c.class_id, c.class_uid, collection_id, cs.visibility, score_type_id  from class c  left join class_collection_settings cs  on c.class_id = cs.class_id where class_uid =:classUid) as class_setting on class_setting.collection_id = collection.collection_id";
 
 	@Override
 	public UserClass getClassById(String classUid) {
@@ -193,12 +193,12 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 	}
 
 	@Override
-	public Map<String, Object> getClassCollectionSettings(Long lessonId) {
-		Query query = getSession().createQuery(COLLECTION_CLASS_SETTINGS);
+	public List<Map<String, Object>> getClassCollectionSettings(Long lessonId, String classUid) {
+		Query query = getSession().createSQLQuery(COLLECTION_CLASS_SETTINGS);
 		query.setParameter(LESSON_ID, lessonId);
-		List<Map<String, Object>> results = list(query);
-		//Map<String, Object> result = n
-		return (Map<String, Object>) list(query);
+		query.setParameter(CLASS_UID, classUid);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		return list(query);
 	}
 
 }

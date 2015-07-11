@@ -307,6 +307,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateClassSettings(String classUid, List<ClassCollectionSettings> classCollectionSettings) {
 		UserClass userClass = this.getClassRepository().getClassById(classUid);
 		rejectIfNull(userClass, GL0056, 404, CLASS);
@@ -319,49 +320,18 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	}
 
 	@Override
-	public List<Map<String, Object>> getClassUnit(String unitId, int limit, int offset) {
-		List<Map<String, Object>> units = getClassRepository().getCollectionItem(unitId, limit, offset);
-		List<Map<String, Object>> unitList = new ArrayList<Map<String, Object>>();
-		for (Map<String, Object> unit : units) {
-			unit.remove(CONTENT_ID);
-			unitList.add(unit);
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public List<Map<String, Object>> getClassCollectionSettings(String classUid, String unitId, int limit, int offset) {
+		List<Map<String, Object>> lessons = getClassRepository().getCollectionItem(unitId, limit, offset);
+		List<Map<String, Object>> lessonList = new ArrayList<Map<String, Object>>();
+		for (Map<String, Object> lesson : lessons) {
+			Long contentId = ((Number) lesson.get(CONTENT_ID)).longValue();
+			List<Map<String, Object>> classCollectionSettings = this.getClassRepository().getClassCollectionSettings(contentId, classUid);
+			lesson.put(ITEMS, classCollectionSettings);
+			lessonList.add(lesson);
 		}
-		return unitList;
+		return lessonList;
 	}
-
-	// @Override
-	// public List<Map<String, Object>> getClassCollectionSettings(String
-	// classUid, String unitId, int limit, int offset) {
-	// Map<String, Object> data =
-	// this.getClassRepository().getClassCollectionSettings(null, classUid);
-	// System.out.println(data);
-	// List<Map<String, Object>> lessons =
-	// getClassRepository().getCollectionItem(unitId, limit, offset);
-	// List<Map<String, Object>> lessonList = new ArrayList<Map<String,
-	// Object>>();
-	// for (Map<String, Object> lesson : lessons) {
-	// Long contentId = ((Number) lesson.get(CONTENT_ID)).longValue();
-	// List<Map<String, Object>> classCollectionSettings =
-	// this.getClassRepository().getClassCollectionSettings(contentId,
-	// classUid);
-	// List<Map<String, Object>> collectionSettings = new ArrayList<Map<String,
-	// Object>>();
-	// for (Map<String, Object> collection : classCollectionSettings) {
-	// Object value = collection.get(VALUE);
-	// if (value != null) {
-	// collection.put(SETTINGS,
-	// JsonDeserializer.deserialize(String.valueOf(value), new
-	// TypeReference<Map<String, Object>>() {
-	// }));
-	// }
-	// collectionSettings.add(collection);
-	// }
-	// lesson.put(ITEMS, collectionSettings);
-	// lessonList.add(lesson);
-	// }
-	// return lessonList;
-	// return null;
-	// }
 
 	public CollectionDao getCollectionDao() {
 		return collectionDao;
