@@ -263,8 +263,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		UserClass userClass = this.getClassRepository().getClassById(classUid);
 		rejectIfNull(userClass, GL0056, CLASS);
 		reject((userClass.getMemberCount() > 0), GL0056, 404, MEMBER);
-		if (userClass.getUserUid().equals(user.getGooruUId())
-				|| user.getGooruUId().equals(userUid)) {
+		if (userClass.getUserUid().equals(user.getGooruUId()) || user.getGooruUId().equals(userUid)) {
 			this.getClassRepository().deleteUserFromClass(classUid, userUid);
 			userClass.setMemberCount(userClass.getMemberCount() - 1);
 		} else {
