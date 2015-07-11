@@ -105,7 +105,7 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 	@RequestMapping(value = RequestMappingUri.CLASS_MEMBER, method = RequestMethod.GET)
 	public ModelAndView getClassMemberList(@PathVariable(ID) final String classUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request,
 			final HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(this.getClassService().getMember(classUid, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CLASS_FIELDS);
+		return toModelAndViewWithIoFilter(this.getClassService().getMember(classUid, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE, true, CLASS_FIELDS);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_DELETE })
@@ -126,12 +126,13 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 	@RequestMapping(value = RequestMappingUri.CLASS_UNIT_COLLECTION_SETTINGS, method = RequestMethod.GET)
 	public ModelAndView getClassCollectionSettings(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId, @PathVariable(UNIT_ID) final String unitId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset,
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request, final HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(this.getClassService().getClassCollectionSettings(classUid, unitId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE, true, CLASS_CONTENT);
+				return null;
+		//return toModelAndViewWithIoFilter(this.getClassService().getClassCollectionSettings(classUid, unitId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE, true, CLASS_CONTENT);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_UPDATE })
 	@RequestMapping(value = RequestMappingUri.CLASS_UNIT_COLLECTION_SETTINGS, method = { RequestMethod.PUT })
-	public void updateCollectionSettings(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId, @PathVariable(UNIT_ID) final String unitId, @PathVariable(LESSON_ID) final String lessonId, @RequestBody final String data, final HttpServletRequest request,
+	public void updateCollectionSettings(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId, @PathVariable(UNIT_ID) final String unitId, @RequestBody final String data, final HttpServletRequest request,
 			final HttpServletResponse response) {
 		this.getClassService().updateClassSettings(classUid, this.buildClassCollectionSettings(data));
 	}
