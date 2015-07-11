@@ -959,4 +959,6 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	static final String[] FOLDER_TYPE = { "folder" };
 	
 	final static String IS_MEMBER = "isMember"; 
+	
+	final static String GL0111 = "GL0111";
 }
