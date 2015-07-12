@@ -203,6 +203,19 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 							}
 						}
 					}
+                    if (assessmentQuestion.isQuestionNewGen()) {
+                        List<String> mediaFilesToAdd = newQuestion.getMediaFiles();
+                        if (mediaFilesToAdd != null && mediaFilesToAdd.size() > 0) {
+                            for (String mediaFileToAdd : mediaFilesToAdd) {
+                                assessmentService.updateQuizQuestionImage(
+                                        assessmentQuestion.getGooruOid(),
+                                        mediaFileToAdd,
+                                        assessmentQuestion,
+                                        null
+                                );
+                            }
+                        }
+                    }
 					// collectionItem.setQuestionInfo(assessmentQuestion);
 
 					collectionItem.setStandards(this.getStandards(assessmentQuestion.getTaxonomySet(), false, null));
