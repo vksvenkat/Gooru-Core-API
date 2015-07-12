@@ -210,7 +210,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		String mailId = null;
 		String status = NOTINVITED;
 		if (creatorUid != null && !user.getPartyUid().equalsIgnoreCase(ANONYMOUS)) {
-			boolean isMember = this.getUserRepository().getUserGroupMemebrByGroupUid(creatorUid, user.getPartyUid()) != null ? true : false;
+			boolean isMember = this.getUserRepository().getUserGroupMemebrByGroupUid(classUid, user.getPartyUid()) != null ? true : false;
 			if (isMember) {
 				status = ACTIVE;
 			}
