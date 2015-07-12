@@ -28,7 +28,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 public class BaseUtil {
 
-	private static final String CHARACTER_SET = "23456789abcdefghijkmnpqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ";
+	private static final String CHARACTER_SET = "23456789ABCDEFGHIJKLMNPQRSTUVWXYZ";
 
 	private static String PASSWORD_HASH = "IlluminateGirardPasswordHash";
 
