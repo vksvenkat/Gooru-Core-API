@@ -323,9 +323,9 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		this.getContentClassificationRepository().deleteContentClassification(content.getContentId(), typeId);
 		List<Map<String, Object>> codes = null;
 		if (codeIds != null && codeIds.size() > 0) {
-			codes = new ArrayList<Map<String, Object>>();
 			List<Code> assocCodes = this.getContentClassificationRepository().getCodes(codeIds);
 			if (assocCodes != null && assocCodes.size() > 0) {
+				codes = new ArrayList<Map<String, Object>>();
 				List<ContentClassification> contentClassifications = new ArrayList<ContentClassification>();
 				for (Code code : assocCodes) {
 					ContentClassification contentClassification = new ContentClassification();
