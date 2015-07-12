@@ -244,7 +244,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 	}
 
 	@Override
-	public void deleteCollection(String collectionId) {
+	public void deleteCollection(String collectionId, String collectionItem) {
 		Collection collection = getCollectionDao().getCollection(collectionId);
 		rejectIfNull(collection, GL0056, COLLECTION);
 		getCollectionDao().remove(collection);

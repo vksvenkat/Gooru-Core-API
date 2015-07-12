@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentSubdomainAssoc;
@@ -95,15 +96,15 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteUnit(String courseId, String unitId, User user) {
-		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
+		CollectionItem unit = getCollectionDao().getCollectionItem(courseId, unitId);
 		rejectIfNull(unit, GL0056, UNIT);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(unitId, user), GL0099, 403, UNIT);
 		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(course, GL0056, COURSE);
-		this.deleteValidation(unit.getContentId(), UNIT);
-		this.resetSequence(courseId, unit.getGooruOid());
-		this.deleteCollection(unitId);
-		this.updateMetaDataSummary(course.getContentId(), unit.getContentId());
+		this.deleteValidation(unit.getContent().getContentId(), UNIT);
+		this.resetSequence(courseId, unit.getContent().getGooruOid());
+		this.deleteCollection(unitId, unit.getCollectionItemId());
+		this.updateMetaDataSummary(course.getContentId(), unit.getContent().getContentId());
 	}
 
 	private void updateMetaDataSummary(Long courseId, Long unitId) {

@@ -19,7 +19,7 @@ public interface AbstractCollectionService {
 
 	Map<String, Object> getCollection(String collectionId, String collectionType);
 
-	void deleteCollection(String collectionId);
+	void deleteCollection(String collectionId, String collectionItem);
 
 	CollectionItem createCollectionItem(CollectionItem collectionItem, Collection parentContent, Content content, User user);
 	

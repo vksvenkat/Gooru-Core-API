@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.MetaConstants;
@@ -66,16 +67,16 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteLesson(String courseId, String unitId, String lessonId, User user) {
-		Collection lesson = getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
+		CollectionItem lesson = getCollectionDao().getCollectionItem(unitId,lessonId);
 		rejectIfNull(lesson, GL0056,404, LESSON);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(lessonId, user), GL0099, 403, LESSON);
 		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(course, GL0056,404, COURSE);
 		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
 		rejectIfNull(unit, GL0056,404, UNIT);
-		this.deleteValidation(lesson.getContentId(), LESSON);
-		this.resetSequence(unitId, lesson.getGooruOid());
-		this.deleteCollection(lessonId);
+		this.deleteValidation(lesson.getContent().getContentId(), LESSON);
+		this.resetSequence(unitId, lesson.getContent().getGooruOid());
+		this.deleteCollection(lessonId, lesson.getCollectionItemId());
 		this.updateMetaDataSummary(course.getContentId(), unit.getContentId());
 	}
 	

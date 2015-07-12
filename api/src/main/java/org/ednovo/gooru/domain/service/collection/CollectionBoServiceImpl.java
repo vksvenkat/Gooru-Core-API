@@ -89,7 +89,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollection(String courseId, String unitId, String lessonId, String collectionId, User user) {
-		Collection collection = this.getCollectionDao().getCollection(collectionId);
+		CollectionItem collection = this.getCollectionDao().getCollectionItem(lessonId ,collectionId);
 		rejectIfNull(collection, GL0056, 404, COLLECTION);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user), GL0099, 403, COLLECTION);
 		Collection lesson = getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
@@ -98,9 +98,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(course, GL0056, 404, COURSE);
 		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
 		rejectIfNull(unit, GL0056, 404, UNIT);
-		this.resetSequence(lessonId, collection.getGooruOid());
-		this.deleteCollection(collectionId);
-		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getCollectionType(), DELETE);
+		this.resetSequence(lessonId, collection.getContent().getGooruOid());
+		this.deleteCollection(collectionId, collection.getCollectionItemId());
+		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getContent().getContentType().getName(), DELETE);
 	}
 
 	@Override

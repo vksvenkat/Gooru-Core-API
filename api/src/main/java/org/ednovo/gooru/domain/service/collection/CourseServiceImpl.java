@@ -93,7 +93,7 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		this.deleteValidation(course.getContentId(), COURSE);
 		Collection parentCollection = getCollectionDao().getCollection(user.getPartyUid(), CollectionType.SHElf.getCollectionType());
 		this.resetSequence(parentCollection.getGooruOid(), course.getGooruOid());
-		this.deleteCollection(courseUId);
+		this.deleteCollection(courseUId, course.getCollectionItemId());
 	}
 
 	private List<Map<String, Object>> getCourses(Map<String, Object> filters, int limit, int offset) {
