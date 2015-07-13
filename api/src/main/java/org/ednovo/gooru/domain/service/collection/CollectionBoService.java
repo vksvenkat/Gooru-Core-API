@@ -42,7 +42,7 @@ public interface CollectionBoService extends AbstractCollectionService {
 
 	void moveCollection(String courseId, String unitId, String lessonId, String collectionId, User user);
 	
-	void deleteCollectionItem(String collectionId, String collectionItemId);
+	void deleteCollectionItem(String collectionId, String collectionItemId, String userUid);
 	
 	void moveCollection(String folderId, String collectionId, User user);
 	

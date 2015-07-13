@@ -89,7 +89,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollection(String courseId, String unitId, String lessonId, String collectionId, User user) {
-		CollectionItem collection = this.getCollectionDao().getCollectionItem(lessonId ,collectionId);
+		CollectionItem collection = this.getCollectionDao().getCollectionItem(lessonId ,collectionId, user.getPartyUid());
 		rejectIfNull(collection, GL0056, 404, COLLECTION);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user), GL0099, 403, COLLECTION);
 		Collection lesson = getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
@@ -190,7 +190,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			collectionItem.setStop(newCollectionItem.getStop());
 		}
 		if (newCollectionItem.getPosition() != null) {
-			this.resetSequence(collection, collectionItem.getContent().getGooruOid(), newCollectionItem.getPosition());
+			this.resetSequence(collection, collectionItem.getContent().getGooruOid(), newCollectionItem.getPosition(), user.getPartyUid());
 		}
 		this.getCollectionDao().save(collectionItem);
 	}
@@ -549,8 +549,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	}
 
 	@Override
-	public void deleteCollectionItem(String collectionId, String collectionItemId) {
-		CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(collectionId, collectionItemId);
+	public void deleteCollectionItem(String collectionId, String collectionItemId, String userUid) {
+		CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(collectionId, collectionItemId, userUid);
 		rejectIfNull(collectionItem, GL0056, 404, _COLLECTION_ITEM);
 		Resource resource = this.getResourceBoService().getResource(collectionItem.getContent().getGooruOid());
 		rejectIfNull(resource, GL0056, 404, RESOURCE);

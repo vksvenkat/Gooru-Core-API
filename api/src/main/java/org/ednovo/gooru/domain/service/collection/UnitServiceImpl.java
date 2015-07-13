@@ -63,7 +63,7 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		Collection parentCollection = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(collection, GL0056, COURSE);
 		if(newCollection.getPosition() != null){
-			this.resetSequence(parentCollection, collection.getGooruOid() , newCollection.getPosition());
+			this.resetSequence(parentCollection, collection.getGooruOid() , newCollection.getPosition(), user.getPartyUid());
 		}
 		this.updateCollection(collection, newCollection, user);
 		Map<String, Object> data = generateUnitMetaData(collection, newCollection, user);
@@ -96,7 +96,7 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteUnit(String courseId, String unitId, User user) {
-		CollectionItem unit = getCollectionDao().getCollectionItem(courseId, unitId);
+		CollectionItem unit = getCollectionDao().getCollectionItem(courseId, unitId, user.getPartyUid());
 		rejectIfNull(unit, GL0056, UNIT);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(unitId, user), GL0099, 403, UNIT);
 		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);

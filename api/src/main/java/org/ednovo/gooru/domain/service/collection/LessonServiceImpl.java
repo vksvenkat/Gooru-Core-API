@@ -54,7 +54,7 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		rejectIfNull(unit, GL0056,404, UNIT);
 		this.updateCollection(collection, newCollection, user);
 		if(newCollection.getPosition() != null){
-			this.resetSequence(unit, collection.getGooruOid() , newCollection.getPosition());
+			this.resetSequence(unit, collection.getGooruOid() , newCollection.getPosition(), user.getPartyUid());
 		}
 		Map<String, Object> data = generateLessonMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {
@@ -67,7 +67,7 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteLesson(String courseId, String unitId, String lessonId, User user) {
-		CollectionItem lesson = getCollectionDao().getCollectionItem(unitId,lessonId);
+		CollectionItem lesson = getCollectionDao().getCollectionItem(unitId,lessonId, user.getPartyUid());
 		rejectIfNull(lesson, GL0056,404, LESSON);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(lessonId, user), GL0099, 403, LESSON);
 		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
