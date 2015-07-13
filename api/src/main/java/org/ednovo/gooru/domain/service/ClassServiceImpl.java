@@ -80,8 +80,8 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 			userClass.setUserUid(user.getGooruUId());
 			userClass.setPartyType(GROUP);
 			userClass.setCreatedOn(new Date(System.currentTimeMillis()));
-			String validation = validateClassCode(BaseUtil.generateBase48Encode(7));
-			userClass.setGroupCode(validation);
+			String classCode = validateClassCode(BaseUtil.generateBase48Encode(7));
+			userClass.setGroupCode(classCode);
 			this.getClassRepository().save(userClass);
 		}
 		return new ActionResponseDTO<UserClass>(userClass, errors);
