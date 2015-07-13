@@ -88,8 +88,8 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	}
 
 	private String validateClassCode(String classCode) {
-		Map<String, Object> oldUserClass = getClassRepository().getClassByCode(classCode);
-		if (oldUserClass == null) {
+		Map<String, Object> userClass = getClassRepository().getClassByCode(classCode);
+		if (userClass == null) {
 			return classCode;
 		} else {
 			return BaseUtil.generateBase48Encode(7);
