@@ -136,7 +136,7 @@
 		<joined-subclass name="org.ednovo.gooru.core.api.model.Collection"
 			table="collection" lazy="true">
 			<key column="content_id" />
-			<property name="title" column="title" not-null="true" />
+			<property name="title" column="title" not-null="false" />
 			<property name="description" column="description" not-null="false" />
 			<property name="url" column="url" not-null="false" />
 			<property name="collectionType" column="collection_type"

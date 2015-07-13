@@ -183,16 +183,12 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	public Map<String, Object> getMember(String classUid, int limit, int offset) {
 		final List<Map<String, Object>> members = this.getClassRepository().getMember(classUid, limit, offset);
 		Map<String, Object> searchResults = new HashMap<String, Object>();
-		List<Map<String, Object>> memberList = new ArrayList<Map<String, Object>>();
 		Integer count = 0;
 		if (members != null && members.size() > 0) {
-			for (Map<String, Object> result : members) {
-				memberList.add(setClass(result));
-			}
 			count = this.getClassRepository().getMemeberCount(classUid);
 		}
 		searchResults.put(TOTAL_HIT_COUNT, count);
-		searchResults.put(SEARCH_RESULT, memberList);
+		searchResults.put(SEARCH_RESULT, members);
 		return searchResults;
 	}
 
@@ -342,6 +338,11 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		return lessonList;
 	}
 
+	@Override
+	public List<Map<String, Object>> getClassUnits(String courseId, int limit, int offset) {
+		return getClassRepository().getCollectionItem(courseId, limit, offset);
+	}
+	
 	@Override
 	public Map<String, Object> getClassCollections(String lessonId, int limit, int offset) {
 		Map<String, Object> lesson = this.getLessonService().getLesson(lessonId);
