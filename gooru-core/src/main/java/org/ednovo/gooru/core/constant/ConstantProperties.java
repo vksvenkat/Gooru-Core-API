@@ -826,7 +826,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 
 	static final String COURSE_[] = { "*.courseId", "*.name", "*.thumbnails", "thumbnails.url" };
 
-	static final String DOMAIN_INCLUDES[] = { "*.thumbnails", "thumbnails.url", "*.domainId", "*.name", "*.subdomainId", "*.description"};
+	static final String DOMAIN_INCLUDES[] = { "*.thumbnails", "thumbnails.url", "*.domainId", "*.name", "*.subdomainId", "*.description", "*.courseId", "*.subjectId"};
 
 	static final String STATE[] = { "*.stateUid", "*.stateCode", "*.name", "*.totalHitCount", "*.searchResults" };
 
@@ -922,7 +922,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	
 	final static String SUBDOMAIN_ID = "subdomainId";
 
-	final static String CLASS_INCLUDES[] = { "*.classUid", "*.classCode", "*.name", "*.description", "*.visibility", "*.minimumScore", "*.memberCount", "*.username", "*.gooruUId", "*.gender", "*.profileImageUrl", "*.thumbnails", "*.user", "*.url", "courseGooruOid", "*.grades", "*.searchResult", "*.totalHitCount", "*.status" };
+	final static String CLASS_INCLUDES[] = { "*.classUid", "*.classCode", "*.name", "*.description", "*.visibility", "*.minimumScore", "*.memberCount", "*.username", "*.gooruUId", "*.gender", "*.profileImageUrl", "*.thumbnails", "*.user", "*.url", "*.courseGooruOid", "*.grades", "*.searchResult", "*.totalHitCount", "*.status" };
 
 	final static String UNIT_ID = "unitId";
 

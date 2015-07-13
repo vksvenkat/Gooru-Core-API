@@ -32,8 +32,10 @@ public interface ClassService {
 
 	void joinClass(String classUid, User apiCaller);
 
-    List<Map<String, Object>> getClassCollectionSettings(String classUid, String unitId, int limit, int offset);
+	List<Map<String, Object>> getClassCollectionSettings(String classUid, String unitId, int limit, int offset);
 
 	void updateClassSettings(String classUid, List<ClassCollectionSettings> classCollectionSettings);
+
+	Map<String, Object> getClassCollections(String lessonId, int limit, int offset);
 
 }
