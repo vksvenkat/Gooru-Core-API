@@ -98,7 +98,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(course, GL0056, 404, COURSE);
 		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
 		rejectIfNull(unit, GL0056, 404, UNIT);
-		this.resetSequence(lessonId, collection.getContent().getGooruOid());
+		this.resetSequence(lessonId, collection.getContent().getGooruOid(), user.getPartyUid());
 		this.deleteCollection(collectionId, collection.getCollectionItemId());
 		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getContent().getContentType().getName(), DELETE);
 	}
@@ -393,7 +393,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			contentType =  sourceCollectionItem.getContent().getContentType().getName();
 		}
 		createCollectionItem(collectionItem, targetCollection, sourceCollectionItem.getContent(), user);
-		resetSequence(sourceCollectionItem.getCollection().getGooruOid(), sourceCollectionItem.getContent().getGooruOid());
+		resetSequence(sourceCollectionItem.getCollection().getGooruOid(), sourceCollectionItem.getContent().getGooruOid(), user.getPartyUid());
 		getCollectionDao().remove(sourceCollectionItem);
 		return contentType;
 	}
@@ -406,7 +406,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			CollectionItem course = this.getCollectionDao().getParentCollection(unit.getCollection().getContentId());
 			this.updateMetaDataSummary(course.getCollection().getContentId(), unit.getCollection().getContentId(), lesson.getCollection().getContentId(), collectionType, DELETE);
 		}
-		return lesson.getCollection().getCollectionType();
+		return targetCollection.getCollectionType();
 	}
 
 	private Map<String, Object> generateCollectionMetaData(Collection collection, Collection newCollection, User user) {
