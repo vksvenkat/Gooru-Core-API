@@ -176,10 +176,10 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 			int displaySequence;
 			int oldSequence = collectionItem.getItemSequence();
 			if (newSequence > oldSequence) {
-				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), oldSequence, newSequence);
+				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), oldSequence, newSequence, userUid);
 				displaySequence = oldSequence;
 			} else {
-				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), newSequence, oldSequence);
+				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), newSequence, oldSequence, userUid);
 				displaySequence = newSequence + 1;
 			}
 			if (resetCollectionSequence != null) {
