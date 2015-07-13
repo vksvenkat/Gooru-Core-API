@@ -76,7 +76,7 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		rejectIfNull(unit, GL0056,404, UNIT);
 		this.deleteValidation(lesson.getContent().getContentId(), LESSON);
 		this.resetSequence(unitId, lesson.getContent().getGooruOid(), user.getPartyUid());
-		this.deleteCollection(lessonId, lesson.getCollectionItemId());
+		this.deleteCollection(lessonId);
 		this.updateMetaDataSummary(course.getContentId(), unit.getContentId());
 	}
 	

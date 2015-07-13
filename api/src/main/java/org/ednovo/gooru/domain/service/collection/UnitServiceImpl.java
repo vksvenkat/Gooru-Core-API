@@ -103,7 +103,7 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		rejectIfNull(course, GL0056, COURSE);
 		this.deleteValidation(unit.getContent().getContentId(), UNIT);
 		this.resetSequence(courseId, unit.getContent().getGooruOid(), user.getPartyUid());
-		this.deleteCollection(unitId, unit.getCollectionItemId());
+		this.deleteCollection(unitId);
 		this.updateMetaDataSummary(course.getContentId(), unit.getContent().getContentId());
 	}
 

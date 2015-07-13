@@ -186,7 +186,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	@Override
 	public List<CollectionItem> getCollectionItems(String parentId, int sequence, String userUid) {
 		Query query = getSession().createQuery(GET_COLLECTIONITEM_BY_SEQUENCE);
-		query.setParameter("parentId", parentId);
+		query.setParameter(PARENT_ID, parentId);
 		query.setParameter(SEQUENCE, sequence);
 		query.setParameter(USER_UID, userUid);
 		return list(query);

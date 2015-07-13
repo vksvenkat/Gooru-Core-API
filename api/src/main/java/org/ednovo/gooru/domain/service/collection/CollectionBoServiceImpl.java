@@ -99,7 +99,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
 		rejectIfNull(unit, GL0056, 404, UNIT);
 		this.resetSequence(lessonId, collection.getContent().getGooruOid(), user.getPartyUid());
-		this.deleteCollection(collectionId, collection.getCollectionItemId());
+		this.deleteCollection(collectionId);
 		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getContent().getContentType().getName(), DELETE);
 	}
 
