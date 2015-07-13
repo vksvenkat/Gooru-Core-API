@@ -80,7 +80,7 @@ public class RequestMappingUri {
 	
 	public static final String SUBDOMAIN_STANDARDS = "/{id}/standards";
 		
-	public static final String CLASS_UNIT_COLLECTION_SETTINGS = "/{id}/course/{courseId}/unit/{unitId}";
+	public static final String CLASS_UNIT_COLLECTION_SETTINGS = "/{id}/course/{courseId}/unit/{unitId}/lesson";
 	
 	public static final String V3_COLLECTION_ID = "/v3/collection/{id}";
 	
