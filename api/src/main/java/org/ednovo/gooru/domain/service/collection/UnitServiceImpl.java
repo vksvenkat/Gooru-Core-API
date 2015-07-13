@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentMeta;
@@ -60,7 +61,7 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		Collection parentCollection = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(collection, GL0056, COURSE);
 		if(newCollection.getPosition() != null){
-			this.resetSequence(parentCollection, collection.getGooruOid() , newCollection.getPosition());
+			this.resetSequence(parentCollection, collection.getGooruOid() , newCollection.getPosition(), user.getPartyUid());
 		}
 		this.updateCollection(collection, newCollection, user);
 		Map<String, Object> data = generateUnitMetaData(collection, newCollection, user);
@@ -93,15 +94,15 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteUnit(String courseId, String unitId, User user) {
-		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
+		CollectionItem unit = getCollectionDao().getCollectionItem(courseId, unitId, user.getPartyUid());
 		rejectIfNull(unit, GL0056, UNIT);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(unitId, user), GL0099, 403, UNIT);
 		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(course, GL0056, COURSE);
-		this.deleteValidation(unit.getContentId(), UNIT);
-		this.resetSequence(courseId, unit.getGooruOid());
+		this.deleteValidation(unit.getContent().getContentId(), UNIT);
+		this.resetSequence(courseId, unit.getContent().getGooruOid(), user.getPartyUid());
 		this.deleteCollection(unitId);
-		this.updateMetaDataSummary(course.getContentId(), unit.getContentId());
+		this.updateMetaDataSummary(course.getContentId(), unit.getContent().getContentId());
 	}
 
 	private void updateMetaDataSummary(Long courseId, Long unitId) {

@@ -155,10 +155,10 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	}
 
-	public void resetSequence(String parentGooruOid, String gooruOid) {
-		CollectionItem itemSequence = this.getCollectionDao().getCollectionItem(parentGooruOid, gooruOid);
+	public void resetSequence(String parentGooruOid, String gooruOid, String userUid) {
+		CollectionItem itemSequence = this.getCollectionDao().getCollectionItem(parentGooruOid, gooruOid, userUid);
 		int sequence = itemSequence.getItemSequence();
-		List<CollectionItem> resetCollectionSequence = this.getCollectionDao().getCollectionItems(parentGooruOid, sequence, itemSequence.getContent().getContentType().getName());
+		List<CollectionItem> resetCollectionSequence = this.getCollectionDao().getCollectionItems(parentGooruOid, sequence, userUid);
 		if (resetCollectionSequence != null) {
 			for (CollectionItem collectionItem : resetCollectionSequence) {
 				collectionItem.setItemSequence(sequence++);
@@ -167,19 +167,19 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		}
 	}
 
-	public void resetSequence(Collection parentCollection, String gooruOid, Integer newSequence) {
+	public void resetSequence(Collection parentCollection, String gooruOid, Integer newSequence, String userUid) {
 		int max = this.getCollectionDao().getCollectionItemMaxSequence(parentCollection.getContentId());
 		reject((max > newSequence), GL0007, 404, ITEM_SEQUENCE);
-		CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(parentCollection.getGooruOid(), gooruOid);
+		CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(parentCollection.getGooruOid(), gooruOid, userUid);
 		if (collectionItem != null) {
 			List<CollectionItem> resetCollectionSequence = null;
 			int displaySequence;
 			int oldSequence = collectionItem.getItemSequence();
 			if (newSequence > oldSequence) {
-				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), oldSequence, newSequence, collectionItem.getContent().getContentType().getName());
+				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), oldSequence, newSequence, userUid);
 				displaySequence = oldSequence;
 			} else {
-				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), newSequence, oldSequence, collectionItem.getContent().getContentType().getName());
+				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), newSequence, oldSequence, userUid);
 				displaySequence = newSequence + 1;
 			}
 			if (resetCollectionSequence != null) {

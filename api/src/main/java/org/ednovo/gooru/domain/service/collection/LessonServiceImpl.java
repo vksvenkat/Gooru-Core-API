@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.MetaConstants;
@@ -53,7 +54,7 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		rejectIfNull(unit, GL0056,404, UNIT);
 		this.updateCollection(collection, newCollection, user);
 		if(newCollection.getPosition() != null){
-			this.resetSequence(unit, collection.getGooruOid() , newCollection.getPosition());
+			this.resetSequence(unit, collection.getGooruOid() , newCollection.getPosition(), user.getPartyUid());
 		}
 		Map<String, Object> data = generateLessonMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {
@@ -66,15 +67,15 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteLesson(String courseId, String unitId, String lessonId, User user) {
-		Collection lesson = getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
+		CollectionItem lesson = getCollectionDao().getCollectionItem(unitId,lessonId, user.getPartyUid());
 		rejectIfNull(lesson, GL0056,404, LESSON);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(lessonId, user), GL0099, 403, LESSON);
 		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(course, GL0056,404, COURSE);
 		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
 		rejectIfNull(unit, GL0056,404, UNIT);
-		this.deleteValidation(lesson.getContentId(), LESSON);
-		this.resetSequence(unitId, lesson.getGooruOid());
+		this.deleteValidation(lesson.getContent().getContentId(), LESSON);
+		this.resetSequence(unitId, lesson.getContent().getGooruOid(), user.getPartyUid());
 		this.deleteCollection(lessonId);
 		this.updateMetaDataSummary(course.getContentId(), unit.getContentId());
 	}
