@@ -36,7 +36,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 
 	private static final String GET_COLLECTION_ITEM_COUNT = "select count(1) as count from collection_item ci inner join collection  c  on c.content_id = ci.collection_content_id inner join collection co on ci.resource_content_id  = co.content_id   where c.content_id =:collectionId and co.collection_type =:collectionType";
 
-	private static final String GET_COLLECTION_SEQUENCE = "FROM CollectionItem ci where ci.collection.gooruOid=:gooruOid and ci.associatedUser.partyUid=:partyUid and ci.itemSequence between :parameterOne and :parameterTwo order by ci.itemSequence";
+	private static final String GET_COLLECTION_SEQUENCE = "FROM CollectionItem ci where ci.collection.gooruOid=:gooruOid and ci.associatedUser.partyUid=:userUid and associatedUser.partyUid=:userUid and ci.itemSequence between :parameterOne and :parameterTwo order by ci.itemSequence";
 
 	private static final String GET_COLLECTIONITEM_BY_GOORUOID = "FROM CollectionItem where content.gooruOid=:gooruOid and collection.gooruOid=:parentGooruOid and associatedUser.partyUid=:userUid";
 

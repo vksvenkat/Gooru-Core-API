@@ -549,7 +549,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	}
 
 	@Override
-	public void deleteCollectionItem(String collectionId, String collectionItemId) {
+	public void deleteCollectionItem(String collectionId, String collectionItemId, String userUid) {
 		CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(collectionId, collectionItemId, userUid);
 		rejectIfNull(collectionItem, GL0056, 404, _COLLECTION_ITEM);
 		Resource resource = this.getResourceBoService().getResource(collectionItem.getContent().getGooruOid());
