@@ -80,18 +80,21 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 			userClass.setUserUid(user.getGooruUId());
 			userClass.setPartyType(GROUP);
 			userClass.setCreatedOn(new Date(System.currentTimeMillis()));
-			String newClassCode = BaseUtil.generateBase48Encode(7);
-			Map<String, Object> oldUserClass = getClassRepository().getClassByCode(newClassCode);
-			if (oldUserClass == null) {
-				userClass.setGroupCode(newClassCode);
-			} else {
-				userClass.setGroupCode(BaseUtil.generateBase48Encode(7));
-			}
+			String validation = validateClassCode(BaseUtil.generateBase48Encode(7));
+			userClass.setGroupCode(validation);
 			this.getClassRepository().save(userClass);
 		}
 		return new ActionResponseDTO<UserClass>(userClass, errors);
 	}
 
+	private String validateClassCode(String oldClassCode) {
+		Map<String, Object> oldUserClass = getClassRepository().getClassByCode(oldClassCode);
+		if (oldUserClass == null) {
+			return oldClassCode;
+		} else {
+			return BaseUtil.generateBase48Encode(7);
+		}
+	}
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateClass(String classUId, UserClass newUserClass, User user) {
