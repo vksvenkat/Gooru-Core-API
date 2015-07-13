@@ -87,10 +87,10 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		return new ActionResponseDTO<UserClass>(userClass, errors);
 	}
 
-	private String validateClassCode(String oldClassCode) {
-		Map<String, Object> oldUserClass = getClassRepository().getClassByCode(oldClassCode);
+	private String validateClassCode(String classCode) {
+		Map<String, Object> oldUserClass = getClassRepository().getClassByCode(classCode);
 		if (oldUserClass == null) {
-			return oldClassCode;
+			return classCode;
 		} else {
 			return BaseUtil.generateBase48Encode(7);
 		}
