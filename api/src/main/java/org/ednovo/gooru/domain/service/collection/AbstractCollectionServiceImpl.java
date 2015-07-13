@@ -158,7 +158,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 	public void resetSequence(String parentGooruOid, String gooruOid, String userUid) {
 		CollectionItem itemSequence = this.getCollectionDao().getCollectionItem(parentGooruOid, gooruOid, userUid);
 		int sequence = itemSequence.getItemSequence();
-		List<CollectionItem> resetCollectionSequence = this.getCollectionDao().getCollectionItems(parentGooruOid, gooruOid, sequence, userUid);
+		List<CollectionItem> resetCollectionSequence = this.getCollectionDao().getCollectionItems(parentGooruOid, sequence, userUid);
 		if (resetCollectionSequence != null) {
 			for (CollectionItem collectionItem : resetCollectionSequence) {
 				collectionItem.setItemSequence(sequence++);

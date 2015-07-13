@@ -28,7 +28,7 @@ public interface CollectionDao extends BaseRepository {
 
 	CollectionItem getCollectionItem(String parentGooruOid, String gooruOid, String userUid);
 
-	List<CollectionItem> getCollectionItems(String parentId, String gooruOid, int sequence, String userUid);
+	List<CollectionItem> getCollectionItems(String parentId, int sequence, String userUid);
 
 	CollectionItem getCollectionItemById(String gooruOid, User user);
 

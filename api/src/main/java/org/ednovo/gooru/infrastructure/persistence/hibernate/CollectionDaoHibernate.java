@@ -40,7 +40,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 
 	private static final String GET_COLLECTIONITEM_BY_GOORUOID = "FROM CollectionItem where content.gooruOid=:gooruOid and collection.gooruOid=:parentGooruOid and associatedUser.partyUid=:userUid";
 
-	private final static String GET_COLLECTIONITEM_BY_SEQUENCE = "FROM CollectionItem where collection.gooruOid=:parentId and content.gooruOid=:gooruOid and associatedUser.partyUid=:userUid and itemSequence>:sequence order by itemSequence";
+	private final static String GET_COLLECTIONITEM_BY_SEQUENCE = "FROM CollectionItem where collection.gooruOid=:parentId and associatedUser.partyUid=:userUid and itemSequence>:sequence order by itemSequence";
 
 	private static final String COLLECTIONITEM_BY_USERUID = "FROM CollectionItem ci where ci.content.gooruOid=:gooruOid and ci.associatedUser.partyUid=:partyUid";
 
@@ -184,10 +184,9 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	}
 
 	@Override
-	public List<CollectionItem> getCollectionItems(String parentId, String gooruOid, int sequence, String userUid) {
+	public List<CollectionItem> getCollectionItems(String parentId, int sequence, String userUid) {
 		Query query = getSession().createQuery(GET_COLLECTIONITEM_BY_SEQUENCE);
 		query.setParameter("parentId", parentId);
-		query.setParameter(GOORU_OID, gooruOid);
 		query.setParameter(SEQUENCE, sequence);
 		query.setParameter(USER_UID, userUid);
 		return list(query);
