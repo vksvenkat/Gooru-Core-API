@@ -158,7 +158,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 	public void resetSequence(String parentGooruOid, String gooruOid) {
 		CollectionItem itemSequence = this.getCollectionDao().getCollectionItem(parentGooruOid, gooruOid);
 		int sequence = itemSequence.getItemSequence();
-		List<CollectionItem> resetCollectionSequence = this.getCollectionDao().getCollectionItems(parentGooruOid, sequence, itemSequence.getContent().getContentType().getName());
+		List<CollectionItem> resetCollectionSequence = this.getCollectionDao().getCollectionItems(parentGooruOid, sequence);
 		if (resetCollectionSequence != null) {
 			for (CollectionItem collectionItem : resetCollectionSequence) {
 				collectionItem.setItemSequence(sequence++);
@@ -176,10 +176,10 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 			int displaySequence;
 			int oldSequence = collectionItem.getItemSequence();
 			if (newSequence > oldSequence) {
-				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), oldSequence, newSequence, collectionItem.getContent().getContentType().getName());
+				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), oldSequence, newSequence);
 				displaySequence = oldSequence;
 			} else {
-				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), newSequence, oldSequence, collectionItem.getContent().getContentType().getName());
+				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), newSequence, oldSequence);
 				displaySequence = newSequence + 1;
 			}
 			if (resetCollectionSequence != null) {
