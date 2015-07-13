@@ -95,7 +95,7 @@ public class Collection extends Content implements Versionable {
 
 	private List<Integer> depthOfKnowledgeIds;
 	
-	private Short distinguish;
+	private Short distinguish;	
 
 	public String getIdeas() {
 		return ideas;
