@@ -421,7 +421,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 
 	static final String[] CLASS_MEMBER_FIELDS = { "*.totalHitCount", "*.searchResults", "*.emailId", "*.username", "*.gooruUid", "*.associatedDate", "*.status", "*.profileImageUrl", "*.firstName", "*.lastName" };
 
-	static final String[] CLASS_FIELDS = { "*.totalHitCount", "*.searchResult", "*.gooruUId","*.username", "*.emailId","*.associationDate", "*.profileImageUrl"};
+	static final String[] CLASS_FIELDS = { "*.totalHitCount", "*.searchResult", "*.gooruUId","*.username", "*.emailId","*.associationDate", "*.profileImageUrl", "*.user"};
 	
 	static final String[] USER_CONTENT_TAGS_INCLUDES = { "*.totalHitCount", "*.searchResults", "*.count", "*.label", "*.tagGooruOid" };
 
@@ -826,7 +826,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 
 	static final String COURSE_[] = { "*.courseId", "*.name", "*.thumbnails", "thumbnails.url" };
 
-	static final String DOMAIN_INCLUDES[] = { "*.thumbnails", "thumbnails.url", "*.domainId", "*.name", "*.subdomainId"};
+	static final String DOMAIN_INCLUDES[] = { "*.thumbnails", "thumbnails.url", "*.domainId", "*.name", "*.subdomainId", "*.description", "*.courseId", "*.subjectId"};
 
 	static final String STATE[] = { "*.stateUid", "*.stateCode", "*.name", "*.totalHitCount", "*.searchResults" };
 
@@ -922,7 +922,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	
 	final static String SUBDOMAIN_ID = "subdomainId";
 
-	final static String CLASS_INCLUDES[] = { "*.classUid", "*.classCode", "*.name", "*.description", "*.visibility", "*.minimumScore", "*.memberCount", "*.username", "*.gooruUId", "*.gender", "*.profileImageUrl", "*.thumbnails", "*.user", "*.url", "courseGooruOid", "*.grades", "*.searchResult", "*.totalHitCount" };
+	final static String CLASS_INCLUDES[] = { "*.classUid", "*.classCode", "*.name", "*.description", "*.visibility", "*.minimumScore", "*.memberCount", "*.username", "*.gooruUId", "*.gender", "*.profileImageUrl", "*.thumbnails", "*.user", "*.url", "*.courseGooruOid", "*.grades", "*.searchResult", "*.totalHitCount", "*.status" };
 
 	final static String UNIT_ID = "unitId";
 
@@ -942,11 +942,25 @@ public interface ConstantProperties extends ErrorCodeProperties {
 		
 	final static String CLASS_ID = "classId";
 	
-	final static String INCLUDE_COLLECTION_ITEMS[] = {"*.collectionItems", "*.user", "*.answers", "*.hints", "*.permissions"};
+	final static String INCLUDE_COLLECTION_ITEMS[] = {"*.collectionItems", "*.user", "*.answers", "*.hints", "*.permissions", "*.educationalUse", "*.standards", "*.depthOfKnowledge", "*.skills", "*.momentsOfLearning"};
 	
 	final static String EXCLUDE_COLLECTION_ITEMS[] = {"*.class", "*.answers.question"};
-	
-	final static String SOURCE_COLLECTION = "sourceCollection";
-	
+		
 	static final String CLASS_CONTENT[] = {"*.gooruOid", "*.title", "*.settings", "*.items"};
+
+	static final String[] COLLECTION_TYPES = { "collection", "assessment", "assessment/url" };
+	
+	static final String[] COURSE_TYPE = { "course" };
+	
+	static final String[] UNIT_TYPE = { "unit" };
+	
+	static final String[] LESSON_TYPE = { "lesson" };
+	
+	static final String[] FOLDER_TYPE = { "folder" };
+	
+	final static String IS_MEMBER = "isMember"; 
+	
+	final static String MEMBER = "member";
+
+	final static String GL0111 = "GL0111";
 }

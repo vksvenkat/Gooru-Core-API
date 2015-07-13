@@ -53,6 +53,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRe
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
@@ -84,6 +86,7 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 	private ContentService contentService;
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Comment> createComment(Comment comment, User user) {
 		final Errors error = validateComment(comment);
 
@@ -101,6 +104,7 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Comment updateComment(String commentUid, Comment newComment, User user) {
 		Comment comment = this.getComment(commentUid);
 		if (comment != null) {
@@ -124,6 +128,7 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Comment getComment(String commentUid) {
 		Comment comment = this.getCommentRepository().getComment(commentUid);
 		if (comment == null) {
@@ -133,6 +138,7 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Comment> getComments(String itemId,String gooruOid, String gooruUid, Integer limit, Integer offset, String fetchType) {
 		return this.getCommentRepository().getComments(itemId,gooruOid, gooruUid, limit, offset, fetchType);
 	}
@@ -147,6 +153,7 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteComment(String commentUid, User user, Boolean softdelete) {
 		Comment comment = this.getCommentRepository().getComment(commentUid);
 		rejectIfNull(comment, GL0057, 404, COMMENT);

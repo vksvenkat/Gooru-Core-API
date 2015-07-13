@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.ClassCollectionSettings;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserClass;
 
@@ -15,9 +16,9 @@ public interface ClassService {
 
 	UserClass getClassById(String classUid);
 
-	Map<String, Object> getClass(String classUid);
+	Map<String, Object> getClass(String classUid, User user);
 
-	Map<String, Object> getClasses(String gooruUid, int limit, int offset);
+	Map<String, Object> getClasses(String gooruUid, Boolean emptyCourse, int limit, int offset);
 
 	Map<String, Object> getStudyClasses(String gooruUid, int limit, int offset);
 
@@ -30,9 +31,11 @@ public interface ClassService {
 	void deleteClass(String classUId, User user);
 
 	void joinClass(String classUid, User apiCaller);
-	
-	List<Map<String, Object>> getClassUnit(String gooruOid, int limit, int offset);
-	
-	List<Map<String, Object>> getClassCollectionSettings(String classUid, String lessonId, int limit, int offset);
-	
+
+	List<Map<String, Object>> getClassCollectionSettings(String classUid, String unitId, int limit, int offset);
+
+	void updateClassSettings(String classUid, List<ClassCollectionSettings> classCollectionSettings);
+
+	Map<String, Object> getClassCollections(String lessonId, int limit, int offset);
+
 }

@@ -2893,5 +2893,21 @@ public interface ParameterProperties {
 	String MEDIA_FILES = "media_files";
 	
 	String ASSET_ANSWERS = "asset-answers";
-
+	
+	String SCOLLECTION_BULK_QUEUE_KEY = "search.setting.scollection.bulk.queue.name";
+      
+    String RESOURCE_BULK_QUEUE_KEY = "search.setting.resource.bulk.queue.name";
+	        			               
+    String USER_QUEUE_KEY = "search.setting.user.queue.name";
+         
+    String STATS_QUEUE_KEY = "search.setting.statistics.queue.name";
+            
+    String SCOLLECTION_QUEUE_KEY = "search.setting.scollection.queue.name";
+       
+    String RESOURCE_QUEUE_KEY = "search.setting.resource.queue.name";
+    
+    String CLASS_EMPTY_COURSE_FILTER = "flt.exclude.empty.course";
+    
+    String FOLDER_ID = "folderId";
+    
 }

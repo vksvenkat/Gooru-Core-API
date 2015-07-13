@@ -17,6 +17,7 @@ import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.collection.CollectionBoService;
+import org.ednovo.gooru.domain.service.collection.CopyCollectionService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,20 +28,39 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-@RequestMapping(value = { RequestMappingUri.V3_COLLECTION })
 @Controller
 public class CollectionRestV3Controller extends BaseController implements ConstantProperties, ParameterProperties {
 
 	@Autowired
 	private CollectionBoService collectionBoService;
 
+	@Autowired
+	private CopyCollectionService copyCollectionService;
+
 	private static final String INCLUDE_ITEMS = "includeItems";
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
-	@RequestMapping(value = { RequestMappingUri.ID }, method = RequestMethod.PUT)
+	@RequestMapping(value = { RequestMappingUri.V3_COLLECTION_ID }, method = RequestMethod.PUT)
 	public void updateCollection(@PathVariable(value = ID) final String collectionId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		this.getCollectionBoService().updateCollection(collectionId, buildCollection(data), user);
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_COPY })
+	@RequestMapping(value = { RequestMappingUri.V3_SOURCE_COLLECTION_ID }, method = RequestMethod.POST)
+	public ModelAndView copyCollection(@PathVariable(value = ID) final String collectionId, @RequestParam(value = FOLDER_ID, required = false) final String folderId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final Collection collection = this.getCopyCollectionService().copyCollection(folderId, collectionId, user, buildCollection(data));
+		collection.setUri(buildUri(RequestMappingUri.V3_COLLECTION, collection.getGooruOid()));
+		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(collection, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_MOVE })
+	@RequestMapping(value = { RequestMappingUri.V3_SOURCE_COLLECTION_ID }, method = RequestMethod.PUT)
+	public void moveCollection(@PathVariable(value = ID) final String collectionId, @RequestParam(value = FOLDER_ID, required = false) final String folderId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		getCollectionBoService().moveCollection(folderId, collectionId, user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
@@ -64,7 +84,7 @@ public class CollectionRestV3Controller extends BaseController implements Consta
 	public ModelAndView addResource(@PathVariable(value = COLLECTION_ID) final String collectionId, @PathVariable(value = ID) final String resourceId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		CollectionItem collectionItem = this.getCollectionBoService().addResource(collectionId, resourceId, user);
-		collectionItem.setUri(generateUri(request.getRequestURI(), collectionItem.getCollectionItemId()));
+		collectionItem.setUri(generateUri(StringUtils.substringBeforeLast(request.getRequestURI(), RequestMappingUri.SEPARATOR), collectionItem.getCollectionItemId()));
 		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(collectionItem, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
@@ -92,7 +112,7 @@ public class CollectionRestV3Controller extends BaseController implements Consta
 	public ModelAndView addQuestion(@PathVariable(value = COLLECTION_ID) final String collectionId, @PathVariable(value = ID) final String questionId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		CollectionItem collectionItem = this.getCollectionBoService().addQuestion(collectionId, questionId, user);
-		collectionItem.setUri(generateUri(request.getRequestURI(), collectionItem.getCollectionItemId()));
+		collectionItem.setUri(generateUri(StringUtils.substringBeforeLast(request.getRequestURI(), RequestMappingUri.SEPARATOR), collectionItem.getCollectionItemId()));
 		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(collectionItem, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
@@ -111,8 +131,14 @@ public class CollectionRestV3Controller extends BaseController implements Consta
 		this.getCollectionBoService().updateCollectionItem(collectionId, collectionItemId, buildCollectionItem(data), user);
 	}
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_DELETE })
+	@RequestMapping(value = { RequestMappingUri.COLLECTION_ITEM_ID }, method = RequestMethod.DELETE)
+	public void deleteCollectionItem(@PathVariable(value = COLLECTION_ID) final String collectionId, @PathVariable(value = ID) final String collectionItemId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
+		this.getCollectionBoService().deleteCollectionItem(collectionId, collectionItemId);
+	}
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
-	@RequestMapping(value = { RequestMappingUri.ID }, method = RequestMethod.GET)
+	@RequestMapping(value = { RequestMappingUri.V3_COLLECTION_ID }, method = RequestMethod.GET)
 	public ModelAndView getCollection(@PathVariable(value = ID) final String collectionId, @RequestParam(value = INCLUDE_ITEMS, required = false, defaultValue = FALSE) final boolean includeItems, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		return toModelAndViewWithIoFilter(this.getCollectionBoService().getCollection(collectionId, COLLECTION, user, includeItems), RESPONSE_FORMAT_JSON, EXCLUDE_COLLECTION_ITEMS, true, INCLUDE_COLLECTION_ITEMS);
@@ -137,6 +163,10 @@ public class CollectionRestV3Controller extends BaseController implements Consta
 
 	public CollectionBoService getCollectionBoService() {
 		return collectionBoService;
+	}
+
+	public CopyCollectionService getCopyCollectionService() {
+		return copyCollectionService;
 	}
 
 	private CollectionItem buildCollectionItem(final String data) {

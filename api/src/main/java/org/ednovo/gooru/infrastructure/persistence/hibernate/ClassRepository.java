@@ -13,29 +13,33 @@ public interface ClassRepository extends BaseRepository {
 
 	List<Map<String, Object>> getClasses(int limit, int offset);
 
-	List<Map<String, Object>> getClasses(String gooruUid, int limit, int offset);
+	List<Map<String, Object>> getClasses(String gooruUid, boolean filterByEmptyCourse, int limit, int offset);
 
 	Map<String, Object> getClass(String classUid);
-	
+
 	Map<String, Object> getClassByCode(String classCode);
-	
+
 	List<Map<String, Object>> getStudyClasses(String gooruUid, int limit, int offset);
-	
-	List<Map<String, Object>>  getMember(String classUid, int limit, int offset);
-		
+
+	List<Map<String, Object>> getMember(String classUid, int limit, int offset);
+
 	Map<String, Object> findStudentAndClassId(String classContentId, String gooruUId);
 
 	Long getClassId(String classGooruId);
-	
+
 	List<Map<String, Object>> getClassesByCourse(String courseGooruOid, int limit, int offset);
-	
+
 	Integer getStudyClassesCount(String gooruUid);
-	
+
 	Integer getClassesCount(String gooruUid);
-	
+
 	Integer getMemeberCount(String classUid);
-	
+
 	List<Map<String, Object>> getCollectionItem(String gooruOid, int limit, int offset);
-	
-	Map<String, Object> getClassCollectionSettings(Long lessonId);
+
+	List<Map<String, Object>> getClassCollectionSettings(Long lessonId, String classUid);
+
+	List<Map<String, Object>> getCollections(String gooruOid, int limit, int offset);
+
+	List<Map<String, Object>> getCollectionItems(String gooruOid);
 }

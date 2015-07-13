@@ -24,9 +24,9 @@
 		table="class_collection_settings">
 		<composite-id>
 			<key-property name="classId" column="class_id" />
-			<key-property name="lessonId" column="lesson_id" />
 			<key-property name="collectionId" column="collection_id" />
 		</composite-id>
-		<property name="value" column="value" not-null="true"></property>
+		<property name="visibility" column="visibility" not-null="false"></property>
+		<property name="scoreTypeId" column="score_type_id" not-null="false"></property>
 	</class>
 </hibernate-mapping>

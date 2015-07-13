@@ -16,8 +16,6 @@ public class RequestMappingUri {
 
 	public static final String META = "/v1/meta";
 
-	public static final String V3_COLLECTION = "/v3/collection";
-
 	public static final String COURSE = "/v1/course";
 
 	public static final String UNIT = "/v1/course/{courseId}/unit";
@@ -32,7 +30,7 @@ public class RequestMappingUri {
 
 	public static final String LESSON_COLLECTION_ID = "/v1/course/{courseId}/unit/{unitId}/lesson/{lessonId}/collection/{id}";
 
-	public static final String TARGET_LESSON = "/v1/targetCourse/{courseId}/targetUnit/{unitId}/targetLesson/{lessonId}";
+	public static final String TARGET_LESSON = "/v1/targetCourse/{courseId}/targetUnit/{unitId}/targetLesson/{lessonId}/sourceCollection/{id}";
 
 	public static final String CREATE_QUESTION = "/id}/question";
 
@@ -64,26 +62,32 @@ public class RequestMappingUri {
 
 	public static final String LESSON_COLLECTION_ITEM_ID = "/v1/course/{courseId}/unit/{unitId}/lesson/{lessonId}/collection/{collectionId}/item/{id}";
 
-	public static final String ITEM_ID = "/{id}/item";
+	public static final String ITEM_ID = "/v3/collection/{id}/item";
 
 	public static final String TAXONOMY_COURSE_BY_SUBJECT = "/{id}/taxonomycourse";
 
 	public static final String DOMAIN_BY_TAXONOMY_COURSE = "/{id}/domain";
 	
-	public static final String COLLECTION_QUESTION_ID = "/{collectionId}/question/{id}";
+	public static final String COLLECTION_QUESTION_ID = "/v3/collection/{collectionId}/question/{id}";
 
-	public static final String COLLECTION_RESOURCE_ID = "/{collectionId}/resource/{id}";
+	public static final String COLLECTION_RESOURCE_ID = "/v3/collection/{collectionId}/resource/{id}";
 
-	public static final String COLLECTION_ITEM_ID = "/{collectionId}/item/{id}";
+	public static final String COLLECTION_ITEM_ID = "/v3/collection/{collectionId}/item/{id}";
 
-	public static final String COLLECTION_QUESTION = "/{id}/question";
+	public static final String COLLECTION_QUESTION = "/v3/collection/{id}/question";
 
-	public static final String COLLECTION_RESOURCE = "/{id}/resource";
+	public static final String COLLECTION_RESOURCE = "/v3/collection/{id}/resource";
 	
 	public static final String SUBDOMAIN_STANDARDS = "/{id}/standards";
+		
+	public static final String CLASS_UNIT_COLLECTION_SETTINGS = "/{id}/course/{courseId}/unit/{unitId}";
 	
-	public static final String CLASS_UNIT = "/{id}/course/{courseId}/unit";
+	public static final String V3_COLLECTION_ID = "/v3/collection/{id}";
 	
-	public static final String CLASS_UNIT_COLLECTION_SETTINGS = "/{id}/course/{courseId}/unit/{unitId}/lesson";
+	public static final String V3_COLLECTION = "/v3/collection";
+	
+	public static final String V3_SOURCE_COLLECTION_ID = "/v3/sourceCollection/{id}";
+	
+	public static final String CLASS_UNIT_LESSON_COLLECTION = "/{id}/course/{courseId}/unit/{unitId}/lesson/{lessonId}/collection";
 
 }

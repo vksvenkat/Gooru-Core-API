@@ -33,8 +33,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 @Service
 public class UnitServiceImpl extends AbstractCollectionServiceImpl implements UnitService, ConstantProperties, ParameterProperties {
 
-	private static final String[] UNIT_TYPE = { "unit" };
-
 	@Autowired
 	private SubdomainRepository subdomainRepository;
 
@@ -43,7 +41,7 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 	public ActionResponseDTO<Collection> createUnit(String courseId, Collection collection, User user) {
 		final Errors errors = validateUnit(collection);
 		if (!errors.hasErrors()) {
-			Collection parentCollection = getCollectionDao().getCollectionByType(courseId, COURSE);
+			Collection parentCollection = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 			rejectIfNull(collection, GL0056, COURSE);
 			collection.setSharing(Sharing.PRIVATE.getSharing());
 			collection.setCollectionType(CollectionType.UNIT.getCollectionType());
@@ -59,9 +57,9 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateUnit(String courseId, String unitId, Collection newCollection, User user) {
-		Collection collection = getCollectionDao().getCollectionByType(unitId, UNIT);
+		Collection collection = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
 		rejectIfNull(collection, GL0056, UNIT);
-		Collection parentCollection = getCollectionDao().getCollectionByType(courseId, COURSE);
+		Collection parentCollection = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(collection, GL0056, COURSE);
 		if(newCollection.getPosition() != null){
 			this.resetSequence(parentCollection, collection.getGooruOid() , newCollection.getPosition());
@@ -97,10 +95,10 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteUnit(String courseId, String unitId, User user) {
-		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT);
+		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
 		rejectIfNull(unit, GL0056, UNIT);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(unitId, user), GL0099, 403, UNIT);
-		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE);
+		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(course, GL0056, COURSE);
 		this.deleteValidation(unit.getContentId(), UNIT);
 		this.resetSequence(courseId, unit.getGooruOid());
@@ -159,7 +157,6 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 			List<Map<String, Object>> taxonomyCourse = updateTaxonomyCourse(collection, newCollection.getTaxonomyCourseIds());
 			data.put(TAXONOMY_COURSE, taxonomyCourse);
 		}
-
 		return data;
 	}
 

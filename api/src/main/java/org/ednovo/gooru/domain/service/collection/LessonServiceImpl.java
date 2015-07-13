@@ -24,16 +24,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 @Service
 public class LessonServiceImpl extends AbstractCollectionServiceImpl implements LessonService {
 
-	private static final String[] LESSON_TYPE = { "lesson" };
-
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Collection> createLesson(String courseId, String unitId, Collection collection, User user) {
 		final Errors errors = validateLesson(collection);
 		if (!errors.hasErrors()) {
-			Collection course = getCollectionDao().getCollectionByType(courseId, COURSE);
+			Collection course = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 			rejectIfNull(course, GL0056,404, COURSE);
-			Collection parentCollection = getCollectionDao().getCollectionByType(unitId, UNIT);
+			Collection parentCollection = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
 			rejectIfNull(parentCollection, GL0056,404, UNIT);
 			collection.setSharing(Sharing.PRIVATE.getSharing());
 			collection.setCollectionType(CollectionType.LESSON.getCollectionType());
@@ -51,7 +49,7 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 	public void updateLesson(String unitId, String lessonId, Collection newCollection, User user) {
 		Collection collection = this.getCollectionDao().getCollection(lessonId);
 		rejectIfNull(collection, GL0056,404, LESSON);
-		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT);
+		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
 		rejectIfNull(unit, GL0056,404, UNIT);
 		this.updateCollection(collection, newCollection, user);
 		if(newCollection.getPosition() != null){
@@ -68,12 +66,12 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteLesson(String courseId, String unitId, String lessonId, User user) {
-		Collection lesson = getCollectionDao().getCollectionByType(lessonId, LESSON);
+		Collection lesson = getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
 		rejectIfNull(lesson, GL0056,404, LESSON);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(lessonId, user), GL0099, 403, LESSON);
-		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE);
+		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(course, GL0056,404, COURSE);
-		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT);
+		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
 		rejectIfNull(unit, GL0056,404, UNIT);
 		this.deleteValidation(lesson.getContentId(), LESSON);
 		this.resetSequence(unitId, lesson.getGooruOid());

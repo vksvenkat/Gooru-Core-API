@@ -417,25 +417,14 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 					collection.setPublishStatusId(null);
 				}
-				/*
-				 * if
-				 * (!collection.getCollectionType().equalsIgnoreCase(ResourceType
-				 * .Type.ASSESSMENT_URL.getType()) &&
-				 * newCollection.getSharing().equalsIgnoreCase(PUBLIC) &&
-				 * !userService.isContentAdmin(apiCallerUser)) {
-				 * collection.setPublishStatus
-				 * (this.getCustomTableRepository().getCustomTableValue
-				 * (_PUBLISH_STATUS, PENDING));
-				 * newCollection.setSharing(collection.getSharing()); } if
-				 * (collection
-				 * .getCollectionType().equalsIgnoreCase(ResourceType.
-				 * Type.ASSESSMENT_URL.getType()) ||
-				 * newCollection.getSharing().equalsIgnoreCase(PUBLIC) &&
-				 * userService.isContentAdmin(apiCallerUser)) {
-				 * collection.setPublishStatus
-				 * (this.getCustomTableRepository().getCustomTableValue
-				 * (_PUBLISH_STATUS, REVIEWED)); }
-				 */
+				
+				 if (!collection.getCollectionType().equalsIgnoreCase(ResourceType .Type.ASSESSMENT_URL.getType()) && newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(apiCallerUser)){ 
+					 collection.setPublishStatusId(Constants.PUBLISH_PENDING_STATUS_ID);
+					 newCollection.setSharing(collection.getSharing());
+				 } 
+				 if (collection .getCollectionType().equalsIgnoreCase(ResourceType. Type.ASSESSMENT_URL.getType()) || newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(apiCallerUser)) {
+					 collection.setPublishStatusId(Constants.PUBLISH_REVIEWED_STATUS_ID);
+				 }
 
 				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
 					final UserSummary userSummary = this.getUserRepository().getSummaryByUid(apiCallerUser.getPartyUid());
@@ -1619,13 +1608,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					collection.setPublishStatusId(null);
 				}
 				if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(updateUser)) {
-					// collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS,
-					// PENDING));
+					 collection.setPublishStatusId(Constants.PUBLISH_PENDING_STATUS_ID);
 					newCollection.setSharing(collection.getSharing());
 				}
 				if (collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) || newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(updateUser)) {
-					// collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS,
-					// REVIEWED));
+					collection.setPublishStatusId(Constants.PUBLISH_REVIEWED_STATUS_ID);
 				}
 				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 					final UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());

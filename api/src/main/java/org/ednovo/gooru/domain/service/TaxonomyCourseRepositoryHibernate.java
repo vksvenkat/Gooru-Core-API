@@ -45,7 +45,7 @@ public class TaxonomyCourseRepositoryHibernate extends BaseRepositoryHibernate i
 
 	private static final String GET_MAX = "SELECT COALESCE(MAX(displaySequence),0) FROM TaxonomyCourse";
 
-	private static final String GET_DOMAINS = "select d.domain_id as domainId,d.name, d.image_path as imagePath, s.subdomain_id as subdomainId from domain d join subdomain s on s.domain_id=d.domain_id join course c on s.course_id=c.course_id where c.course_id=:courseId";
+	private static final String GET_DOMAINS = "select d.domain_id as domainId,d.name, d.image_path as imagePath, s.subdomain_id as subdomainId, s.description, c.subject_id as subjectId, c.course_id as courseId  from domain d join subdomain s on s.domain_id=d.domain_id inner join course c on s.course_id=c.course_id where c.course_id=:courseId";
 
 	private static final String GET_TAXONOMY_COURSES = "FROM TaxonomyCourse c  WHERE c.courseId  in (:courseId)";
 

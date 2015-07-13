@@ -202,41 +202,48 @@ public class Constants implements ParameterProperties {
 
 	public static final String TWENTY_FIRST_CENTURY_SKILLS = "21st_century_skills";
 
-	public  static final String OAUTH_ACCESS_TOKEN = "oauthAccessToken";
+	public static final String OAUTH_ACCESS_TOKEN = "oauthAccessToken";
 
-	public  static  final String APPLICATION_KEY = "applicationKey";
-	
+	public static final String APPLICATION_KEY = "applicationKey";
+
 	public static final String SESSION = "session";
-	
+
 	public static final String GOORU_API_KEY = "Gooru-ApiKey";
-	
+
 	public static final String GOORU_SESSION_TOKEN = "Gooru-Session-Token";
-	
+
 	public static final Map<String, String> REINDEX_TYPES;
-	
+
 	private static final String TOPIC_RESOURCE = "resourceQueue14";
 
 	private static final String TOPIC_SCOLLECTION = "scollectionQueue14";
 
 	private static final String TOPIC_USER = "userQueue14";
-	
+
 	private static final String TYPE_USER = "user";
-	
+
 	public static final Map<Object, String> CLASSIFICATION_TYPE;
-	
+
 	public static final Map<String, String> COLLECTION_DEFAULT_SETTINGS;
-	
+
 	public static final Map<Object, String> BUILD_TYPE;
-	
+
 	public static final Map<Object, String> PUBLISH_STATUS;
-	
+
 	public static final Short PUBLISH_PENDING_STATUS_ID = 244;
 	
+	public static final short PUBLISH_REVIEWED_STATUS_ID = 245;
+
 	public static final Short BUILD_WEB_TYPE_ID = 78;
-	
+
 	public static final Short BUILD_IPAD_TYPE_ID = 77;
-	
-	
+
+	public static final Map<Object, String> SCORE_TYPE;
+
+	public static final Short SCORE_TYPE_SELF_REPORTED = 1;
+
+	public static final Short SCORE_TYPE_COMPUTER_SCORED = 2;
+
 	static {
 		Map<String, String> reindexType = new HashMap<String, String>();
 		reindexType.put(RESOURCE, TOPIC_RESOURCE);
@@ -244,8 +251,8 @@ public class Constants implements ParameterProperties {
 		reindexType.put(TYPE_USER, TOPIC_USER);
 		REINDEX_TYPES = Collections.unmodifiableMap(reindexType);
 	}
-	
-	static{
+
+	static {
 		Map<Object, String> classificationTypeId = new HashMap<Object, String>();
 		classificationTypeId.put(1, "K-12");
 		classificationTypeId.put(2, "Higher Education");
@@ -253,24 +260,31 @@ public class Constants implements ParameterProperties {
 		CLASSIFICATION_TYPE = Collections.unmodifiableMap(classificationTypeId);
 	}
 
-	static{
+	static {
 		Map<String, String> collectionDefaultSettings = new HashMap<String, String>();
 		collectionDefaultSettings.put("comment", "turn-on");
 		COLLECTION_DEFAULT_SETTINGS = Collections.unmodifiableMap(collectionDefaultSettings);
 	}
-	
-	static{
+
+	static {
 		Map<Object, String> buildType = new HashMap<Object, String>();
-		buildType.put((short)78, "ipad");
-		buildType.put((short)77, "web");
+		buildType.put((short) 78, "ipad");
+		buildType.put((short) 77, "web");
 		BUILD_TYPE = Collections.unmodifiableMap(buildType);
 	}
-	
-	static{
+
+	static {
 		Map<Object, String> publishStatus = new HashMap<Object, String>();
-		publishStatus.put((short)244, "pending");
-		publishStatus.put((short)245, "reviewed");
+		publishStatus.put((short) 244, "pending");
+		publishStatus.put((short) 245, "reviewed");
 		PUBLISH_STATUS = Collections.unmodifiableMap(publishStatus);
 	}
-	
+
+	static {
+		Map<Object, String> scoreType = new HashMap<Object, String>();
+		scoreType.put(SCORE_TYPE_SELF_REPORTED, "Self reported");
+		scoreType.put(SCORE_TYPE_COMPUTER_SCORED, "Computer scored");
+		SCORE_TYPE = Collections.unmodifiableMap(scoreType);
+	}
+
 }

@@ -7,9 +7,10 @@ public class ClassCollectionSettings implements Serializable {
 	private static final long serialVersionUID = -3271310636333972691L;
 
 	private Long classId;
-	private Long lessonId;
 	private Long collectionId;
 	private String value;
+	private Boolean visibility;
+	private Short scoreTypeId;
 
 	public Long getCollectionId() {
 		return collectionId;
@@ -35,12 +36,20 @@ public class ClassCollectionSettings implements Serializable {
 		this.classId = classId;
 	}
 
-	public Long getLessonId() {
-		return lessonId;
+	public Boolean getVisibility() {
+		return visibility;
 	}
 
-	public void setLessonId(Long lessonId) {
-		this.lessonId = lessonId;
+	public void setVisibility(Boolean visibility) {
+		this.visibility = visibility;
+	}
+
+	public Short getScoreTypeId() {
+		return scoreTypeId;
+	}
+
+	public void setScoreTypeId(Short scoreTypeId) {
+		this.scoreTypeId = scoreTypeId;
 	}
 
 }
