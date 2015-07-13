@@ -122,6 +122,13 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
+	@RequestMapping(value = RequestMappingUri.CLASS_UNIT, method = RequestMethod.GET)
+	public ModelAndView getClassUnit(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId,
+			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request, final HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(this.getClassService().getClassUnits(courseId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, INCLUDE_CONTENT);
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@RequestMapping(value = RequestMappingUri.CLASS_UNIT_LESSON_COLLECTION, method = RequestMethod.GET)
 	public ModelAndView getClassCollection(@PathVariable(ID) final String classUid, @PathVariable(COURSE_ID) final String courseId, @PathVariable(UNIT_ID) final String unitId, @PathVariable(LESSON_ID) final String lessonId,
 			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request, final HttpServletResponse response) {

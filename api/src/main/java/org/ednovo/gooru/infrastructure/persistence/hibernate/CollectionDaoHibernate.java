@@ -42,7 +42,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 
 	private final static String GET_COLLECTIONITEM_BY_SEQUENCE = "FROM CollectionItem where collection.gooruOid=:gooruOid and content.contentType.name=:collectionType and itemSequence>:sequence order by itemSequence";
 
-	private static final String COLLECTIONITEM_BY_USERUID = "FROM CollectionItem ci where ci.content.gooruOid=:gooruOid and ci.associatedUser=:user";
+	private static final String COLLECTIONITEM_BY_USERUID = "FROM CollectionItem ci where ci.content.gooruOid=:gooruOid and ci.associatedUser.partyUid=:partyUid";
 
 	private static final String GET_PARENTCOLLECTION = "FROM CollectionItem ci where ci.content.contentId=:contentId";
 	
@@ -195,7 +195,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	public CollectionItem getCollectionItemById(String gooruOid, User user) {
 		Query query = getSession().createQuery(COLLECTIONITEM_BY_USERUID);
 		query.setParameter(GOORU_OID, gooruOid);
-		query.setParameter(USER, user);
+		query.setParameter(PARTY_UID, user.getPartyUid());
 		return (CollectionItem) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
