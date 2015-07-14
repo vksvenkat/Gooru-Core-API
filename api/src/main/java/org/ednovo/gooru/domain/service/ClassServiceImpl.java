@@ -17,6 +17,7 @@ import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.InviteUser;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserClass;
+import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ConfigConstants;
@@ -79,12 +80,21 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 			userClass.setUserUid(user.getGooruUId());
 			userClass.setPartyType(GROUP);
 			userClass.setCreatedOn(new Date(System.currentTimeMillis()));
-			userClass.setGroupCode(BaseUtil.generateBase48Encode(7));
+			String classCode = validateClassCode(BaseUtil.generateBase48Encode(7));
+			userClass.setGroupCode(classCode);
 			this.getClassRepository().save(userClass);
 		}
 		return new ActionResponseDTO<UserClass>(userClass, errors);
 	}
 
+	private String validateClassCode(String classCode) {
+		Map<String, Object> userClass = getClassRepository().getClassByCode(classCode);
+		if (userClass == null) {
+			return classCode;
+		} else {
+			return BaseUtil.generateBase48Encode(7);
+		}
+	}
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateClass(String classUId, UserClass newUserClass, User user) {
@@ -183,16 +193,12 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	public Map<String, Object> getMember(String classUid, int limit, int offset) {
 		final List<Map<String, Object>> members = this.getClassRepository().getMember(classUid, limit, offset);
 		Map<String, Object> searchResults = new HashMap<String, Object>();
-		List<Map<String, Object>> memberList = new ArrayList<Map<String, Object>>();
 		Integer count = 0;
 		if (members != null && members.size() > 0) {
-			for (Map<String, Object> result : members) {
-				memberList.add(setClass(result));
-			}
 			count = this.getClassRepository().getMemeberCount(classUid);
 		}
 		searchResults.put(TOTAL_HIT_COUNT, count);
-		searchResults.put(SEARCH_RESULT, memberList);
+		searchResults.put(SEARCH_RESULT, members);
 		return searchResults;
 	}
 
@@ -342,6 +348,11 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		return lessonList;
 	}
 
+	@Override
+	public List<Map<String, Object>> getClassUnits(String courseId, int limit, int offset) {
+		return getClassRepository().getCollectionItem(courseId, limit, offset);
+	}
+	
 	@Override
 	public Map<String, Object> getClassCollections(String lessonId, int limit, int offset) {
 		Map<String, Object> lesson = this.getLessonService().getLesson(lessonId);

@@ -36,13 +36,13 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 
 	private static final String GET_COLLECTION_ITEM_COUNT = "select count(1) as count from collection_item ci inner join collection  c  on c.content_id = ci.collection_content_id inner join collection co on ci.resource_content_id  = co.content_id   where c.content_id =:collectionId and co.collection_type =:collectionType";
 
-	private static final String GET_COLLECTION_SEQUENCE = "FROM CollectionItem ci where ci.collection.gooruOid=:gooruOid and content.contentType.name=:collectionType and ci.itemSequence between :parameterOne and :parameterTwo order by ci.itemSequence";
+	private static final String GET_COLLECTION_SEQUENCE = "FROM CollectionItem ci where ci.collection.gooruOid=:gooruOid and ci.associatedUser.partyUid=:userUid and ci.itemSequence between :parameterOne and :parameterTwo order by ci.itemSequence";
 
-	private static final String GET_COLLECTIONITEM_BY_GOORUOID = "FROM CollectionItem where content.gooruOid=:gooruOid and collection.gooruOid=:parentGooruOid";
+	private static final String GET_COLLECTIONITEM_BY_GOORUOID = "FROM CollectionItem where content.gooruOid=:gooruOid and collection.gooruOid=:parentGooruOid and associatedUser.partyUid=:userUid";
 
-	private final static String GET_COLLECTIONITEM_BY_SEQUENCE = "FROM CollectionItem where collection.gooruOid=:gooruOid and content.contentType.name=:collectionType and itemSequence>:sequence order by itemSequence";
+	private final static String GET_COLLECTIONITEM_BY_SEQUENCE = "FROM CollectionItem where collection.gooruOid=:parentId and associatedUser.partyUid=:userUid and itemSequence>:sequence order by itemSequence";
 
-	private static final String COLLECTIONITEM_BY_USERUID = "FROM CollectionItem ci where ci.content.gooruOid=:gooruOid and ci.associatedUser=:user";
+	private static final String COLLECTIONITEM_BY_USERUID = "FROM CollectionItem ci where ci.content.gooruOid=:gooruOid and ci.associatedUser.partyUid=:partyUid";
 
 	private static final String GET_PARENTCOLLECTION = "FROM CollectionItem ci where ci.content.contentId=:contentId";
 	
@@ -165,29 +165,30 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	}
 
 	@Override
-	public List<CollectionItem> getCollectionItems(String gooruOid, int parameterOne, int parameterTwo, String collectionType){ 
+	public List<CollectionItem> getCollectionItems(String gooruOid, int parameterOne, int parameterTwo, String userUid){ 
 		Query query = getSession().createQuery(GET_COLLECTION_SEQUENCE);
 		query.setParameter(PARAMETER_ONE, parameterOne);
 		query.setParameter(PARAMETER_TWO, parameterTwo);
-		query.setParameter(COLLECTION_TYPE, collectionType);
 		query.setParameter(GOORU_OID, gooruOid);
+		query.setParameter(USER_UID, userUid);
 		return list(query);
 	}
 
 	@Override
-	public CollectionItem getCollectionItem(String parentGooruOid, String gooruOid) {
+	public CollectionItem getCollectionItem(String parentGooruOid, String gooruOid, String userUid) {
 		Query query = getSession().createQuery(GET_COLLECTIONITEM_BY_GOORUOID);
 		query.setParameter(GOORU_OID, gooruOid);
 		query.setParameter(PARENT_GOORU_OID, parentGooruOid);
+		query.setParameter(USER_UID, userUid);
 		return (query.list().size() > 0) ? (CollectionItem) query.list().get(0) : null;
 	}
 
 	@Override
-	public List<CollectionItem> getCollectionItems(String gooruOid, int sequence, String collectionType) {
+	public List<CollectionItem> getCollectionItems(String parentId, int sequence, String userUid) {
 		Query query = getSession().createQuery(GET_COLLECTIONITEM_BY_SEQUENCE);
-		query.setParameter(GOORU_OID, gooruOid);
+		query.setParameter(PARENT_ID, parentId);
 		query.setParameter(SEQUENCE, sequence);
-		query.setParameter(COLLECTION_TYPE, collectionType);
+		query.setParameter(USER_UID, userUid);
 		return list(query);
 	}
 
@@ -195,7 +196,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	public CollectionItem getCollectionItemById(String gooruOid, User user) {
 		Query query = getSession().createQuery(COLLECTIONITEM_BY_USERUID);
 		query.setParameter(GOORU_OID, gooruOid);
-		query.setParameter(USER, user);
+		query.setParameter(PARTY_UID, user.getPartyUid());
 		return (CollectionItem) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
@@ -211,7 +212,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 		query.setParameter(COLLECTION_ITEM_ID, collectionItemId);
 		return (CollectionItem) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
-
+	
 	@Override
 	public List<CollectionItem> getCollectionItems(String collectionId) {
 		Query query = getSession().createQuery(GET_COLLECTION_ITEM_LIST);

@@ -878,6 +878,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (includeMetaInfo) {
 				this.setCollectionMetaData(collection, user, merge, false, rootNodeId, includeViewCount, includeContentProvider, includeCustomFields);
 			}
+			
 
 			if (collection.getUser() != null) {
 				collection.getUser().setProfileImageUrl(this.getUserService().buildUserProfileImageUrl(collection.getUser()));
