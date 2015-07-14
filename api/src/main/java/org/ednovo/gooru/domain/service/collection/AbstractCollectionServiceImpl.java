@@ -335,12 +335,16 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 					contentClassifications.add(contentClassification);
 					Map<String, Object> assocCode = new HashMap<String, Object>();
 					assocCode.put(ID, code.getCodeId());
-					assocCode.put(ROOT_NODE_ID, code.getRootNodeId());
-					String displayCode = code.getCommonCoreDotNotation();
-					if (displayCode == null) {
-						displayCode = code.getdisplayCode();
+					if (typeId.equals(MetaConstants.CONTENT_CLASSIFICATION_STANDARD_TYPE_ID)) {
+						assocCode.put(ROOT_NODE_ID, code.getRootNodeId());
+						String displayCode = code.getCommonCoreDotNotation();
+						if (displayCode == null) {
+							displayCode = code.getdisplayCode();
+						}
+						assocCode.put(CODE, displayCode);
+					} else if (typeId.equals(MetaConstants.CONTENT_CLASSIFICATION_SKILLS_TYPE_ID)) { 
+						assocCode.put(LABEL, code.getLabel());
 					}
-					assocCode.put(CODE, displayCode);
 					codes.add(assocCode);
 				}
 				this.getContentRepository().saveAll(contentClassifications);
