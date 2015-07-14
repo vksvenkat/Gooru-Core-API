@@ -521,8 +521,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			}
 		}
 
-		folderItem.put(COLLECTION_ITEMS, getCollectionItem(collectionGooruOid, sharing, typeName, collectionType, itemLimit, fetchChildItem, orderBy, excludeType));
-		folderItem.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(collectionGooruOid, sharing, collectionType, excludeType));
 		Object data = folderItem.get(DATA);
 		if (data != null) {
 			folderItem.put(SETTINGS, JsonDeserializer.deserialize(String.valueOf(data), new TypeReference<Map<String, String>>() {
@@ -541,8 +539,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		List<Map<String, Object>> folderList = new ArrayList<Map<String, Object>>();
 		if (folderItems != null) {
 			for (Map<String, Object> folderItem : folderItems) {
-				setFolderItem(folderItem, sharing, collectionType, itemLimit, fetchChildItem, orderBy, excludeType);
-				folderList.add(folderItem);
+				folderList.add(setFolderItem(folderItem, sharing, collectionType, itemLimit, fetchChildItem, orderBy, excludeType));
 			}
 		}
 		return folderList;
