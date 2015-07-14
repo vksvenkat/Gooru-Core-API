@@ -68,26 +68,6 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ActionResponseDTO<Collection> createCollection(User user, Collection collection) {
-		if (collection.getBuildTypeId() != null) {
-			collection.setBuildTypeId(Constants.BUILD_WEB_TYPE_ID);
-		}
-		final Errors errors = validateCollection(collection);
-		if (!errors.hasErrors()) {
-			Collection parentCollection = getCollectionDao().getCollection(user.getPartyUid(), CollectionType.SHElf.getCollectionType());
-			if (parentCollection == null) {
-				parentCollection = new Collection();
-				parentCollection.setCollectionType(CollectionType.SHElf.getCollectionType());
-				parentCollection.setTitle(CollectionType.SHElf.getCollectionType());
-				super.createCollection(parentCollection, user);
-				createCollection(user, collection, parentCollection);
-			}
-		}
-		return new ActionResponseDTO<Collection>(collection, errors);
-	}
-
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollection(String courseId, String unitId, String lessonId, String collectionId, User user) {
 		CollectionItem collection = this.getCollectionDao().getCollectionItem(lessonId ,collectionId, user.getPartyUid());
 		rejectIfNull(collection, GL0056, 404, COLLECTION);
@@ -125,6 +105,33 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public ActionResponseDTO<Collection> createCollection(String folderId, User user, Collection collection) {
+		if (collection.getBuildTypeId() != null) {
+			collection.setBuildTypeId(Constants.BUILD_WEB_TYPE_ID);
+		}
+		final Errors errors = validateCollection(collection);
+		if (!errors.hasErrors()) {
+			Collection targetCollection = null;
+			if (folderId != null) {
+				targetCollection = this.getCollectionDao().getCollectionByType(folderId, FOLDER_TYPE);
+				rejectIfNull(targetCollection, GL0056, 404, FOLDER);
+
+			} else {
+				targetCollection = getCollectionDao().getCollection(user.getPartyUid(), CollectionType.SHElf.getCollectionType());
+				if (targetCollection == null) {
+					targetCollection = new Collection();
+					targetCollection.setCollectionType(CollectionType.SHElf.getCollectionType());
+					targetCollection.setTitle(CollectionType.SHElf.getCollectionType());
+					super.createCollection(targetCollection, user);
+				}
+			}
+			createCollection(user, collection, targetCollection);
+		}
+		return new ActionResponseDTO<Collection>(collection, errors);
+	}
+
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateCollection(String collectionId, Collection newCollection, User user) {
 		boolean hasUnrestrictedContentAccess = this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user);
 		// TO-Do add validation for collection type and collaborator validation
@@ -133,17 +140,20 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 				collection.setPublishStatusId(null);
 			}
-			if (!collection.getCollectionType().equalsIgnoreCase(ResourceType .Type.ASSESSMENT_URL.getType()) && newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(user)){ 
-				 collection.setPublishStatusId(Constants.PUBLISH_PENDING_STATUS_ID);
-				 newCollection.setSharing(collection.getSharing());
-			 } 
-			 if (collection .getCollectionType().equalsIgnoreCase(ResourceType. Type.ASSESSMENT_URL.getType()) || newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(user)) {
-				 collection.setPublishStatusId(Constants.PUBLISH_REVIEWED_STATUS_ID);
-			 }
+			if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(user)) {
+				collection.setPublishStatusId(Constants.PUBLISH_PENDING_STATUS_ID);
+				newCollection.setSharing(collection.getSharing());
+			}
+			if (collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) || newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(user)) {
+				collection.setPublishStatusId(Constants.PUBLISH_REVIEWED_STATUS_ID);
+			}
 			collection.setSharing(newCollection.getSharing());
 		}
 		if (newCollection.getSettings() != null) {
 			updateCollectionSettings(collection, newCollection);
+		}
+		if (newCollection.getLanguageObjective() != null) {
+			collection.setLanguageObjective(newCollection.getLanguageObjective());
 		}
 		if (hasUnrestrictedContentAccess) {
 			if (newCollection.getCreator() != null && newCollection.getCreator().getPartyUid() != null) {
@@ -376,6 +386,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				super.createCollection(targetCollection, user);
 			}
 		}
+		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		moveCollection(collectionId, targetCollection, user);
 	}
 
@@ -389,8 +400,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		}
 		String collectionType = getParentCollection(sourceCollectionItem.getContent().getContentId(), sourceCollectionItem.getContent().getContentType().getName(), collectionId, targetCollection);
 		String contentType = null;
-		if(collectionType.equalsIgnoreCase(LESSON)){
-			contentType =  sourceCollectionItem.getContent().getContentType().getName();
+		if (collectionType.equalsIgnoreCase(LESSON)) {
+			contentType = sourceCollectionItem.getContent().getContentType().getName();
 		}
 		createCollectionItem(collectionItem, targetCollection, sourceCollectionItem.getContent(), user);
 		resetSequence(sourceCollectionItem.getCollection().getGooruOid(), sourceCollectionItem.getContent().getGooruOid(), user.getPartyUid());
@@ -400,7 +411,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	private String getParentCollection(Long collectionId, String collectionType, String gooruOid, Collection targetCollection) {
 		CollectionItem lesson = this.getCollectionDao().getParentCollection(collectionId);
-		reject(!(lesson.getCollection().getGooruOid().equalsIgnoreCase(targetCollection.getGooruOid())),GL0111, 404, lesson.getCollection().getCollectionType());
+		reject(!(lesson.getCollection().getGooruOid().equalsIgnoreCase(targetCollection.getGooruOid())), GL0111, 404, lesson.getCollection().getCollectionType());
 		if (lesson.getCollection().getCollectionType().equalsIgnoreCase(LESSON)) {
 			CollectionItem unit = this.getCollectionDao().getParentCollection(lesson.getCollection().getContentId());
 			CollectionItem course = this.getCollectionDao().getParentCollection(unit.getCollection().getContentId());
@@ -549,6 +560,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollectionItem(String collectionId, String collectionItemId, String userUid) {
 		CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(collectionId, collectionItemId, userUid);
 		rejectIfNull(collectionItem, GL0056, 404, _COLLECTION_ITEM);
@@ -556,6 +568,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(resource, GL0056, 404, RESOURCE);
 		String contentType = resource.getContentType().getName();
 		Long collectionContentId = collectionItem.getCollection().getContentId();
+		this.resetSequence(collectionId, collectionItemId, userUid);
 		if (contentType.equalsIgnoreCase(QUESTION)) {
 			getCollectionDao().remove(resource);
 		} else {

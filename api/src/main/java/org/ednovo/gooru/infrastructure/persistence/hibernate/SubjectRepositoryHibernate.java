@@ -40,36 +40,38 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate
 	private static final String SUBJECT_MAX = "SELECT COALESCE(MAX(displaySequence),0) FROM Subject";
 	private static final String SUBJECTS = "FROM Subject subject where subject.activeFlag=1";
 	private static final String SUBJECT = "FROM Subject subject WHERE subject.subjectId=:subjectId";
-    private static final String COURSES = "select c.course_id courseId,c.name,c.image_path imagePath from subject s inner join course c on s.subject_id=c.subject_id where s.subject_id=:subjectId";
-	
-   
+	private static final String COURSES = "select c.course_id courseId,c.name,c.image_path imagePath from subject s inner join course c on s.subject_id=c.subject_id where s.subject_id=:subjectId";
+
 	@Override
 	public Subject getSubject(Integer subjectId) {
-		Query query = getSession().createQuery(SUBJECT).setParameter(SUBJECT_ID, subjectId);
+		Query query = getSession().createQuery(SUBJECT).setParameter(
+				SUBJECT_ID, subjectId);
 		return (Subject) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 	@Override
-	public  List<Map<String,Object>> getCourses(int offset, int limit, int subjectId) {
-		Query query = getSession().createSQLQuery(COURSES)
-				.setParameter(SUBJECT_ID, subjectId);
-	     query.setMaxResults(limit != 0 ? (limit > MAX_LIMIT ? MAX_LIMIT
-				: limit) : limit);
-				 query.setFirstResult(offset);
-				 query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
-		return  list(query);
+	public List<Map<String, Object>> getCourses(int offset, int limit,
+			int subjectId) {
+		Query query = getSession().createSQLQuery(COURSES).setParameter(
+				SUBJECT_ID, subjectId);
+		query.setMaxResults(limit != 0 ? (limit > MAX_LIMIT ? MAX_LIMIT : limit)
+				: limit);
+		query.setFirstResult(offset);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		return list(query);
 	}
-	
-	
-	public List<Subject> getSubjects(Integer classificationTypeId,Integer limit, Integer offset) {
+
+	public List<Subject> getSubjects(Integer classificationTypeId, int limit,
+			int offset) {
 		StringBuilder hql = new StringBuilder(SUBJECTS);
-		if(classificationTypeId != null){
+		if (classificationTypeId != null) {
 			hql.append("and subject.classificationTypeId=:classificationTypeId");
 		}
 		Query query = getSession().createQuery(hql.toString());
-		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT: limit) : limit);
+		query.setMaxResults(limit != 0 ? (limit > MAX_LIMIT ? MAX_LIMIT : limit)
+				: limit);
 		query.setFirstResult(offset);
-		if(classificationTypeId != null){
+		if (classificationTypeId != null) {
 			query.setParameter(CLASSIFICATION_TYPE_ID, classificationTypeId);
 		}
 		return list(query);
