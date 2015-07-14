@@ -336,7 +336,11 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 					Map<String, Object> assocCode = new HashMap<String, Object>();
 					assocCode.put(ID, code.getCodeId());
 					assocCode.put(ROOT_NODE_ID, code.getRootNodeId());
-					assocCode.put(CODE, code.getCode());
+					String displayCode = code.getCommonCoreDotNotation();
+					if (displayCode == null) {
+						displayCode = code.getdisplayCode();
+					}
+					assocCode.put(CODE, displayCode);
 					codes.add(assocCode);
 				}
 				this.getContentRepository().saveAll(contentClassifications);

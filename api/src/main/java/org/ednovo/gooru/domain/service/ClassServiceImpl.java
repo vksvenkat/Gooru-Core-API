@@ -17,6 +17,7 @@ import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.InviteUser;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserClass;
+import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ConfigConstants;
@@ -79,12 +80,21 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 			userClass.setUserUid(user.getGooruUId());
 			userClass.setPartyType(GROUP);
 			userClass.setCreatedOn(new Date(System.currentTimeMillis()));
-			userClass.setGroupCode(BaseUtil.generateBase48Encode(7));
+			String classCode = validateClassCode(BaseUtil.generateBase48Encode(7));
+			userClass.setGroupCode(classCode);
 			this.getClassRepository().save(userClass);
 		}
 		return new ActionResponseDTO<UserClass>(userClass, errors);
 	}
 
+	private String validateClassCode(String classCode) {
+		Map<String, Object> userClass = getClassRepository().getClassByCode(classCode);
+		if (userClass == null) {
+			return classCode;
+		} else {
+			return BaseUtil.generateBase48Encode(7);
+		}
+	}
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateClass(String classUId, UserClass newUserClass, User user) {
