@@ -39,6 +39,21 @@ public class CollectionRestV3Controller extends BaseController implements Consta
 
 	private static final String INCLUDE_ITEMS = "includeItems";
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
+	@RequestMapping(value = { RequestMappingUri.V3_COLLECTION }, method = RequestMethod.POST)
+	public ModelAndView createCollection(@RequestBody final String data, @RequestParam(value = FOLDER_ID, required = false) final String folderId, final HttpServletRequest request, final HttpServletResponse response) {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final ActionResponseDTO<Collection> responseDTO = this.getCollectionBoService().createCollection(folderId, user, buildCollection(data));
+		if (responseDTO.getErrors().getErrorCount() > 0) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		} else {
+			response.setStatus(HttpServletResponse.SC_CREATED);
+			responseDTO.getModel().setUri(generateUri(request.getRequestURI(), responseDTO.getModel().getGooruOid()));
+		}
+		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	}
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
 	@RequestMapping(value = { RequestMappingUri.V3_COLLECTION_ID }, method = RequestMethod.PUT)
 	public void updateCollection(@PathVariable(value = ID) final String collectionId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
