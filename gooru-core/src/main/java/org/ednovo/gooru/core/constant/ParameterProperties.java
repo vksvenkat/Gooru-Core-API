@@ -2890,6 +2890,8 @@ public interface ParameterProperties {
 
 	String REFERER = "referer";
 	
+	String USER_PROFILE_CATEGORY = "userCategory";
+	
 	String MEDIA_FILES = "media_files";
 	
 	String ASSET_ANSWERS = "asset-answers";

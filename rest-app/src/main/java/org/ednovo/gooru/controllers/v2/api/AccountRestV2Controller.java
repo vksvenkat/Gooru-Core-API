@@ -38,6 +38,7 @@ import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
+import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -141,7 +142,9 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 		final JSONObject json = requestData(data);
 		SessionContextSupport.putLogParameter(EVENT_NAME, USER_AUTHENTICATE);
 		final User user = this.getAccountService().userAuthentication(buildUserFromInputParameters(data), getValue(SECERT_KEY, json), getValue(API_KEY, json) == null ? apiKey : getValue(API_KEY, json),
-				getValue(SOURCE, json) != null ? getValue(SOURCE, json) : UserAccountType.accountCreatedType.GOOGLE_APP.getType(), request);
+				getValue(SOURCE, json) != null ? getValue(SOURCE, json) : UserAccountType.accountCreatedType.GOOGLE_APP.getType(),
+						getValue(USER_PROFILE_CATEGORY, json) != null ? getValue(USER_PROFILE_CATEGORY, json) : UserRole.UserRoleType.OTHER.getType(),
+						request);
 		if (user.getIdentities() != null) {
 			final Identity identity = user.getIdentities().iterator().next();
 			if (identity.getActive() == 0) {
