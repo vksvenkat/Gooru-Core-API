@@ -58,7 +58,7 @@ public class CollectionRestV3Controller extends BaseController implements Consta
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_MOVE })
 	@RequestMapping(value = { RequestMappingUri.V3_SOURCE_COLLECTION_ID }, method = RequestMethod.PUT)
-	public void moveCollection(@PathVariable(value = ID) final String collectionId, @RequestParam(value = FOLDER_ID, required = false) final String folderId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+	public void moveCollection(@PathVariable(value = ID) final String collectionId, @RequestParam(value = FOLDER_ID, required = false) final String folderId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
 		getCollectionBoService().moveCollection(folderId, collectionId, user);
 	}

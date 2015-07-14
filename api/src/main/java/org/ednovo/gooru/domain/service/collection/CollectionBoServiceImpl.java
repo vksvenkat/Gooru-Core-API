@@ -145,6 +145,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if (newCollection.getSettings() != null) {
 			updateCollectionSettings(collection, newCollection);
 		}
+		if (newCollection.getLanguageObjective() != null) { 
+			collection.setLanguageObjective(newCollection.getLanguageObjective());
+		}
 		if (hasUnrestrictedContentAccess) {
 			if (newCollection.getCreator() != null && newCollection.getCreator().getPartyUid() != null) {
 				User creatorUser = getUserService().findByGooruId(newCollection.getCreator().getPartyUid());
@@ -376,6 +379,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				super.createCollection(targetCollection, user);
 			}
 		}
+		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		moveCollection(collectionId, targetCollection, user);
 	}
 
