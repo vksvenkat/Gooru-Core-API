@@ -431,7 +431,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	}
 
 	@Override
-	public User userAuthentication(User newUser, final String secretKey, final String apiKey, final String source, final HttpServletRequest request) {
+	public User userAuthentication(User newUser, final String secretKey, final String apiKey, final String source, final String userCategory, final HttpServletRequest request) {
 		if (secretKey == null || !secretKey.equalsIgnoreCase(settingService.getConfigSetting(ConfigConstants.GOORU_AUTHENTICATION_SECERT_KEY, 0, TaxonomyUtil.GOORU_ORG_UID))) {
 			throw new UnauthorizedException(generateErrorMessage("GL0082", "secret") + secretKey, "GL0082");
 		}
@@ -454,7 +454,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 						newUser.setUsername(newUser.getUsername() + randomNumber.nextInt(1000));
 					}
 				}
-				userIdentity = this.getUserManagementService().createUser(newUser, null, null, 1, 0, null, null, null, null, null, null, null, source, null, request, null, null);
+				userIdentity = this.getUserManagementService().createUser(newUser, null, null, 1, 0, null, null, null, null, null, null, null, source, null, request, userCategory, null);
 				registerUser = true;
 			} catch (Exception e) {
 				LOGGER.error("Error : " + e);

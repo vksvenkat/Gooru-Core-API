@@ -2933,5 +2933,7 @@ public interface ParameterProperties {
 	String HOST = "host";
 	
 	String REFERER = "referer";
+	
+	String USER_PROFILE_CATEGORY = "userCategory";
 }
 
