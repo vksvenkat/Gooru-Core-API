@@ -90,6 +90,8 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 	public void inviteUserForClass(List<String> emails, final String classUid, final User user) {
 		final UserClass userClass = this.getClassRepository().getClassById(classUid);
 		rejectIfNull(userClass, GL0056, 404, CLASS);
+		// To Do, Fix me
+
 		CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, PENDING);
 		List<String> emailIds = new ArrayList<String>();
 		User creator = getUserRepository().findByGooruId(userClass.getUserUid());
