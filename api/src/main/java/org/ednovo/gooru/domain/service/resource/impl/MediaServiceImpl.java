@@ -50,6 +50,7 @@ import org.ednovo.gooru.core.application.util.ImageUtil;
 import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ConfigConstants;
+import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
@@ -65,9 +66,9 @@ import com.mortennobel.imagescaling.AdvancedResizeOp;
 import com.mortennobel.imagescaling.ResampleOp;
 
 @Service
-public class MediaServiceImpl implements MediaService,ParameterProperties {
+public class MediaServiceImpl implements MediaService, ParameterProperties, ConstantProperties {
 	
-	@Autowired
+	@Autowired 
 	private SettingService settingService;
 	
 	

@@ -72,4 +72,6 @@ public interface ColumnFamilyConstant {
 	String LIVE_DASHBOARD = "live_dashboard";
 	
 	String ORGANIZATION = "organization";
+	
+	String SCOLLECTION = "scollection";
 }

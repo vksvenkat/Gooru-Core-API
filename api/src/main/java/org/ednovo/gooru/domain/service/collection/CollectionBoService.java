@@ -5,15 +5,45 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.User;
 
-public interface CollectionBoService {
-	ActionResponseDTO<Collection> createCollection(String lessonId, Collection collection, User user);
+public interface CollectionBoService extends AbstractCollectionService {
+	
+	ActionResponseDTO<Collection> createCollection(String courseId, String unitId, String lessonId, User user, Collection collection);
+	
+	ActionResponseDTO<Collection> createCollection(String folderId, User user, Collection collection);
 
 	void updateCollection(String collectionId, Collection newCollection, User user);
 
-	Map<String, Object> getCollection(String collectionId, String collectionType);
+	void updateCollectionItem(String collectionId, String collectionItemId, CollectionItem newCollectionItem, User user);
+
+	Map<String, Object> getCollection(String collectionId, String collectionType, User user, boolean includeItems);
 
 	List<Map<String, Object>> getCollections(String lessonId, String collectionType, int limit, int offset);
 
+	void deleteCollection(String courseUId, String unitUId, String lessonUId, String collectionId, User user);
+
+	List<Map<String, Object>> getCollectionItems(String collectionId, int limit, int offset);
+
+	ActionResponseDTO<CollectionItem> createResource(String collectionId, CollectionItem collectionItem, User user);
+
+	void updateResource(String collectionId, String resourceId, CollectionItem newCollectionItem, User user);
+
+	CollectionItem createQuestion(String collectionId, String data, User user);
+
+	void updateQuestion(String collectionId, String collectionQuestionItemId, String data, User user);
+
+	Map<String, Object> getCollectionItem(String collectionId, String collectionItemId);
+
+	CollectionItem addResource(String collectionId, String resourceId, User user);
+
+	CollectionItem addQuestion(String collectionId, String questionId, User user);
+
+	void moveCollection(String courseId, String unitId, String lessonId, String collectionId, User user);
+	
+	void deleteCollectionItem(String collectionId, String collectionItemId, String userUid);
+	
+	void moveCollection(String folderId, String collectionId, User user);
+	
 }

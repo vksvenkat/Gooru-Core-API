@@ -18,11 +18,8 @@ public class AssessmentQuestion extends Resource {
 	private static final String INDEX_TYPE = "question";
 
 	public static enum TYPE {
-		MULTIPLE_CHOICE("MC", "1"), SHORT_ANSWER("SA", "2"), 
-		TRUE_OR_FALSE("T/F", "3"), FILL_IN_BLANKS("FIB", "4"), 
-		MATCH_THE_FOLLOWING("MTF", "5"), OPEN_ENDED("OE", "6"), 
-		MULTIPLE_ANSWERS("MA", "7"), HOT_TEXT_HL("HT_HL", "8"),
-		HOT_TEXT_RO("HT_RO", "9"), HOT_SPOT("HS", "10");
+		MULTIPLE_CHOICE("MC", "1"), SHORT_ANSWER("SA", "2"), TRUE_OR_FALSE("T/F", "3"), FILL_IN_BLANKS("FIB", "4"), MATCH_THE_FOLLOWING("MTF", "5"), OPEN_ENDED("OE", "6"), MULTIPLE_ANSWERS("MA", "7"), HOT_TEXT_HL("HT_HL", "8"), HOT_TEXT_RO("HT_RO", "9"), HOT_SPOT_TEXT("HS_TXT", "10"), HOT_SPOT_IMAGES(
+				"HS_IMG", "11");
 
 		private String name;
 		private String id;
@@ -97,6 +94,24 @@ public class AssessmentQuestion extends Resource {
 
 	private String quizNetwork;
 
+	/*
+	 * These are the media files which are for answers only. They do not cater
+	 * to assets for questions and they are not stored in my sql. Hence they are
+	 * transient This transient value signifies the media files which are added
+	 * in current operation
+	 */
+	@Transient
+	private List<String> mediaFiles;
+
+	/*
+	 * These are the media files which are for answers only. They do not cater
+	 * to assets for questions and they are not stored in my sql. Hence they are
+	 * transient This transient value signifies the media files which are to be
+	 * deleted in current operation
+	 */
+	@Transient
+	private List<String> deletedMediaFiles;
+
 	public AssessmentQuestion() {
 	}
 
@@ -122,11 +137,9 @@ public class AssessmentQuestion extends Resource {
 
 	public void setType(String type) {
 		/*
-		 * TODO:
-		 * AM: In this block, if the type is invalid, we 
-		 * are just proceeding and not throwing back any
-		 * thing. Not sure if I should change this to throw
-		 * as some code may be working on this assumption.
+		 * TODO: AM: In this block, if the type is invalid, we are just
+		 * proceeding and not throwing back any thing. Not sure if I should
+		 * change this to throw as some code may be working on this assumption.
 		 * Should revisit later to verify and fix.
 		 */
 		if (type != null) {
@@ -149,8 +162,10 @@ public class AssessmentQuestion extends Resource {
 				typeName = TYPE.HOT_TEXT_HL.getName();
 			} else if (type.equalsIgnoreCase(TYPE.HOT_TEXT_RO.getId())) {
 				typeName = TYPE.HOT_TEXT_RO.getName();
-			} else if (type.equalsIgnoreCase(TYPE.HOT_SPOT.getId())) {
-				typeName = TYPE.HOT_SPOT.getName();
+			} else if (type.equalsIgnoreCase(TYPE.HOT_SPOT_TEXT.getId())) {
+				typeName = TYPE.HOT_SPOT_TEXT.getName();
+			} else if (type.equalsIgnoreCase(TYPE.HOT_SPOT_IMAGES.getId())) {
+				typeName = TYPE.HOT_SPOT_IMAGES.getName();
 			}
 		} else if (typeName == null) {
 			this.type = type;
@@ -260,11 +275,9 @@ public class AssessmentQuestion extends Resource {
 	public void setTypeName(String typeName) {
 		this.typeName = typeName;
 		/*
-		 * TODO:
-		 * AM: In this block, if the type name is invalid, we 
-		 * are just proceeding and not throwing back any
-		 * thing. Not sure if I should change this to throw
-		 * as some code may be working on this assumption.
+		 * TODO: AM: In this block, if the type name is invalid, we are just
+		 * proceeding and not throwing back any thing. Not sure if I should
+		 * change this to throw as some code may be working on this assumption.
 		 * Should revisit later to verify and fix.
 		 */
 
@@ -283,8 +296,10 @@ public class AssessmentQuestion extends Resource {
 				type = TYPE.OPEN_ENDED.getId();
 			} else if (typeName.equals(TYPE.MULTIPLE_ANSWERS.getName())) {
 				type = TYPE.MULTIPLE_ANSWERS.getId();
-			} else if (typeName.equals(TYPE.HOT_SPOT.getName())) {
-				type = TYPE.HOT_SPOT.getId();
+			} else if (typeName.equals(TYPE.HOT_SPOT_IMAGES.getName())) {
+				type = TYPE.HOT_SPOT_IMAGES.getId();
+			} else if (typeName.equals(TYPE.HOT_SPOT_TEXT.getName())) {
+				type = TYPE.HOT_SPOT_TEXT.getId();
 			} else if (typeName.equals(TYPE.HOT_TEXT_HL.getName())) {
 				type = TYPE.HOT_TEXT_HL.getId();
 			} else if (typeName.equals(TYPE.HOT_TEXT_RO.getName())) {
@@ -400,22 +415,10 @@ public class AssessmentQuestion extends Resource {
 				questionThumbnail = new Thumbnail();
 			}
 			for (AssessmentQuestionAssetAssoc assests : getAssets()) {
-				if (assests != null
-						&& assests.getAsset() != null
-						&& BaseUtil.getYoutubeVideoId(assests.getAsset()
-								.getName()) != null
-						|| assests.getAsset().getName()
-								.contains("http://www.youtube.com")) {
-					questionThumbnail.setUrl("img.youtube.com/vi/"
-							+ BaseUtil.getYoutubeVideoId(assests.getAsset()
-									.getUrl()) + "/1.jpg");
+				if (assests != null && assests.getAsset() != null && BaseUtil.getYoutubeVideoId(assests.getAsset().getName()) != null || assests.getAsset().getName().contains("http://www.youtube.com")) {
+					questionThumbnail.setUrl("img.youtube.com/vi/" + BaseUtil.getYoutubeVideoId(assests.getAsset().getUrl()) + "/1.jpg");
 				} else {
-					questionThumbnail
-							.setUrl(getAssetURI()
-									+ getFolder()
-									+ (assests == null
-											|| assests.getAsset() == null ? null
-											: assests.getAsset().getName()));
+					questionThumbnail.setUrl(getAssetURI() + getFolder() + (assests == null || assests.getAsset() == null ? null : assests.getAsset().getName()));
 				}
 				break;
 			}
@@ -431,20 +434,31 @@ public class AssessmentQuestion extends Resource {
 	public String getIndexType() {
 		return INDEX_TYPE;
 	}
-	
+
 	@Transient
 	public boolean isQuestionNewGen() {
 
-		if (typeName.equalsIgnoreCase(TYPE.MATCH_THE_FOLLOWING.getName()) ||
-				typeName.equalsIgnoreCase(TYPE.OPEN_ENDED.getName()) ||
-				typeName.equalsIgnoreCase(TYPE.MULTIPLE_ANSWERS.getName()) ||
-				typeName.equalsIgnoreCase(TYPE.MULTIPLE_CHOICE.getName()) ||
-				typeName.equalsIgnoreCase(TYPE.SHORT_ANSWER.getName()) ||
-				typeName.equalsIgnoreCase(TYPE.TRUE_OR_FALSE.getName()) ||
-				typeName.equalsIgnoreCase(TYPE.FILL_IN_BLANKS.getName())) {
+		if (typeName.equalsIgnoreCase(TYPE.MATCH_THE_FOLLOWING.getName()) || typeName.equalsIgnoreCase(TYPE.OPEN_ENDED.getName()) || typeName.equalsIgnoreCase(TYPE.MULTIPLE_ANSWERS.getName()) || typeName.equalsIgnoreCase(TYPE.MULTIPLE_CHOICE.getName())
+				|| typeName.equalsIgnoreCase(TYPE.SHORT_ANSWER.getName()) || typeName.equalsIgnoreCase(TYPE.TRUE_OR_FALSE.getName()) || typeName.equalsIgnoreCase(TYPE.FILL_IN_BLANKS.getName())) {
 			return false;
 		}
 		return true;
+	}
+
+	public List<String> getMediaFiles() {
+		return mediaFiles;
+	}
+
+	public void setMediaFiles(List<String> mediaFiles) {
+		this.mediaFiles = mediaFiles;
+	}
+
+	public List<String> getDeletedMediaFiles() {
+		return deletedMediaFiles;
+	}
+
+	public void setDeletedMediaFiles(List<String> deletedMediaFiles) {
+		this.deletedMediaFiles = deletedMediaFiles;
 	}
 
 }

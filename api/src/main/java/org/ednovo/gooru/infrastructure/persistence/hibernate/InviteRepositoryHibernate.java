@@ -30,26 +30,38 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.InviteUser;
+import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class InviteRepositoryHibernate extends BaseRepositoryHibernate implements InviteRepository {
+public class InviteRepositoryHibernate extends BaseRepositoryHibernate implements InviteRepository, ParameterProperties, ConstantProperties {
+
+	private final static String INVITE_USERS = "select   email, username, user_uid as gooruUId from invite_user inner join  custom_table_value ctv on status_id = ctv.custom_table_value_id  left join identity i on i.external_id = email left join user u on u.gooru_uid =  i.user_uid where gooru_oid =:gooruOid and ctv.key_value =:key";
+
+	private final static String INVITE_USERS_COUNT = "select count(1) as count from invite_user inner join  custom_table_value ctv on status_id = ctv.custom_table_value_id  left join identity i on i.external_id = email left join user u on u.gooru_uid =  i.user_uid where gooru_oid =:gooruOid and ctv.key_value =:key";
+
+	private final static String DELETE_USER_INVITE = "delete from invite_user where gooru_oid =:gooruOid and email =:email";
+
 	@Override
 	public InviteUser findInviteUserById(String mailId, String gooruOid, String status) {
 		String hql = "from InviteUser iu where iu.emailId=:mailId and iu.gooruOid=:gooruOid  ";
-		if(status != null) {
+		if (status != null) {
 			hql += " and iu.status.value=:pending";
 		}
 		hql += " order by iu.createdDate desc";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("gooruOid", gooruOid);
 		query.setParameter("mailId", mailId);
-		if(status != null) {
+		if (status != null) {
 			query.setParameter("pending", status);
-		} 
+		}
 		return (InviteUser) ((query.list().size() > 0) ? query.list().get(0) : null);
 	}
 
@@ -81,4 +93,31 @@ public class InviteRepositoryHibernate extends BaseRepositoryHibernate implement
 		return (Long) query.list().get(0);
 	}
 
+	@Override
+	public List<Map<String, Object>> getInvitee(String gooruOid, String statusKey, int limit, int offset) {
+		Query query = getSession().createSQLQuery(INVITE_USERS);
+		query.setParameter(GOORU_OID, gooruOid);
+		query.setParameter(KEY, statusKey);
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != 0 ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		return list(query);
+	}
+
+	@Override
+	public int getInviteeCount(String gooruOid, String statusKey) {
+		Query query = getSession().createSQLQuery(INVITE_USERS_COUNT).addScalar(COUNT, StandardBasicTypes.INTEGER);
+		query.setParameter(GOORU_OID, gooruOid);
+		query.setParameter(KEY, statusKey);
+		List<Integer> result = list(query);
+		return result != null && result.size() > 0 ? result.get(0) : 0;
+	}
+
+	@Override
+	public void deleteInviteUser(String gooruOid, String email) {
+		Query query = getSession().createSQLQuery(DELETE_USER_INVITE);
+		query.setParameter(GOORU_OID, gooruOid);
+		query.setParameter(EMAIL, email);
+		query.executeUpdate();
+	}
 }

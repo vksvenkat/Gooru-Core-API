@@ -1,6 +1,7 @@
 package org.ednovo.gooru.core.constant;
 
-public interface ConstantProperties {
+
+public interface ConstantProperties extends ErrorCodeProperties {
 
 	static final String[] ACTIVITY_LIST_EXCLUDE = { "*.class", "*.courseSet", "*.userRoleSetString", "*.emailId" };
 
@@ -115,6 +116,8 @@ public interface ConstantProperties {
 
 	static final String CONTENT_ID = "contentId";
 
+	static final String IS_STUDENT = "isStudent";
+		
 	static final String ASSESSMENT_INCLUDES[] = { "segments", "segments.segmentQuestions", "segments.segmentQuestions.question.hints", "segments.segmentQuestions.question.answers", "taxonomySet", "segments.segmentQuestions.question.assets", "metaData", "metaData.grades", "metaData.lessons",
 			"metaData.units", "metaData.subjects", "metaData.collaborators", "metaData.topics", "metaData.curriculumCodes", "metaData.curriculumDecs", "metaData.taxonomyMapByCode.*", "metaData.taxonomyLevels.*", "tagSet" };
 
@@ -418,7 +421,7 @@ public interface ConstantProperties {
 
 	static final String[] CLASS_MEMBER_FIELDS = { "*.totalHitCount", "*.searchResults", "*.emailId", "*.username", "*.gooruUid", "*.associatedDate", "*.status", "*.profileImageUrl", "*.firstName", "*.lastName" };
 
-	static final String[] CLASS_FIELDS = { "*.gooruUId","*.username", "*.emailId","*.associationDate", "*.profileImageUrl"};
+	static final String[] CLASS_FIELDS = { "*.totalHitCount", "*.searchResult", "*.gooruUId","*.username", "*.emailId","*.associationDate", "*.profileImageUrl", "*.user"};
 	
 	static final String[] USER_CONTENT_TAGS_INCLUDES = { "*.totalHitCount", "*.searchResults", "*.count", "*.label", "*.tagGooruOid" };
 
@@ -823,7 +826,7 @@ public interface ConstantProperties {
 
 	static final String COURSE_[] = { "*.courseId", "*.name", "*.thumbnails", "thumbnails.url" };
 
-	static final String DOMAIN_INCLUDES[] = { "*.thumbnails", "thumbnails.url", "*.domainId", "*.name" };
+	static final String DOMAIN_INCLUDES[] = { "*.thumbnails", "thumbnails.url", "*.domainId", "*.name", "*.subdomainId", "*.description", "*.courseId", "*.subjectId"};
 
 	static final String STATE[] = { "*.stateUid", "*.stateCode", "*.name", "*.totalHitCount", "*.searchResults" };
 
@@ -916,12 +919,10 @@ public interface ConstantProperties {
 	final static String DOMAIN_ID = "domainId";
 
 	final static String SUBJECT_ID = "subjectId";
-
+	
 	final static String SUBDOMAIN_ID = "subdomainId";
 
-	final static String CLASS_INCLUDES[] = { "classUid", "classCode", "name", "description", "visibility", "*.minimumScore", "*.memberCount", "user.username", "user.gooruUId", "user.gender", "*.thumbnails", "*.user", "thumbnails.url", "courseGooruOid" };
-
-	final static String IMAGE_PATH = "imagePath";
+	final static String CLASS_INCLUDES[] = { "*.classUid", "*.classCode", "*.name", "*.description", "*.visibility", "*.minimumScore", "*.memberCount", "*.username", "*.gooruUId", "*.gender", "*.profileImageUrl", "*.thumbnails", "*.user", "*.url", "*.courseGooruOid", "*.grades", "*.searchResult", "*.totalHitCount", "*.status" };
 
 	final static String UNIT_ID = "unitId";
 
@@ -938,4 +939,29 @@ public interface ConstantProperties {
 	final static String DOT = ".";
 
 	final static String REGX_DOT = "\\.";
+		
+	final static String CLASS_ID = "classId";
+	
+	final static String INCLUDE_COLLECTION_ITEMS[] = {"*.collectionItems", "*.user", "*.answers", "*.hints", "*.permissions", "*.educationalUse", "*.standards", "*.depthOfKnowledge", "*.skills", "*.momentsOfLearning", "*.audience"};
+	
+	final static String EXCLUDE_COLLECTION_ITEMS[] = {"*.class", "*.answers.question"};
+		
+	static final String CLASS_CONTENT[] = {"*.gooruOid", "*.title", "*.settings", "*.items"};
+
+	static final String[] COLLECTION_TYPES = { "collection", "assessment", "assessment/url" };
+	
+	static final String[] COURSE_TYPE = { "course" };
+	
+	static final String[] UNIT_TYPE = { "unit" };
+	
+	static final String[] LESSON_TYPE = { "lesson" };
+	
+	static final String[] FOLDER_TYPE = { "folder" };
+	
+	final static String IS_MEMBER = "isMember"; 
+	
+	final static String MEMBER = "member";
+	
+	final static String INCLUDE_CONTENT[] = {"*.gooruOid", "*.title"};
+	
 }

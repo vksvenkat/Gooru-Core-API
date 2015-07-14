@@ -14,6 +14,7 @@ import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
+import org.ednovo.gooru.domain.service.ClassService;
 import org.ednovo.gooru.domain.service.collection.CourseService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,9 @@ public class CourseRestController extends BaseController implements ConstantProp
 
 	@Autowired
 	private CourseService courseService;
-	
+
+	@Autowired
+	private ClassService classService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@RequestMapping(method = RequestMethod.POST)
@@ -50,15 +53,15 @@ public class CourseRestController extends BaseController implements ConstantProp
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.PUT)
-	public void updateCourse(@PathVariable(value = ID) final String courseUId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
+	public void updateCourse(@PathVariable(value = ID) final String courseId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		this.getCourseService().updateCourse(courseUId, buildCourse(data), user);
+		this.getCourseService().updateCourse(courseId, buildCourse(data), user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.GET)
-	public ModelAndView getCourse(@PathVariable(value = ID) final String courseUId, final HttpServletRequest request, final HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(this.getCourseService().getCourse(courseUId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
+	public ModelAndView getCourse(@PathVariable(value = ID) final String courseId, final HttpServletRequest request, final HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(this.getCourseService().getCourse(courseId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
@@ -67,9 +70,18 @@ public class CourseRestController extends BaseController implements ConstantProp
 		return toModelAndViewWithIoFilter(this.getCourseService().getCourses(limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
+	@RequestMapping(value = RequestMappingUri.COURSES_CLASS, method = RequestMethod.GET)
+	public ModelAndView getClasses(@PathVariable(value = ID) final String courseGooruOid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") final int limit,
+			final HttpServletRequest request, final HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(this.getClassService().getClassesByCourse(courseGooruOid, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CLASS_INCLUDES);
+	}
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.DELETE)
-	public void deleteCourse(@PathVariable(value = ID) final String courseUId, final HttpServletRequest request, final HttpServletResponse response) {
+	public void deleteCourse(@PathVariable(value = ID) final String courseId, final HttpServletRequest request, final HttpServletResponse response) {
+		final User user = (User) request.getAttribute(Constants.USER);
+		this.getCourseService().deleteCourse(courseId, user);
 	}
 
 	private Collection buildCourse(final String data) {
@@ -78,6 +90,10 @@ public class CourseRestController extends BaseController implements ConstantProp
 
 	public CourseService getCourseService() {
 		return courseService;
+	}
+
+	public ClassService getClassService() {
+		return classService;
 	}
 
 }

@@ -65,7 +65,6 @@ import org.hibernate.type.StandardBasicTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.stereotype.Repository;
@@ -138,28 +137,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 
 	@Override
-	@Cacheable("persistent")
-	public Long getNumericClassCode(Long contentId) {
-		Session session = getSessionFactory().getCurrentSession();
-		String sql = " SELECT conv(classpage_code,36,10) AS classCode FROM classpage WHERE classpage_content_id =" + contentId;
-		Query query = session.createSQLQuery(sql).addScalar("classCode", StandardBasicTypes.LONG);
-		List<Long> results = list(query);
-
-		return (results != null && results.size() > 0) ? results.get(0) : 0L;
-	}
-
-	@Override
-	public Boolean findUserIsStudent(Long classContentId, String gooruUId) {
-		Session session = getSessionFactory().getCurrentSession();
-		String sql = " SELECT uga.is_group_owner isStudent FROM classpage class INNER JOIN user_group ug ON class.classpage_code = ug.user_group_code INNER JOIN user_group_association uga ON ug.user_group_uid = uga.user_group_uid WHERE class.classpage_content_id = " + classContentId
-		        + " AND uga.gooru_uid = '" + gooruUId + "'";
-		Query query = session.createSQLQuery(sql).addScalar("isStudent", StandardBasicTypes.BOOLEAN);
-		List<Boolean> results = list(query);
-
-		return (results != null && results.size() > 0) ? results.get(0) : false;
-	}
-
-	@Override
 	public Long getContentId(String contentGooruOid) {
 		Session session = getSessionFactory().getCurrentSession();
 		Query query = session.createSQLQuery(GET_CONTENT_ID).addScalar(CONTENT_ID, StandardBasicTypes.LONG);
@@ -170,9 +147,9 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 	
 	@Override
-	public List<Object[]> getContentIds(String... gooruOids) {		
+	public List<Object[]> getContentIds(String gooruOids) {		
 		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createSQLQuery(GET_CONTENT_IDS).setParameterList(GOORU_OIDS, gooruOids);
+		Query query = session.createSQLQuery(GET_CONTENT_IDS).setParameterList(GOORU_OIDS, gooruOids.split(COMMA));
 		List<Object[]> contentIds= list(query);		 
 		return contentIds; 
 	}

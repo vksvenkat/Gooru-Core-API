@@ -136,7 +136,7 @@
 		<joined-subclass name="org.ednovo.gooru.core.api.model.Collection"
 			table="collection" lazy="true">
 			<key column="content_id" />
-			<property name="title" column="title" not-null="true" />
+			<property name="title" column="title" not-null="false" />
 			<property name="description" column="description" not-null="false" />
 			<property name="url" column="url" not-null="false" />
 			<property name="collectionType" column="collection_type"
@@ -159,8 +159,9 @@
 				not-null="false" />
 			<property name="languageObjective" column="language_objective"
 				not-null="false" />
-			<property name="buildType" column="build_type_id" not-null="false" />
-			<property name="publishStatus" column="publish_status_id"
+			<property name="buildTypeId" column="build_type_id"
+				not-null="false" />
+			<property name="publishStatusId" column="publish_status_id"
 				not-null="false" />
 			<property name="clusterUid" column="cluster_uid" not-null="false" />
 			<property name="isRepresentative" column="is_representative"
@@ -169,11 +170,18 @@
 				not-null="false" />
 			<property name="lastAccessedTime" column="last_accessed_time"
 				not-null="false" />
+			<property name="distinguish" column="distinguish" not-null="false" />
 			<set name="collectionItems" inverse="true" cascade="none" lazy="true"
 				sort="org.ednovo.gooru.core.api.model.CollectionItemComparator">
 				<key column="collection_content_id" />
 				<one-to-many class="org.ednovo.gooru.core.api.model.CollectionItem" />
 			</set>
+			<joined-subclass name="org.ednovo.gooru.core.api.model.Classpage"
+				table="classpage" lazy="true">
+				<key column="classpage_content_id" />
+				<property name="classpageCode" column="classpage_code"
+					not-null="true" />
+			</joined-subclass>
 		</joined-subclass>
 
 		<joined-subclass name="org.ednovo.gooru.core.api.model.Resource"
@@ -266,7 +274,8 @@
 				<property name="searchLimit" column="search_limit" type="int"
 					not-null="false" />
 				<property name="secretKey" column="secret_key" not-null="true" />
-				<property name="refererDomains" column="referer_domains" not-null="false" />
+				<property name="refererDomains" column="referer_domains"
+					not-null="false" />
 				<many-to-one name="status"
 					class="org.ednovo.gooru.core.api.model.CustomTableValue" column="status_id"
 					not-null="true" lazy="proxy" cascade="none" />

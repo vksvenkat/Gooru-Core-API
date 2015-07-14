@@ -132,29 +132,45 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		final ActionResponseDTO<AssessmentQuestion> responseDTO = assessmentService.createQuestion(question, true);
 		if (responseDTO.getModel() != null) {
 			response = this.createCollectionItem(responseDTO.getModel(), collection, null, null, user);
+			boolean updateAssetInS3 = false;
 			if (mediaFileName != null && mediaFileName.length() > 0) {
 				String questionImage = this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), mediaFileName, question, ASSET_QUESTION);
 				if (questionImage != null && questionImage.length() > 0) {
-					if (ResourceImageUtil.getYoutubeVideoId(questionImage) != null || questionImage.contains(YOUTUBE_URL)) {
-						response.getModel().setQuestionInfo(this.assessmentService.updateQuestionVideoAssest(responseDTO.getModel().getGooruOid(), questionImage));
-					} else {
-						response.getModel().setQuestionInfo(this.assessmentService.updateQuestionAssest(responseDTO.getModel().getGooruOid(), StringUtils.substringAfterLast(questionImage, "/")));
-						try {
-							this.getAsyncExecutor().updateResourceFileInS3(responseDTO.getModel().getFolder(), response.getModel().getResource().getOrganization().getNfsStorageArea().getInternalPath(), response.getModel().getResource().getGooruOid(), UserGroupSupport.getSessionToken());
-						} catch (Exception e) {
-							if (LOGGER.isErrorEnabled()) {
-								LOGGER.error(e.getMessage());
-							}
-						}
+					if (!(ResourceImageUtil.getYoutubeVideoId(questionImage) != null || questionImage.contains(YOUTUBE_URL))) {
+						updateAssetInS3 = true;
+					}
+				}
+			}
+			/*
+			 * The new generation questions have answers as images as well. We
+			 * need to store these assets. Note that since they are going into
+			 * Mongo, we are not maintaining the association in MySql. We shall
+			 * just stash them and then make sure that they go till S3
+			 */
+			if (question.isQuestionNewGen()) {
+				List<String> answerAssets = question.getMediaFiles();
+				if (answerAssets != null && answerAssets.size() > 0) {
+					updateAssetInS3 = true;
+					for (String answerAsset : answerAssets) {
+						this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), answerAsset, question, null);
 					}
 				}
 			}
 
+			if (updateAssetInS3) {
+				try {
+					this.getAsyncExecutor().updateResourceFileInS3(response.getModel().getResource().getFolder(), response.getModel().getResource().getOrganization().getNfsStorageArea().getInternalPath(), response.getModel().getResource().getGooruOid(), UserGroupSupport.getSessionToken());
+				} catch (Exception e) {
+					if (LOGGER.isErrorEnabled()) {
+						LOGGER.error(e.getMessage());
+					}
+				}
+
+			}
+
 			response.getModel().setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
-			response.getModel().getResource().setSkills(getSkills(responseDTO.getModel().getTaxonomySet()));
 			if (question.isQuestionNewGen()) {
 				mongoQuestionsService.createQuestion(question.getGooruOid(), data);
-
 			}
 		}
 		try {
@@ -187,9 +203,16 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 							}
 						}
 					}
-					collectionItem.setQuestionInfo(assessmentQuestion);
-				
-					collectionItem.getContent().setSkills(getSkills(collectionItem.getContent().getTaxonomySet()));
+					if (assessmentQuestion.isQuestionNewGen()) {
+						List<String> mediaFilesToAdd = newQuestion.getMediaFiles();
+						if (mediaFilesToAdd != null && mediaFilesToAdd.size() > 0) {
+							for (String mediaFileToAdd : mediaFilesToAdd) {
+								assessmentService.updateQuizQuestionImage(assessmentQuestion.getGooruOid(), mediaFileToAdd, assessmentQuestion, null);
+							}
+						}
+					}
+					// collectionItem.setQuestionInfo(assessmentQuestion);
+
 					collectionItem.setStandards(this.getStandards(assessmentQuestion.getTaxonomySet(), false, null));
 				}
 				// Update the question in mongo now that transaction is almost
@@ -316,7 +339,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			if (mediaFileName != null && mediaFileName.length() > 0) {
 				final String questionImage = this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), mediaFileName, assessmentQuestion, ASSET_QUESTION);
 				if (questionImage != null && questionImage.length() > 0) {
-					response.getModel().setQuestionInfo(this.assessmentService.updateQuestionAssest(responseDTO.getModel().getGooruOid(), StringUtils.substringAfterLast(questionImage, "/")));
+					// response.getModel().setQuestionInfo(this.assessmentService.updateQuestionAssest(responseDTO.getModel().getGooruOid(),
+					// StringUtils.substringAfterLast(questionImage, "/")));
 				}
 			}
 		}
@@ -365,7 +389,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		List<Map<String, Object>> folderList = this.getCollectionRepository().getFolder(null, gooruUid, limit, offset, sharing, topLevelCollectionType != null ? topLevelCollectionType : collectionType, fetchChildItem, orderBy, excludeType);
 		int count = 0;
-		List<Map<String, Object>> folderItems =  new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> folderItems = new ArrayList<Map<String, Object>>();
 		if (folderList != null && folderList.size() > 0) {
 			for (Map<String, Object> collection : folderList) {
 				final String typeName = String.valueOf(collection.get(TYPE));
@@ -409,7 +433,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 	public List<Map<String, Object>> getCollectionItem(final String gooruOid, final String sharing, final String type, final String collectionType, Integer itemLimit, final boolean fetchChildItem, final String orderBy, final String excludeType) {
 		List<Map<String, Object>> collectionItems = this.getCollectionRepository().getCollectionItem(gooruOid, 4, 0, sharing, orderBy, collectionType, fetchChildItem, ASC, false, excludeType);
-		List<Map<String, Object>> folderItems =  new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> folderItems = new ArrayList<Map<String, Object>>();
 		if (collectionItems != null && collectionItems.size() > 0) {
 			for (Map<String, Object> collectionItem : collectionItems) {
 				final String typeName = String.valueOf(collectionItem.get(TYPE));
@@ -446,7 +470,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				summary.put(COUNT, count != null ? count : 0);
 				collectionItem.put(RATINGS, summary);
 				if (!fetchChildItem) {
-				// need to set meta data
+					// need to set meta data
 				}
 				Object attribution = collectionItem.get(ATTRIBUTION);
 				if (attribution != null) {
@@ -486,7 +510,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			thumbnails.put(URL, url.toString());
 			folderItem.put(THUMBNAILS, thumbnails);
 		}
-		
 
 		if (fetchChildItem) {
 			if (typeName.equalsIgnoreCase(COLLECTION) || typeName.equalsIgnoreCase(ASSESSMENT) || typeName.equalsIgnoreCase(ASSESSMENT_URL)) {
@@ -498,14 +521,12 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			}
 		}
 
-		folderItem.put(COLLECTION_ITEMS, getCollectionItem(collectionGooruOid, sharing, typeName, collectionType, itemLimit, fetchChildItem, orderBy, excludeType));
-		folderItem.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(collectionGooruOid, sharing, collectionType, excludeType));
 		Object data = folderItem.get(DATA);
 		if (data != null) {
 			folderItem.put(SETTINGS, JsonDeserializer.deserialize(String.valueOf(data), new TypeReference<Map<String, String>>() {
 			}));
+			folderItem.remove(DATA);
 		}
-
 		return folderItem;
 	}
 
@@ -513,13 +534,12 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public List<Map<String, Object>> getFolderItem(final String gooruOid, final Integer limit, Integer offset, final String sharing, final String collectionType, final String orderBy, final Integer itemLimit, final boolean fetchChildItem, final String sortOrder, final String excludeType) {
 		List<Map<String, Object>> folderItems = this.getCollectionRepository().getFolder(gooruOid, null, limit, offset, sharing, collectionType, fetchChildItem, orderBy, excludeType);
 		if (folderItems == null || folderItems.size() == 0) {
-			folderItems = this.getCollectionRepository().getCollectionItem(gooruOid, 4, 0, sharing, orderBy, collectionType, fetchChildItem, ASC, false, excludeType);
+				folderItems = this.getCollectionRepository().getCollectionItem(gooruOid, 4, 0, sharing, orderBy, collectionType, fetchChildItem, ASC, false, excludeType);
 		}
-		List<Map<String, Object>> folderList =  new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> folderList = new ArrayList<Map<String, Object>>();
 		if (folderItems != null) {
 			for (Map<String, Object> folderItem : folderItems) {
-				setFolderItem(folderItem, sharing, collectionType, itemLimit, fetchChildItem, orderBy, excludeType);
-				folderList.add(folderItem);
+				folderList.add(setFolderItem(folderItem, sharing, collectionType, itemLimit, fetchChildItem, orderBy, excludeType));
 			}
 		}
 		return folderList;
@@ -630,7 +650,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		if (direction != null) {
 			collectionItem.setNarration(direction);
 		}
-	
+
 		if (estimatedTime != null) {
 			collectionItem.setEstimatedTime(estimatedTime);
 		}
@@ -643,7 +663,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		if (showHints != null) {
 			collectionItem.setShowHints(showHints);
 		}
-	
+
 		classPage.setItemCount(sequence);
 		this.getResourceRepository().save(classPage);
 		this.getResourceRepository().save(collectionItem);
@@ -683,8 +703,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				for (final Collection scollection : collections) {
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + scollection.getUser().getPartyUid() + "*");
 					// TO DO
-					if (scollection.getPublishStatus() != null ) {
-						//scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, REVIEWED));
+					if (scollection.getPublishStatusId() != null) {
+						scollection.setPublishStatusId(Constants.PUBLISH_REVIEWED_STATUS_ID);
 						collectionIds.append(scollection.getGooruOid());
 						if (!scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 							final UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
@@ -710,7 +730,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 						if (collectionIds.toString().trim().length() > 0) {
 							collectionIds.append(",");
 						} else {
-							throw new BadRequestException(generateErrorMessage("GL0089"));
+							throw new BadRequestException(generateErrorMessage(GL0089));
 						}
 					}
 
@@ -739,8 +759,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
 				for (final Collection scollection : collections) {
 					// TO DO
-					if (scollection.getPublishStatus() != null) {
-						scollection.setPublishStatus(null);
+					if (scollection.getPublishStatusId() != null) {
+						scollection.setPublishStatusId(null);
 						if (scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 							UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
 							if (userSummary.getGooruUid() != null) {
@@ -757,7 +777,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 						resetFolderVisibility(scollection.getGooruOid(), scollection.getUser().getPartyUid());
 						updateResourceSharing(ANYONE_WITH_LINK, scollection);
 					} else {
-						throw new BadRequestException(generateErrorMessage("GL0091"));
+						throw new BadRequestException(generateErrorMessage(GL0091));
 
 					}
 				}

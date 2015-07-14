@@ -24,7 +24,7 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 	private Date associationDate;
 	private User associatedUser;
 	private Rating rating;
-	private AssessmentQuestion questionInfo;
+	private AssessmentQuestion question;
 	private String documentid;
 	private String documentkey;
 	private List<StandardFo> standards;
@@ -35,12 +35,9 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 	private Boolean showAnswerByQuestions;
 	private Boolean showHints;
 	private Boolean showAnswerEnd;
-
-	/**
-	 * 
-	 */
-	public CollectionItem() {
-	}
+	private Integer position;
+	private String uri;
+	private String title;
 
 	public String getCollectionItemId() {
 		return collectionItemId;
@@ -128,14 +125,6 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 
 	public Rating getRating() {
 		return rating;
-	}
-
-	public void setQuestionInfo(AssessmentQuestion questionInfo) {
-		this.questionInfo = questionInfo;
-	}
-
-	public AssessmentQuestion getQuestionInfo() {
-		return questionInfo;
 	}
 
 	public void setDocumentid(String documentid) {
@@ -243,6 +232,38 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 
 	public void setResource(Resource resource) {
 		this.resource = resource;
+	}
+
+	public Integer getPosition() {
+		return position;
+	}
+
+	public void setPosition(Integer position) {
+		this.position = position;
+	}
+
+	public String getUri() {
+		return uri;
+	}
+
+	public void setUri(String uri) {
+		this.uri = uri;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public AssessmentQuestion getQuestion() {
+		return question;
+	}
+
+	public void setQuestion(AssessmentQuestion question) {
+		this.question = question;
 	}
 
 }

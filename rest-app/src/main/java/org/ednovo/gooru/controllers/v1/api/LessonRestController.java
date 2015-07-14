@@ -34,9 +34,9 @@ public class LessonRestController extends BaseController implements ConstantProp
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@RequestMapping(method = RequestMethod.POST)
-	public ModelAndView createLesson(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
+	public ModelAndView createLesson(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		final ActionResponseDTO<Collection> responseDTO = this.getLessonService().createLesson(courseUId, unitUId, buildLesson(data), user);
+		final ActionResponseDTO<Collection> responseDTO = this.getLessonService().createLesson(courseId, unitId, buildLesson(data), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -49,26 +49,28 @@ public class LessonRestController extends BaseController implements ConstantProp
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.PUT)
-	public void updateLesson(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = ID) final String lessonUId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
+	public void updateLesson(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @PathVariable(value = ID) final String lessonId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		this.getLessonService().updateLesson(lessonUId, buildLesson(data), user);
+		this.getLessonService().updateLesson(unitId, lessonId, buildLesson(data), user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.GET)
-	public ModelAndView getLesson(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = ID) final String lessonUId, final HttpServletRequest request, final HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(this.getLessonService().getLesson(lessonUId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
+	public ModelAndView getLesson(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @PathVariable(value = ID) final String lessonId, final HttpServletRequest request, final HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(this.getLessonService().getLesson(lessonId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(method = RequestMethod.GET)
-	public ModelAndView getLessons(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request, final HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(this.getLessonService().getLessons(unitUId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
+	public ModelAndView getLessons(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request, final HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(this.getLessonService().getLessons(unitId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_DELETE })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.DELETE)
-	public void deleteLesson(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = ID) final String lessonUId, final HttpServletRequest request, final HttpServletResponse response) {
+	public void deleteLesson(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @PathVariable(value = ID) final String lessonId, final HttpServletRequest request, final HttpServletResponse response) {
+		final User user = (User) request.getAttribute(Constants.USER);
+		this.getLessonService().deleteLesson(courseId, unitId, lessonId, user);
 	}
 
 	public LessonService getLessonService() {

@@ -13,6 +13,7 @@ public class MetaConstants {
 	public static final String QUESTION_COUNT = "questionCount";
 	public static final String RESOURCE_COUNT = "resourceCount";
 	public static final Short CONTENT_CLASSIFICATION_STANDARD_TYPE_ID = 1;
+	public static final Short CONTENT_CLASSIFICATION_SKILLS_TYPE_ID = 2;
 
 	static {
 		Map<String, Object> courseSummary = new HashMap<String, Object>();

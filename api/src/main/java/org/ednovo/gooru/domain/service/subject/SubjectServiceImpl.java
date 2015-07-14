@@ -75,7 +75,7 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	public Subject getSubject(Integer subjectId) {
 		Subject subject = this.getSubjectRepository().getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, SUBJECT);
-		reject((subject.getActiveFlag() == 1), GL0107, SUBJECT);
+		reject((subject.getActiveFlag() == 1), GL0107, 400, SUBJECT);
 		if (subject.getImagePath() != null) {
 			subject.setThumbnails(GooruImageUtil.getThumbnails(subject.getImagePath()));
 		}
@@ -130,7 +130,7 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 			subject.setClassificationTypeId(newSubject.getClassificationTypeId());
 		}
 		if (newSubject.getActiveFlag() != null) {
-			reject((newSubject.getActiveFlag() == 0 || newSubject.getActiveFlag() == 1), GL0007, ACTIVE_FLAG);
+			reject((newSubject.getActiveFlag() == 0 || newSubject.getActiveFlag() == 1), GL0007, 400, ACTIVE_FLAG);
 			subject.setActiveFlag(newSubject.getActiveFlag());
 		}
 		if (newSubject.getDescription() != null) {

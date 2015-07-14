@@ -7,14 +7,13 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentClassificationRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,20 +25,15 @@ import com.fasterxml.jackson.core.type.TypeReference;
 @Service
 public class LessonServiceImpl extends AbstractCollectionServiceImpl implements LessonService {
 
-	private static final String[] LESSON_TYPE = { "lesson" };
-
-	@Autowired
-	private ContentClassificationRepository contentClassificationRepository;
-
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Collection> createLesson(String courseId, String unitId, Collection collection, User user) {
 		final Errors errors = validateLesson(collection);
 		if (!errors.hasErrors()) {
-			Collection course = getCollectionDao().getCollection(courseId);
-			rejectIfNull(course, GL0056, UNIT);
-			Collection parentCollection = getCollectionDao().getCollection(unitId);
-			rejectIfNull(parentCollection, GL0056, UNIT);
+			Collection course = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
+			rejectIfNull(course, GL0056,404, COURSE);
+			Collection parentCollection = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
+			rejectIfNull(parentCollection, GL0056,404, UNIT);
 			collection.setSharing(Sharing.PRIVATE.getSharing());
 			collection.setCollectionType(CollectionType.LESSON.getCollectionType());
 			createCollection(collection, parentCollection, user);
@@ -53,17 +47,62 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void updateLesson(String lessonId, Collection newCollection, User user) {
+	public void updateLesson(String unitId, String lessonId, Collection newCollection, User user) {
 		Collection collection = this.getCollectionDao().getCollection(lessonId);
-		rejectIfNull(collection, GL0056, LESSON);
+		rejectIfNull(collection, GL0056,404, LESSON);
+		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
+		rejectIfNull(unit, GL0056,404, UNIT);
 		this.updateCollection(collection, newCollection, user);
+		if(newCollection.getPosition() != null){
+			this.resetSequence(unit, collection.getGooruOid() , newCollection.getPosition(), user.getPartyUid());
+		}
 		Map<String, Object> data = generateLessonMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {
 			ContentMeta contentMeta = this.getContentRepository().getContentMeta(collection.getContentId());
 			updateContentMeta(contentMeta, data);
 		}
 	}
-
+	
+	
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void deleteLesson(String courseId, String unitId, String lessonId, User user) {
+		CollectionItem lesson = getCollectionDao().getCollectionItem(unitId,lessonId, user.getPartyUid());
+		rejectIfNull(lesson, GL0056,404, LESSON);
+		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(lessonId, user), GL0099, 403, LESSON);
+		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
+		rejectIfNull(course, GL0056,404, COURSE);
+		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
+		rejectIfNull(unit, GL0056,404, UNIT);
+		this.deleteValidation(lesson.getContent().getContentId(), LESSON);
+		this.resetSequence(unitId, lesson.getContent().getGooruOid(), user.getPartyUid());
+		this.deleteCollection(lessonId);
+		this.updateMetaDataSummary(course.getContentId(), unit.getContentId());
+	}
+	
+	private void updateMetaDataSummary(Long courseId, Long unitId) {
+		ContentMeta unitContentMeta = this.getContentRepository().getContentMeta(unitId);
+		ContentMeta courseContentMeta = this.getContentRepository().getContentMeta(courseId);
+		if (unitContentMeta != null) {
+			updateSummaryMeta(unitContentMeta);
+		}
+		if (courseContentMeta != null) {
+			updateSummaryMeta(courseContentMeta);
+		}
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void updateSummaryMeta(ContentMeta contentMeta) {
+		Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
+		});
+		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
+		int lessonCount =  ((Number) summary.get(MetaConstants.LESSON_COUNT)).intValue() -1;
+		summary.put(MetaConstants.LESSON_COUNT, lessonCount);
+		metaData.put(SUMMARY, summary);
+		updateContentMeta(contentMeta, metaData);
+	}
+	
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getLesson(String lessonId) {
@@ -124,10 +163,6 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 			rejectIfNullOrEmpty(errors, collection.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 		}
 		return errors;
-	}
-
-	public ContentClassificationRepository getContentClassificationRepository() {
-		return contentClassificationRepository;
 	}
 
 }

@@ -7,23 +7,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.application.util.SerializerUtil;
+import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
+import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentClassification;
 import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
+import org.ednovo.gooru.core.api.model.ContentTaxonomyCourseAssoc;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
+import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
+import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.application.util.BaseUtil;
+import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
+import org.ednovo.gooru.domain.service.TaxonomyCourseRepository;
+import org.ednovo.gooru.domain.service.setting.SettingService;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentClassificationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
+import org.ednovo.gooru.security.OperationAuthorizer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -36,9 +49,25 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	@Autowired
 	private CustomTableRepository customTableRepository;
-	
+
 	@Autowired
 	private ContentClassificationRepository contentClassificationRepository;
+
+	@Autowired
+	private IndexHandler indexHandler;
+
+	@Autowired
+	private OperationAuthorizer operationAuthorizer;
+
+	@Autowired
+	private TaxonomyCourseRepository taxonomyCourseRepository;
+
+	@Autowired
+	private SettingService settingService;
+
+	protected final static String TAXONOMY_COURSE = "taxonomyCourse";
+
+	protected final static String DEPTHOF_KNOWLEDGE = "depthOfKnowledge";
 
 	public Collection createCollection(Collection collection, User user) {
 		collection.setGooruOid(UUID.randomUUID().toString());
@@ -52,6 +81,9 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		collection.setCreator(user);
 		collection.setLastUpdatedUserUid(user.getGooruUId());
 		collection.setContentType(this.getContentType(collection.getCollectionType()));
+		collection.setIsRepresentative(1);
+		collection.setDistinguish((short) 0);
+		collection.setClusterUid(collection.getGooruOid());
 		getCollectionDao().save(collection);
 		return collection;
 	}
@@ -123,6 +155,46 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	}
 
+	public void resetSequence(String parentGooruOid, String gooruOid, String userUid) {
+		CollectionItem itemSequence = this.getCollectionDao().getCollectionItem(parentGooruOid, gooruOid, userUid);
+		int sequence = itemSequence.getItemSequence();
+		List<CollectionItem> resetCollectionSequence = this.getCollectionDao().getCollectionItems(parentGooruOid, sequence, userUid);
+		if (resetCollectionSequence != null) {
+			for (CollectionItem collectionItem : resetCollectionSequence) {
+				collectionItem.setItemSequence(sequence++);
+			}
+			this.getCollectionDao().saveAll(resetCollectionSequence);
+		}
+	}
+
+	public void resetSequence(Collection parentCollection, String gooruOid, Integer newSequence, String userUid) {
+		int max = this.getCollectionDao().getCollectionItemMaxSequence(parentCollection.getContentId());
+		reject((max >= newSequence), GL0007, 404, ITEM_SEQUENCE);
+		CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(parentCollection.getGooruOid(), gooruOid, userUid);
+		if (collectionItem != null) {
+			List<CollectionItem> resetCollectionSequence = null;
+			int displaySequence;
+			int oldSequence = collectionItem.getItemSequence();
+			if (newSequence > oldSequence) {
+				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), oldSequence, newSequence, userUid);
+				displaySequence = oldSequence;
+			} else {
+				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), newSequence, oldSequence, userUid);
+				displaySequence = newSequence + 1;
+			}
+			if (resetCollectionSequence != null) {
+				for (CollectionItem collectionSequence : resetCollectionSequence) {
+					if (collectionSequence.getContent().getGooruOid() != gooruOid) {
+						collectionSequence.setItemSequence(displaySequence++);
+					} else if (collectionSequence.getContent().getGooruOid().equalsIgnoreCase(gooruOid)) {
+						collectionSequence.setItemSequence(newSequence);
+					}
+				}
+				this.getCollectionDao().saveAll(resetCollectionSequence);
+			}
+		}
+	}
+
 	@Override
 	public List<Map<String, Object>> getCollections(Map<String, Object> filters, int limit, int offset) {
 		return getCollectionDao().getCollections(filters, limit, offset);
@@ -133,25 +205,42 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put(GOORU_OID, collectionId);
 		List<Map<String, Object>> collection = getCollectionDao().getCollections(filters, 1, 0);
-		rejectIfNull(collection, GL0056, collectionType);
+		rejectIfNull((collection == null || collection.size() == 0 ? null : collection), GL0056, collectionType);
 		return mergeMetaData(collection.get(0));
 	}
 
 	protected Map<String, Object> mergeMetaData(Map<String, Object> content) {
 		Object data = content.get(META_DATA);
-		Map<String, Object> metaData = null;
 		if (data != null) {
-			metaData = JsonDeserializer.deserialize(String.valueOf(data), new TypeReference<Map<String, Object>>() {
+			Map<String, Object> metaData = JsonDeserializer.deserialize(String.valueOf(data), new TypeReference<Map<String, Object>>() {
 			});
 			content.putAll(metaData);
 		}
+		Object settings = content.get(DATA);
+		if (settings != null) {
+			Map<String, Object> setting = JsonDeserializer.deserialize(String.valueOf(settings), new TypeReference<Map<String, Object>>() {
+			});
+			content.put(SETTINGS, setting);
+		}
+		Object buildType = content.get(BUILD_TYPE);
+		if (buildType != null) {
+			content.put(BUILD_TYPE, Constants.BUILD_TYPE.get(((Number) buildType).shortValue()));
+		}
+		Object thumbnail = content.get(IMAGE_PATH);
+		if (thumbnail != null) {
+			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
+		}
+		Object publishStatus = content.get(PUBLISH_STATUS);
+		if (publishStatus != null) {
+			content.put(PUBLISH_STATUS, Constants.PUBLISH_STATUS.get(((Number) publishStatus).shortValue()));
+		}
+		content.put(USER, setUser(content.get(GOORU_UID), content.get(USER_NAME)));
+		content.remove(DATA);
 		content.remove(META_DATA);
+		content.remove(IMAGE_PATH);
+		content.remove(GOORU_UID);
+		content.remove(USER_NAME);
 		return content;
-	}
-
-	@Override
-	public List<Map<String, Object>> getCollectionItem(String collectionId, String[] sharing, int limit, int offset) {
-		return getCollectionDao().getCollectionItem(collectionId, sharing, limit, offset);
 	}
 
 	@Override
@@ -218,40 +307,153 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		}
 		return metaValues;
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	public void deleteValidation(Long contentId, String collectionType) {
+		ContentMeta contentMeta = this.getContentRepository().getContentMeta(contentId);
+		Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
+		});
+		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
+		int assessmentCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue();
+		int collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue();
+		reject((assessmentCount == 0 && collectionCount == 0), GL0110, 400, collectionType);
+	}
+
 	public List<Map<String, Object>> updateContentCode(Content content, List<Integer> codeIds, Short typeId) {
 		this.getContentClassificationRepository().deleteContentClassification(content.getContentId(), typeId);
 		List<Map<String, Object>> codes = null;
 		if (codeIds != null && codeIds.size() > 0) {
-			codes = new ArrayList<Map<String, Object>>();
 			List<Code> assocCodes = this.getContentClassificationRepository().getCodes(codeIds);
-			List<ContentClassification> contentClassifications = new ArrayList<ContentClassification>();
-			for (Code code : assocCodes) {
-				ContentClassification contentClassification = new ContentClassification();
-				contentClassification.setContent(content);
-				contentClassification.setCode(code);
-				contentClassification.setTypeId(typeId);
-				contentClassifications.add(contentClassification);
-				Map<String, Object> assocCode = new HashMap<String, Object>();
-				assocCode.put(ID, code.getCodeId());
-				assocCode.put(CODE, code.getCode());
-				codes.add(assocCode);
+			if (assocCodes != null && assocCodes.size() > 0) {
+				codes = new ArrayList<Map<String, Object>>();
+				List<ContentClassification> contentClassifications = new ArrayList<ContentClassification>();
+				for (Code code : assocCodes) {
+					ContentClassification contentClassification = new ContentClassification();
+					contentClassification.setContent(content);
+					contentClassification.setCode(code);
+					contentClassification.setTypeId(typeId);
+					contentClassifications.add(contentClassification);
+					Map<String, Object> assocCode = new HashMap<String, Object>();
+					assocCode.put(ID, code.getCodeId());
+					if (typeId == MetaConstants.CONTENT_CLASSIFICATION_STANDARD_TYPE_ID) {
+						assocCode.put(ROOT_NODE_ID, code.getRootNodeId());
+						String displayCode = code.getCommonCoreDotNotation();
+						if (displayCode == null) {
+							displayCode = code.getdisplayCode();
+						}
+						assocCode.put(CODE, displayCode);
+					} else if (typeId == MetaConstants.CONTENT_CLASSIFICATION_SKILLS_TYPE_ID) {
+						assocCode.put(LABEL, code.getLabel());
+					}
+					codes.add(assocCode);
+				}
+				this.getContentRepository().saveAll(contentClassifications);
 			}
-			this.getContentRepository().saveAll(contentClassifications);
 		}
 		return codes;
+	}
+
+	public List<Map<String, Object>> updateTaxonomyCourse(Content content, List<Integer> taxonomyCourseIds) {
+		this.getContentRepository().deleteContentTaxonomyCourseAssoc(content.getContentId());
+		List<Map<String, Object>> courses = null;
+		if (taxonomyCourseIds != null && taxonomyCourseIds.size() > 0) {
+			List<TaxonomyCourse> taxonomyCourses = this.getTaxonomyCourseRepository().getTaxonomyCourses(taxonomyCourseIds);
+			if (taxonomyCourses != null && taxonomyCourses.size() > 0) {
+				courses = new ArrayList<Map<String, Object>>();
+				List<ContentTaxonomyCourseAssoc> contentTaxonomyCourseAssocs = new ArrayList<ContentTaxonomyCourseAssoc>();
+				for (TaxonomyCourse taxonomyCourse : taxonomyCourses) {
+					Map<String, Object> course = new HashMap<String, Object>();
+					course.put(ID, taxonomyCourse.getCourseId());
+					course.put(SUBJECT_ID, taxonomyCourse.getSubjectId());
+					course.put(NAME, taxonomyCourse.getName());
+					courses.add(course);
+					ContentTaxonomyCourseAssoc contentTaxonomyCourseAssoc = new ContentTaxonomyCourseAssoc();
+					contentTaxonomyCourseAssoc.setContent(content);
+					contentTaxonomyCourseAssoc.setTaxonomyCourse(taxonomyCourse);
+					contentTaxonomyCourseAssocs.add(contentTaxonomyCourseAssoc);
+				}
+				this.getContentRepository().saveAll(contentTaxonomyCourseAssocs);
+			}
+		}
+		return courses;
+	}
+
+	protected Map<String, Object> setUser(Object userUid, Object username) {
+		Map<String, Object> user = new HashMap<String, Object>();
+		user.put(GOORU_UID, userUid);
+		user.put(USER_NAME, username);
+		user.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(getSettingService().getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf(user.get(GOORU_UID)) + ".png");
+		return user;
+	}
+
+	protected void updateMetaDataSummary(Long courseId, Long unitId, Long lessonId, String collectionType, String action) {
+		ContentMeta unitContentMeta = this.getContentRepository().getContentMeta(unitId);
+		ContentMeta courseContentMeta = this.getContentRepository().getContentMeta(courseId);
+		ContentMeta lessonContentMeta = this.getContentRepository().getContentMeta(lessonId);
+		if (lessonContentMeta != null) {
+			updateSummaryMeta(collectionType, lessonContentMeta, action);
+		}
+		if (unitContentMeta != null) {
+			updateSummaryMeta(collectionType, unitContentMeta, action);
+		}
+		if (courseContentMeta != null) {
+			updateSummaryMeta(collectionType, courseContentMeta, action);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	protected void updateSummaryMeta(String collectionType, ContentMeta contentMeta, String action) {
+		Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
+		});
+		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
+		if (collectionType.equalsIgnoreCase(CollectionType.ASSESSMENT.getCollectionType())) {
+			int assessmentCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue();
+			if (action.equalsIgnoreCase(DELETE)) {
+				assessmentCount -= 1;
+			} else if (action.equalsIgnoreCase(ADD)) {
+				assessmentCount += 1;
+			}
+			summary.put(MetaConstants.ASSESSMENT_COUNT, assessmentCount);
+		}
+		if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
+			int collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue();
+			if (action.equalsIgnoreCase(DELETE)) {
+				collectionCount -= 1;
+			} else if (action.equalsIgnoreCase(ADD)) {
+				collectionCount += 1;
+			}
+			summary.put(MetaConstants.COLLECTION_COUNT, collectionCount);
+		}
+		metaData.put(SUMMARY, summary);
+		updateContentMeta(contentMeta, metaData);
 	}
 
 	public CollectionDao getCollectionDao() {
 		return collectionDao;
 	}
-	
+
 	public ContentClassificationRepository getContentClassificationRepository() {
 		return contentClassificationRepository;
 	}
 
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
+	}
+
+	public IndexHandler getIndexHandler() {
+		return indexHandler;
+	}
+
+	public OperationAuthorizer getOperationAuthorizer() {
+		return operationAuthorizer;
+	}
+
+	public TaxonomyCourseRepository getTaxonomyCourseRepository() {
+		return taxonomyCourseRepository;
+	}
+
+	public SettingService getSettingService() {
+		return settingService;
 	}
 
 }

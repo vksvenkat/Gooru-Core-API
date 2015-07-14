@@ -78,15 +78,31 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 
 	private Map<String, Object> meta;
 
-	private Map<String, String> settings = new HashMap<String, String>();
+	private Map<String, String> settings;
 
 	private Set<ContentSettings> contentSettings;
-
-	private Set<Map<String, Object>> skills;
 
 	private Long views = 0L;
 
 	private Long viewCount;
+
+	private String uri;
+	
+	private List<Integer> standardIds;
+	
+	private List<Integer> skillIds;
+	
+	private List<Integer> depthOfKnowledgeIds;
+
+	private String mediaFilename;
+
+	public String getMediaFilename() {
+		return mediaFilename;
+	}
+
+	public void setMediaFilename(String mediaFilename) {
+		this.mediaFilename = mediaFilename;
+	}
 
 	public Long getContentId() {
 		return contentId;
@@ -304,14 +320,6 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 		this.contentSettings = contentSettings;
 	}
 
-	public Set<Map<String, Object>> getSkills() {
-		return skills;
-	}
-
-	public void setSkills(Set<Map<String, Object>> skills) {
-		this.skills = skills;
-	}
-
 	public Long getViews() {
 		return views;
 	}
@@ -332,6 +340,14 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 		this.viewCount = viewCount;
 	}
 
+	public String getUri() {
+		return uri;
+	}
+
+	public void setUri(String uri) {
+		this.uri = uri;
+	}
+
 	public static final String buildResourceFolder(Long contentId) {
 
 		String prefix = "f00000000000";
@@ -340,5 +356,29 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 		contentFolder = contentFolder.substring(0, 4) + "/" + contentFolder.substring(4, 8) + "/" + contentFolder.substring(8, 12);
 
 		return contentFolder + "/";
+	}
+
+	public List<Integer> getStandardIds() {
+		return standardIds;
+	}
+
+	public void setStandardIds(List<Integer> standardIds) {
+		this.standardIds = standardIds;
+	}
+
+	public List<Integer> getSkillIds() {
+		return skillIds;
+	}
+
+	public void setSkillIds(List<Integer> skillIds) {
+		this.skillIds = skillIds;
+	}
+
+	public List<Integer> getDepthOfKnowledgeIds() {
+		return depthOfKnowledgeIds;
+	}
+
+	public void setDepthOfKnowledgeIds(List<Integer> depthOfKnowledgeIds) {
+		this.depthOfKnowledgeIds = depthOfKnowledgeIds;
 	}
 }

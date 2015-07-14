@@ -19,6 +19,7 @@ import javax.json.JsonValue;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
+import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
@@ -37,7 +38,7 @@ import flexjson.transformer.TransformerWrapper;
  *
  */
 
-public class AssessmentQuestionTransformer extends ObjectTransformer {
+public class AssessmentQuestionTransformer extends ObjectTransformer implements ParameterProperties, ConstantProperties  {
 
 	/*
 	 * (non-Javadoc)
@@ -98,10 +99,7 @@ public class AssessmentQuestionTransformer extends ObjectTransformer {
 		instance.put("url", question.getUrl());
 		instance.put("version", question.getVersion());
 		instance.put("license", question.getLicense());
-//		instance.put("taxonomySet", question.getTaxonomySet());
-		instance.put("depthOfKnowledges", question.getDepthOfKnowledges());
-		instance.put("educationalUse", question.getEducationalUse());
-		instance.put("skills", question.getSkills());
+		instance.put("taxonomySet", question.getTaxonomySet());
 		return instance;
 	}
 
@@ -154,9 +152,9 @@ public class AssessmentQuestionTransformer extends ObjectTransformer {
 					+ question.getGooruOid());
 			throw new NotFoundException(
 					ServerValidationUtils.generateErrorMessage(
-							ParameterProperties.GL0056,
+							ConstantProperties.GL0056,
 							ParameterProperties.RESOURCE),
-					ParameterProperties.GL0056);
+					ConstantProperties.GL0056);
 		}
 		return qData;
 	}

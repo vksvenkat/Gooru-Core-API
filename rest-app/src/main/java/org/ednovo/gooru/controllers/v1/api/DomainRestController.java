@@ -57,7 +57,7 @@ public class DomainRestController extends BaseController implements ConstantProp
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_ADD })
 	@RequestMapping(method = RequestMethod.POST)
-	public ModelAndView createDomain(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView createDomain(@RequestBody String data, HttpServletRequest request, HttpServletResponse response)   {
 		final User user = (User) request.getAttribute(Constants.USER);
 		ActionResponseDTO<Domain> responseDTO = getDomainService().createDomain(buildDomainFromInputParameters(data), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
@@ -71,34 +71,28 @@ public class DomainRestController extends BaseController implements ConstantProp
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_UPDATE })
-	@RequestMapping(value = { "/{id}" }, method = RequestMethod.PUT)
-	public void updateDomain(@PathVariable(value = ID) Integer domainId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.PUT)
+	public void updateDomain(@PathVariable(value = ID) Integer domainId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response)   {
 		getDomainService().updateDomain(domainId, buildDomainFromInputParameters(data));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_READ })
-	@RequestMapping(value = { "/{id}" }, method = RequestMethod.GET)
-	public ModelAndView getDomain(@PathVariable(value = ID) Integer domainId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.GET)
+	public ModelAndView getDomain(@PathVariable(value = ID) Integer domainId, HttpServletRequest request, HttpServletResponse response)   {
 		return toModelAndViewWithIoFilter(getDomainService().getDomain(domainId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, DOMAIN_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_READ })
 	@RequestMapping(method = RequestMethod.GET)
-	public ModelAndView getDomains(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView getDomains(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request, HttpServletResponse response)   {
 		return toModelAndViewWithIoFilter(getDomainService().getDomains(limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, DOMAIN_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_DELETE })
-	@RequestMapping(value = { "/{id}" }, method = RequestMethod.DELETE)
+	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.DELETE)
 	public void deleteDomain(@PathVariable(value = ID) Integer domainId, HttpServletRequest request, HttpServletResponse response) {
 		getDomainService().deleteDomain(domainId);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-	}
-	
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_DELETE })
-	@RequestMapping(value = { "taxonomycourse/{cid}/domain/{id}" }, method = RequestMethod.GET)
-	public ModelAndView getDomainAttributes(HttpServletRequest request, HttpServletResponse response,@PathVariable(value = CID) Integer courseId, @PathVariable(value = ID) Integer domainId,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit) {
-		return toModelAndViewWithIoFilter(getDomainService().getDomainAttributes(courseId, domainId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL,true, SUBDOMAIN_ATTRIBUTE);
 	}
 
 	public DomainService getDomainService() {

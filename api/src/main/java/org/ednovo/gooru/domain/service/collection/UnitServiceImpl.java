@@ -7,17 +7,18 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.Content;
-import org.ednovo.gooru.core.api.model.ContentDomainAssoc;
 import org.ednovo.gooru.core.api.model.ContentMeta;
-import org.ednovo.gooru.core.api.model.Domain;
+import org.ednovo.gooru.core.api.model.ContentSubdomainAssoc;
 import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
+import org.ednovo.gooru.core.api.model.Subdomain;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.domain.service.DomainRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.SubdomainRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,17 +32,15 @@ import com.fasterxml.jackson.core.type.TypeReference;
 @Service
 public class UnitServiceImpl extends AbstractCollectionServiceImpl implements UnitService, ConstantProperties, ParameterProperties {
 
-	private static final String[] UNIT_TYPE = { "unit" };
-
 	@Autowired
-	private DomainRepository domainRepository;
+	private SubdomainRepository subdomainRepository;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Collection> createUnit(String courseId, Collection collection, User user) {
 		final Errors errors = validateUnit(collection);
 		if (!errors.hasErrors()) {
-			Collection parentCollection = getCollectionDao().getCollection(courseId);
+			Collection parentCollection = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 			rejectIfNull(collection, GL0056, COURSE);
 			collection.setSharing(Sharing.PRIVATE.getSharing());
 			collection.setCollectionType(CollectionType.UNIT.getCollectionType());
@@ -56,9 +55,14 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void updateUnit(String unitId, Collection newCollection, User user) {
-		Collection collection = this.getCollectionDao().getCollection(unitId);
+	public void updateUnit(String courseId, String unitId, Collection newCollection, User user) {
+		Collection collection = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
 		rejectIfNull(collection, GL0056, UNIT);
+		Collection parentCollection = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
+		rejectIfNull(collection, GL0056, COURSE);
+		if(newCollection.getPosition() != null){
+			this.resetSequence(parentCollection, collection.getGooruOid() , newCollection.getPosition(), user.getPartyUid());
+		}
 		this.updateCollection(collection, newCollection, user);
 		Map<String, Object> data = generateUnitMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {
@@ -87,6 +91,47 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		return units;
 	}
 
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void deleteUnit(String courseId, String unitId, User user) {
+		CollectionItem unit = getCollectionDao().getCollectionItem(courseId, unitId, user.getPartyUid());
+		rejectIfNull(unit, GL0056, UNIT);
+		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(unitId, user), GL0099, 403, UNIT);
+		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
+		rejectIfNull(course, GL0056, COURSE);
+		this.deleteValidation(unit.getContent().getContentId(), UNIT);
+		this.resetSequence(courseId, unit.getContent().getGooruOid(), user.getPartyUid());
+		this.deleteCollection(unitId);
+		this.updateMetaDataSummary(course.getContentId(), unit.getContent().getContentId());
+	}
+
+	private void updateMetaDataSummary(Long courseId, Long unitId) {
+		ContentMeta unitContentMeta = this.getContentRepository().getContentMeta(unitId);
+		ContentMeta courseContentMeta = this.getContentRepository().getContentMeta(courseId);
+		if (courseContentMeta != null) {
+			updateSummaryMeta(courseContentMeta, unitContentMeta);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void updateSummaryMeta(ContentMeta contentMeta, ContentMeta unitContentMeta) {
+		Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
+		});
+		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
+		Map<String, Object> unitMetaData = JsonDeserializer.deserialize(unitContentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
+		});
+		Map<String, Object> unitSummary = (Map<String, Object>) unitMetaData.get(SUMMARY);
+
+		int unitCount = ((Number) summary.get(MetaConstants.UNIT_COUNT)).intValue() - 1;
+		summary.put(MetaConstants.UNIT_COUNT, unitCount);
+
+		int lessonCount = ((Number) summary.get(MetaConstants.LESSON_COUNT)).intValue() - ((Number) unitSummary.get(MetaConstants.LESSON_COUNT)).intValue();
+		summary.put(MetaConstants.LESSON_COUNT, lessonCount);
+
+		metaData.put(SUMMARY, summary);
+		updateContentMeta(contentMeta, metaData);
+	}
+
 	private void updateCourseMetaData(Long courseId) {
 		ContentMeta contentMeta = this.getContentRepository().getContentMeta(courseId);
 		if (contentMeta != null) {
@@ -103,31 +148,39 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 
 	private Map<String, Object> generateUnitMetaData(Collection collection, Collection newCollection, User user) {
 		Map<String, Object> data = new HashMap<String, Object>();
-		if (newCollection.getDomainIds() != null) {
-			List<Map<String, Object>> domain = updateUnitDomain(collection, newCollection.getDomainIds());
-			data.put(DOMAIN, domain);
+		if (newCollection.getSubdomainIds() != null) {
+			List<Map<String, Object>> subdomain = updateUnitDomain(collection, newCollection.getSubdomainIds());
+			data.put(SUBDOMAIN, subdomain);
+		}
+		if (newCollection.getTaxonomyCourseIds() != null) {
+			List<Map<String, Object>> taxonomyCourse = updateTaxonomyCourse(collection, newCollection.getTaxonomyCourseIds());
+			data.put(TAXONOMY_COURSE, taxonomyCourse);
 		}
 		return data;
 	}
 
-	private List<Map<String, Object>> updateUnitDomain(Content content, List<Integer> domainIds) {
-		this.getContentRepository().deleteContentDomainAssoc(content.getContentId());
+	private List<Map<String, Object>> updateUnitDomain(Content content, List<Integer> subdomainIds) {
+		this.getContentRepository().deleteContentSubdomainAssoc(content.getContentId());
 		List<Map<String, Object>> unitDomains = null;
-		if (domainIds != null && domainIds.size() > 0) {
-			List<Domain> domains = this.getDomainRepository().getDomains(domainIds);
-			unitDomains = new ArrayList<Map<String, Object>>();
-			List<ContentDomainAssoc> contentDomainAssocs = new ArrayList<ContentDomainAssoc>();
-			for (Domain domain : domains) {
-				ContentDomainAssoc contentDomainAssoc = new ContentDomainAssoc();
-				contentDomainAssoc.setContent(content);
-				contentDomainAssoc.setDomain(domain);
-				contentDomainAssocs.add(contentDomainAssoc);
-				Map<String, Object> unitDomain = new HashMap<String, Object>();
-				unitDomain.put(ID, contentDomainAssoc.getDomain().getDomainId());
-				unitDomain.put(NAME, contentDomainAssoc.getDomain().getName());
-				unitDomains.add(unitDomain);
+		if (subdomainIds != null && subdomainIds.size() > 0) {
+			List<Subdomain> domains = this.getSubdomainRepository().getSubdomains(subdomainIds);
+			if (domains != null && domains.size() > 0) {
+				unitDomains = new ArrayList<Map<String, Object>>();
+				List<ContentSubdomainAssoc> contentDomainAssocs = new ArrayList<ContentSubdomainAssoc>();
+				for (Subdomain subdomain : domains) {
+					ContentSubdomainAssoc contentDomainAssoc = new ContentSubdomainAssoc();
+					contentDomainAssoc.setContent(content);
+					contentDomainAssoc.setSubdomain(subdomain);
+					contentDomainAssocs.add(contentDomainAssoc);
+					Map<String, Object> unitDomain = new HashMap<String, Object>();
+					unitDomain.put(ID, subdomain.getSubdomainId());
+					unitDomain.put(SUBJECT_ID, subdomain.getTaxonomyCourse().getSubjectId());
+					unitDomain.put(COURSE_ID, subdomain.getTaxonomyCourse().getCourseId());
+					unitDomain.put(NAME, subdomain.getDomain().getName());
+					unitDomains.add(unitDomain);
+				}
+				this.getContentRepository().saveAll(contentDomainAssocs);
 			}
-			this.getContentRepository().saveAll(contentDomainAssocs);
 		}
 		return unitDomains;
 	}
@@ -140,8 +193,8 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		return errors;
 	}
 
-	public DomainRepository getDomainRepository() {
-		return domainRepository;
+	public SubdomainRepository getSubdomainRepository() {
+		return subdomainRepository;
 	}
 
 }

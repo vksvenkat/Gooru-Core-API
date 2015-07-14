@@ -39,9 +39,9 @@ public class Collection extends Content implements Versionable {
 
 	private CollectionItem collectionItem;
 
-	private Short buildType;
+	private Short buildTypeId;
 
-	private Short publishStatus;
+	private Short publishStatusId;
 
 	private Boolean mailNotification;
 
@@ -79,6 +79,8 @@ public class Collection extends Content implements Versionable {
 
 	private List<ContentMetaDTO> depthOfKnowledges;
 
+	private Integer position;
+
 	private String url;
 
 	private ResourceMetaInfo metaInfo;
@@ -87,15 +89,13 @@ public class Collection extends Content implements Versionable {
 
 	private String lastAccessedTime;
 
-	private String uri;
-
-	private String mediaFilename;
-
 	private List<Integer> taxonomyCourseIds;
+
+	private List<Integer> subdomainIds;
+
+	private List<Integer> depthOfKnowledgeIds;
 	
-	private List<Integer> domainIds;
-	
-	private List<Integer> standardIds;
+	private Short distinguish;	
 
 	public String getIdeas() {
 		return ideas;
@@ -386,40 +386,8 @@ public class Collection extends Content implements Versionable {
 		return thumbnails;
 	}
 
-	public String getUri() {
-		return uri;
-	}
-
-	public void setUri(String uri) {
-		this.uri = uri;
-	}
-
-	public Short getBuildType() {
-		return buildType;
-	}
-
-	public void setBuildType(Short buildType) {
-		this.buildType = buildType;
-	}
-
-	public Short getPublishStatus() {
-		return publishStatus;
-	}
-
-	public void setPublishStatus(Short publishStatus) {
-		this.publishStatus = publishStatus;
-	}
-
 	public String getType() {
 		return getCollectionType();
-	}
-
-	public String getMediaFilename() {
-		return mediaFilename;
-	}
-
-	public void setMediaFilename(String mediaFilename) {
-		this.mediaFilename = mediaFilename;
 	}
 
 	public List<Integer> getAudienceIds() {
@@ -438,20 +406,51 @@ public class Collection extends Content implements Versionable {
 		this.taxonomyCourseIds = taxonomyCourseIds;
 	}
 
-	public List<Integer> getDomainIds() {
-		return domainIds;
+	public List<Integer> getDepthOfKnowledgeIds() {
+		return depthOfKnowledgeIds;
 	}
 
-	public void setDomainIds(List<Integer> domainIds) {
-		this.domainIds = domainIds;
+	public void setDepthOfKnowledgeIds(List<Integer> depthOfKnowledgeIds) {
+		this.depthOfKnowledgeIds = depthOfKnowledgeIds;
 	}
 
-	public List<Integer> getStandardIds() {
-		return standardIds;
+	public Short getBuildTypeId() {
+		return buildTypeId;
 	}
 
-	public void setStandardIds(List<Integer> standardIds) {
-		this.standardIds = standardIds;
+	public void setBuildTypeId(Short buildTypeId) {
+		this.buildTypeId = buildTypeId;
 	}
 
+	public Short getPublishStatusId() {
+		return publishStatusId;
+	}
+
+	public void setPublishStatusId(Short publishStatusId) {
+		this.publishStatusId = publishStatusId;
+	}
+
+	public Integer getPosition() {
+		return position;
+	}
+
+	public void setPosition(Integer position) {
+		this.position = position;
+	}
+
+	public List<Integer> getSubdomainIds() {
+		return subdomainIds;
+	}
+
+	public void setSubdomainIds(List<Integer> subdomainIds) {
+		this.subdomainIds = subdomainIds;
+	}
+
+	public Short getDistinguish() {
+		return distinguish;
+	}
+
+	public void setDistinguish(Short distinguish) {
+		this.distinguish = distinguish;
+	}
 }

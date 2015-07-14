@@ -24,18 +24,27 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Subdomain;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implements SubdomainRepository, ParameterProperties,ConstantProperties {
+public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implements SubdomainRepository, ParameterProperties, ConstantProperties {
 
 	private static final String SUBDOMAINS = "FROM Subdomain";
+
 	private static final String SUBDOMAIN = "FROM Subdomain subdomain WHERE subdomain.subdomainId=:subdomainId";
+
+	private static final String SUBDOMAIN_BY_IDS = "FROM Subdomain  WHERE subdomainId in (:subdomainId)";
+
+	private static final String SUBDOMAIN_STANDARDS = "select s.code_id as codeId, ifnull(common_core_dot_notation, display_code) as code, label from subdomain_attribute_mapping  s  inner join  code c on s.code_id = c.code_id where s.subdomain_id=:subdomainId order by c.sequence";
+
+	private static final String STANDARDS = "select code_id as codeId, ifnull(common_core_dot_notation, display_code) as code, label  from code where parent_id =:codeId order by sequence";
 
 	@Override
 	public Subdomain getSubdomain(Integer subdomainId) {
@@ -51,4 +60,25 @@ public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implem
 		return list(query);
 	}
 
+	@Override
+	public List<Subdomain> getSubdomains(List<Integer> subdomainIds) {
+		Query query = getSession().createQuery(SUBDOMAIN_BY_IDS).setParameterList(SUBDOMAIN_ID, subdomainIds);
+		return list(query);
+	}
+
+	@Override
+	public List<Map<String, Object>> getSubdomainStandards(Integer subdomainId) {
+		Query query = getSession().createSQLQuery(SUBDOMAIN_STANDARDS);
+		query.setParameter(SUBDOMAIN_ID, subdomainId);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		return list(query);
+	}
+
+	@Override
+	public List<Map<String, Object>> getStandards(Integer codeId) {
+		Query query = getSession().createSQLQuery(STANDARDS);
+		query.setParameter(CODE_ID, codeId);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		return list(query);
+	}
 }

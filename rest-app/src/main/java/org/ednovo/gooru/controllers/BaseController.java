@@ -124,7 +124,12 @@ public class BaseController extends SerializerUtil implements ParameterPropertie
 	public String generateUri(String uri, String id) {
 		StringBuilder sb = new StringBuilder(StringUtils.substring(uri, 14));
 		sb.append(RequestMappingUri.SEPARATOR).append(id);
-		
+		return sb.toString();
+	}
+	
+	public String buildUri(String uri, String id) {
+		StringBuilder sb = new StringBuilder(uri);
+		sb.append(RequestMappingUri.SEPARATOR).append(id);
 		return sb.toString();
 	}
 

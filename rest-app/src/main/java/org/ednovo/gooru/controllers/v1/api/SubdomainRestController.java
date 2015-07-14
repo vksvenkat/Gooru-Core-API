@@ -56,7 +56,7 @@ public class SubdomainRestController extends BaseController implements ConstantP
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBDOMAIN_ADD })
 	@RequestMapping(method = RequestMethod.POST)
-	public ModelAndView createSubdomain(HttpServletRequest request, HttpServletResponse response, @RequestBody String data) throws Exception {
+	public ModelAndView createSubdomain(HttpServletRequest request, HttpServletResponse response, @RequestBody String data)   {
 		User user = (User) request.getAttribute(Constants.USER);
 		final ActionResponseDTO<Subdomain> responseDTO = this.getSubdomainService().createSubdomain(buildSubdomainFromInputParameters(data), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
@@ -71,21 +71,27 @@ public class SubdomainRestController extends BaseController implements ConstantP
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBDOMAIN_READ })
 	@RequestMapping(method = RequestMethod.GET)
-	public ModelAndView getSubdomains(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletResponse response, HttpServletRequest request) throws Exception {
+	public ModelAndView getSubdomains(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletResponse response, HttpServletRequest request)   {
 		return toModelAndViewWithIoFilter(this.getSubdomainService().getSubdomains(limit, offset), FORMAT_JSON, EXCLUDE_ALL, true, SUBDOMAIN_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBDOMAIN_READ })
-	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
-	public ModelAndView getSubdomain(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) Integer SubdomainId) throws Exception {
+	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.GET)
+	public ModelAndView getSubdomain(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) Integer SubdomainId)   {
 		return toModelAndViewWithIoFilter(this.getSubdomainService().getSubdomain(SubdomainId), FORMAT_JSON, EXCLUDE_ALL, true, SUBDOMAIN_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBDOMAIN_DELETE })
-	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
-	public void deleteSubdomain(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) Integer subDomaintId) throws Exception {
+	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.DELETE)
+	public void deleteSubdomain(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) Integer subDomaintId)   {
 		this.getSubdomainService().deleteSubdomain(subDomaintId);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBDOMAIN_READ })
+	@RequestMapping(value = RequestMappingUri.SUBDOMAIN_STANDARDS, method = RequestMethod.GET)
+	public ModelAndView getSubdomainStandards(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) Integer subdomainId)   {
+		return toModelAndViewWithIoFilter(this.getSubdomainService().getSubdomainStandards(subdomainId), FORMAT_JSON, EXCLUDE, true, "*");
 	}
 
 	private Subdomain buildSubdomainFromInputParameters(String data) {

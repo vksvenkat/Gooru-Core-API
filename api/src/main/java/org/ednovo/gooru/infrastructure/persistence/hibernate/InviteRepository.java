@@ -30,6 +30,7 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.InviteUser;
 
@@ -39,7 +40,13 @@ public interface InviteRepository extends BaseRepository {
 	Long getInviteUsersCountById(String gooruOid);
 
 	List<InviteUser> getInviteUserByMail(String data, String inviteType);
-	
+
 	List<InviteUser> getInviteUsersById(String gooruOid);
+
+	List<Map<String, Object>> getInvitee(String gooruOid, String statusKey, int limit, int offset);
+
+	int getInviteeCount(String gooruOid, String statusKey);
+	
+	void deleteInviteUser(String gooruOid, String email);
 
 }

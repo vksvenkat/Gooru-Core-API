@@ -33,6 +33,7 @@ import javax.annotation.PostConstruct;
 
 import org.ednovo.gooru.cassandra.core.dao.RawCassandraDao;
 import org.ednovo.gooru.core.constant.ColumnFamilyConstant;
+import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.domain.cassandra.ApiCassandraFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,7 +43,7 @@ import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import com.netflix.astyanax.model.ColumnList;
 
 @Service
-public class BlackListWordCassandraServiceImpl implements BlackListWordCassandraService, ParameterProperties {
+public class BlackListWordCassandraServiceImpl implements BlackListWordCassandraService, ParameterProperties, ConstantProperties {
 
 	@Autowired
 	private ApiCassandraFactory apiCassandraFactory;
@@ -53,7 +54,7 @@ public class BlackListWordCassandraServiceImpl implements BlackListWordCassandra
 
 	private static final String WILD_CARD = "*";
 
-	private static final String[] EXPRESSIONS = { "\\s", "\\s*[^a-zA-Z0-9']+\\s*" };
+	//private static final String[] EXPRESSIONS = { "\\s", "\\s*[^a-zA-Z0-9']+\\s*" };
 
 	@PostConstruct
 	public final void init(){
@@ -69,15 +70,15 @@ public class BlackListWordCassandraServiceImpl implements BlackListWordCassandra
 		}
 		ServerValidationUtils.rejectIfNull(query, GL0006, PROFANITY_TEXT);
 		if (query != null && !query.equals(WILD_CARD)) {
-			for (String expression : EXPRESSIONS) {
-				String[] blackWords = query.split(expression);
+			
+				String[] blackWords = query.split(" ");
 				for (String blackWord : blackWords) {
 					blackWord = blackWord.trim();
 					if (blackListedWords.contains(blackWord.toLowerCase())) {
 						return true;
 					}
 				}
-			}
+			
 		}
 		return false;
 	}

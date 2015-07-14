@@ -33,11 +33,11 @@ public interface DomainRepository extends BaseRepository{
 	
 	Domain getDomain(Integer domainId);
 	
-	List<Domain> getDomains(Integer limit, Integer offset);
+	List<Domain> getDomains(int limit, int offset);
 
 	Integer getMaxSequence();
 	
-	List<Map<String, String>> getDomainAttributes(Integer courseId, Integer domainId,int limit, int offset);
+	List<Map<String, String>> getDomainAttributes(Integer courseId, Integer domainId, int limit, int offset);
 
 	List<Domain> getDomains(List<Integer> domainIds);
 }

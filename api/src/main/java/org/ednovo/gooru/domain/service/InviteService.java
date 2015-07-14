@@ -26,15 +26,13 @@ package org.ednovo.gooru.domain.service;
 import java.util.List;
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.InviteUser;
 import org.ednovo.gooru.core.api.model.User;
 
-
-
 public interface InviteService extends BaseService {
-	
-	List<Map<String, String>>  inviteUserForClass(List<String> emails, String classCode, User apiCaller);
-	
-	InviteUser createInviteUserObj(String email, String gooruOid, String invitationType, User user);
-	
+
+	void inviteUserForClass(List<String> emails, String classUid, User user);
+
+	Map<String, Object> getInvites(String gooruOid, String status, int limit, int offset);
+
+	void deleteInvitee(String gooruOid, String email);
 }

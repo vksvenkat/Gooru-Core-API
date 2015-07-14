@@ -120,7 +120,9 @@
 				</value>
 				<value>org/ednovo/gooru/domain/model/content/ContentTaxonomyCourseAssoc.hbm.xml
 				</value>
-				<value>org/ednovo/gooru/domain/model/content/ContentDomainAssoc.hbm.xml
+				<value>org/ednovo/gooru/domain/model/content/ContentSubdomainAssoc.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/content/ClassCollectionSettings.hbm.xml
 				</value>
 
 
@@ -210,13 +212,6 @@
 				<value>/org/ednovo/gooru/domain/model/comment/Comment.hbm.xml
 				</value>
 
-				<!-- Session -->
-				<value>org/ednovo/gooru/domain/model/session/SessionActivity.hbm.xml
-				</value>
-				<value>org/ednovo/gooru/domain/model/session/SessionActivityItem.hbm.xml
-				</value>
-				<value>org/ednovo/gooru/domain/model/session/SessionActivityItemAttemptTry.hbm.xml
-				</value>
 
 				<!-- Response FieldSet -->
 				<value>org/ednovo/gooru/domain/model/responseFieldSet/ResponseFieldSet.hbm.xml
