@@ -203,19 +203,14 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 							}
 						}
 					}
-                    if (assessmentQuestion.isQuestionNewGen()) {
-                        List<String> mediaFilesToAdd = newQuestion.getMediaFiles();
-                        if (mediaFilesToAdd != null && mediaFilesToAdd.size() > 0) {
-                            for (String mediaFileToAdd : mediaFilesToAdd) {
-                                assessmentService.updateQuizQuestionImage(
-                                        assessmentQuestion.getGooruOid(),
-                                        mediaFileToAdd,
-                                        assessmentQuestion,
-                                        null
-                                );
-                            }
-                        }
-                    }
+					if (assessmentQuestion.isQuestionNewGen()) {
+						List<String> mediaFilesToAdd = newQuestion.getMediaFiles();
+						if (mediaFilesToAdd != null && mediaFilesToAdd.size() > 0) {
+							for (String mediaFileToAdd : mediaFilesToAdd) {
+								assessmentService.updateQuizQuestionImage(assessmentQuestion.getGooruOid(), mediaFileToAdd, assessmentQuestion, null);
+							}
+						}
+					}
 					// collectionItem.setQuestionInfo(assessmentQuestion);
 
 					collectionItem.setStandards(this.getStandards(assessmentQuestion.getTaxonomySet(), false, null));
@@ -541,7 +536,12 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public List<Map<String, Object>> getFolderItem(final String gooruOid, final Integer limit, Integer offset, final String sharing, final String collectionType, final String orderBy, final Integer itemLimit, final boolean fetchChildItem, final String sortOrder, final String excludeType) {
 		List<Map<String, Object>> folderItems = this.getCollectionRepository().getFolder(gooruOid, null, limit, offset, sharing, collectionType, fetchChildItem, orderBy, excludeType);
 		if (folderItems == null || folderItems.size() == 0) {
-			folderItems = this.getCollectionRepository().getCollectionItem(gooruOid, 4, 0, sharing, orderBy, collectionType, fetchChildItem, ASC, false, excludeType);
+			if (collectionType != null && collectionType.equalsIgnoreCase(FOLDER)) {
+				folderItems = this.getFolderItem(gooruOid, limit, offset, sharing, collectionType, orderBy, itemLimit, fetchChildItem, sortOrder, excludeType);
+			} else {
+				folderItems = this.getCollectionRepository().getCollectionItem(gooruOid, 4, 0, sharing, orderBy, collectionType, fetchChildItem, ASC, false, excludeType);
+
+			}
 		}
 		List<Map<String, Object>> folderList = new ArrayList<Map<String, Object>>();
 		if (folderItems != null) {
@@ -712,7 +712,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + scollection.getUser().getPartyUid() + "*");
 					// TO DO
 					if (scollection.getPublishStatusId() != null) {
-						 scollection.setPublishStatusId(Constants.PUBLISH_REVIEWED_STATUS_ID);
+						scollection.setPublishStatusId(Constants.PUBLISH_REVIEWED_STATUS_ID);
 						collectionIds.append(scollection.getGooruOid());
 						if (!scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 							final UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
