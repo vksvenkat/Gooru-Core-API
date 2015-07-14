@@ -77,6 +77,8 @@ public interface ErrorCodeProperties {
 	String STATUS_500 = "500";
 
 	String STATUS_4011 = "4011";
+	
+	String GL0111 = "GL0111";
 
 
 }
