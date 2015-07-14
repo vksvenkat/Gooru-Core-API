@@ -839,7 +839,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public List<Collection> getCollectionsList(final User user, final Integer limit, final Integer offset, final String publishStatus) {
-		String hql = " FROM Collection collection   WHERE  collection.resourceType.name=:type and " + generateOrgAuthQuery("collection.");
+		String hql = " FROM Collection collection   WHERE  collection.collectionType=:type and " + generateOrgAuthQuery("collection.");
 		if (publishStatus != null) {
 			hql += " and collection.publishStatus IS NOT NULL and  collection.collectionType in ('collection', 'assessment', 'quiz') and  collection.publishStatus.keyValue =:pending order by collection.lastModified desc";
 		}
