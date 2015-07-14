@@ -549,6 +549,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollectionItem(String collectionId, String collectionItemId, String userUid) {
 		CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(collectionId, collectionItemId, userUid);
 		rejectIfNull(collectionItem, GL0056, 404, _COLLECTION_ITEM);
@@ -556,6 +557,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(resource, GL0056, 404, RESOURCE);
 		String contentType = resource.getContentType().getName();
 		Long collectionContentId = collectionItem.getCollection().getContentId();
+		this.resetSequence(collectionId, collectionItemId, userUid);
 		if (contentType.equalsIgnoreCase(QUESTION)) {
 			getCollectionDao().remove(resource);
 		} else {
