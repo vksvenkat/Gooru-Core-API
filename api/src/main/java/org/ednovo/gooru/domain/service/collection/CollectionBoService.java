@@ -10,9 +10,9 @@ import org.ednovo.gooru.core.api.model.User;
 
 public interface CollectionBoService extends AbstractCollectionService {
 	
-	ActionResponseDTO<Collection> createCollection(User user, Collection collection);
-
 	ActionResponseDTO<Collection> createCollection(String courseId, String unitId, String lessonId, User user, Collection collection);
+	
+	ActionResponseDTO<Collection> createCollection(String folderId, User user, Collection collection);
 
 	void updateCollection(String parentId, String collectionId, Collection newCollection, User user);
 

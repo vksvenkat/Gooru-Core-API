@@ -749,7 +749,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	@Override
 	public User createUser(final User newUser, final String password, final String school, Integer confirmStatus, final Integer addedBySystem, final String userImportCode, String accountType, final String dateOfBirth, final String userParentId, final String remoteEntityId, final String gender, final String childDOB, final String source, final String emailSSO,
-			final HttpServletRequest request, final String role, final String mailConfirmationUrl) throws Exception {
+			final HttpServletRequest request, final String userCategory, final String mailConfirmationUrl) throws Exception {
 		List<InviteUser> inviteuser = null;
 		if (accountType == null || !accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType())) {
 			inviteuser = this.getInviteRepository().getInviteUserByMail(newUser.getEmailId(), COLLABORATOR);
@@ -880,10 +880,10 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		final Profile profile = new Profile();
 		profile.setUser(user);
 		profile.setSchool(school);
-		if (role != null
-				&& (role.equalsIgnoreCase(UserRole.UserRoleType.STUDENT.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.PARENT.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.TEACHER.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.AUTHENTICATED_USER.getType()) || role
+		if (userCategory != null
+				&& (userCategory.equalsIgnoreCase(UserRole.UserRoleType.STUDENT.getType()) || userCategory.equalsIgnoreCase(UserRole.UserRoleType.PARENT.getType()) || userCategory.equalsIgnoreCase(UserRole.UserRoleType.TEACHER.getType()) || userCategory.equalsIgnoreCase(UserRole.UserRoleType.AUTHENTICATED_USER.getType()) || userCategory
 						.equalsIgnoreCase(UserRole.UserRoleType.OTHER.getType()))) {
-			profile.setUserType(role);
+			profile.setUserType(userCategory);
 		}
 		if (dateOfBirth != null && accountType != null && !dateOfBirth.equalsIgnoreCase(_NULL)) {
 			if (accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType()) && userParentId != null) {

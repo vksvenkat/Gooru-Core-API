@@ -35,7 +35,8 @@ import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class DomainRepositoryHibernate extends BaseRepositoryHibernate implements DomainRepository, ParameterProperties, ConstantProperties {
+public class DomainRepositoryHibernate extends BaseRepositoryHibernate
+		implements DomainRepository, ParameterProperties, ConstantProperties {
 
 	private static final String GET_DOMAIN = "FROM Domain d  WHERE d.domainId=:domainId";
 
@@ -49,14 +50,16 @@ public class DomainRepositoryHibernate extends BaseRepositoryHibernate implement
 
 	@Override
 	public Domain getDomain(Integer domainId) {
-		Query query = getSession().createQuery(GET_DOMAIN).setParameter(DOMAIN_ID, domainId);
+		Query query = getSession().createQuery(GET_DOMAIN).setParameter(
+				DOMAIN_ID, domainId);
 		return (Domain) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 	@Override
-	public List<Domain> getDomains(Integer limit, Integer offset) {
+	public List<Domain> getDomains(int limit, int offset) {
 		Query query = getSession().createQuery(GET_DOMAINS);
-		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
+		query.setMaxResults(limit != 0 ? (limit > MAX_LIMIT ? MAX_LIMIT : limit)
+				: limit);
 		query.setFirstResult(offset);
 		return list(query);
 	}
@@ -68,7 +71,8 @@ public class DomainRepositoryHibernate extends BaseRepositoryHibernate implement
 	}
 
 	@Override
-	public List<Map<String, String>> getDomainAttributes(Integer courseId, Integer domainId, int limit, int offset) {
+	public List<Map<String, String>> getDomainAttributes(Integer courseId,
+			Integer domainId, int limit, int offset) {
 		Query query = getSession().createSQLQuery(GET_DOMAIN_ATTRIBUTES);
 		query.setParameter(COURSE_ID, courseId);
 		query.setParameter(DOMAIN_ID, domainId);
@@ -80,7 +84,8 @@ public class DomainRepositoryHibernate extends BaseRepositoryHibernate implement
 
 	@Override
 	public List<Domain> getDomains(List<Integer> domainIds) {
-		Query query = getSession().createQuery(GET_DOMAINS_BY_IDS).setParameterList(DOMAIN_ID, domainIds);
+		Query query = getSession().createQuery(GET_DOMAINS_BY_IDS)
+				.setParameterList(DOMAIN_ID, domainIds);
 		return list(query);
 	}
 
