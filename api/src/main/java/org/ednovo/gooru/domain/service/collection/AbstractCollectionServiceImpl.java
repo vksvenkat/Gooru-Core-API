@@ -169,7 +169,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	public void resetSequence(Collection parentCollection, String gooruOid, Integer newSequence, String userUid) {
 		int max = this.getCollectionDao().getCollectionItemMaxSequence(parentCollection.getContentId());
-		reject((max > newSequence), GL0007, 404, ITEM_SEQUENCE);
+		reject((max >= newSequence), GL0007, 404, ITEM_SEQUENCE);
 		CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(parentCollection.getGooruOid(), gooruOid, userUid);
 		if (collectionItem != null) {
 			List<CollectionItem> resetCollectionSequence = null;

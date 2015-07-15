@@ -1443,7 +1443,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		final Errors errors = new BindException(collection, COLLECTION);
 		if (collection != null) {
 			rejectIfNullOrEmpty(errors, collection.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
-			rejectIfInvalidType(errors, collection.getCollectionType(), COLLECTION_TYPE, GL0007, generateErrorMessage(GL0007, COLLECTION_TYPE), Constants.COLLECTION_TYPES);
+			if (collection.getCollectionType() != null && !collection.getCollectionType().equalsIgnoreCase(FOLDER)) { 
+				rejectIfInvalidType(errors, collection.getCollectionType(), COLLECTION_TYPE, GL0007, generateErrorMessage(GL0007, COLLECTION_TYPE), Constants.COLLECTION_TYPES);
+			}
 		}
 		return errors;
 	}
