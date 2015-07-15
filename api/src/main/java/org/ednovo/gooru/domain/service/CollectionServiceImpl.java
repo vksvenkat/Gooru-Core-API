@@ -806,7 +806,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				content = new HashMap<String, Object>();
 				content.put(SEARCH_RESULT, getFolderItem(gooruOid, limit, offset, sharing, collectionType, orderBy, itemLimit, fetchChildItem, collection.getCollectionType().equalsIgnoreCase(COLLECTION) ? ASC : DESC, excludeType));
 				content.put(COUNT, this.getCollectionRepository().getCollectionItemCount(gooruOid, sharing, collectionType, excludeType));
-				if (!fetchChildItem && (collectionType == null || (collectionType != null && collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(SCOLLECTION)))) {
+				if (!fetchChildItem && ((collectionType != null && collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(SCOLLECTION)))) {
 					content.put(COLLECTION_COUNT, this.getCollectionRepository().getCollectionItemCount(gooruOid, sharing, collectionType != null ? collectionType : COLLECTION, excludeType));
 				}
 				data = SerializerUtil.serializeToJson(content, TOC_EXCLUDES, true, true);

@@ -1090,7 +1090,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	private CollectionItem setCollectionItemMoreData(final CollectionItem collectionItem, final String rootNodeId) {
 		if (collectionItem.getContent() != null) {
-			if (collectionItem.getContent() != null && (collectionItem.getContent().getContentType().getName().equalsIgnoreCase(COLLECTION) || collectionItem.getContent().getContentType().getName().equalsIgnoreCase(ASSESSMENT))) {
+			if ((collectionItem.getContent().getContentType().getName().equalsIgnoreCase(COLLECTION) || collectionItem.getContent().getContentType().getName().equalsIgnoreCase(ASSESSMENT))) {
 				collectionItem.setStandards(this.getStandards(collectionItem.getContent().getTaxonomySet(), false, rootNodeId));
 			}
 		}
