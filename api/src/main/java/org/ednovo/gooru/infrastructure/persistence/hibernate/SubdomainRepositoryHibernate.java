@@ -51,7 +51,7 @@ public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implem
 		Query query = getSession().createSQLQuery(SUBDOMAIN);
 		query.setParameter(SUBDOMAIN_ID, subdomainId);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
-		List results = query.list();
+		List<Map<String, Object>> results = query.list();
 		return (Map<String, Object>) ((results.size() > 0) ? results.get(0) : null);
 	}
 	
