@@ -739,10 +739,11 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			sendMailViaRestApi(map);
 	}
 
-	public void sendMailToOpenClassUser(String email, String gooruOid, User user, String title, String inviteUser, String classCode){
+	public void sendMailToOpenClassUser(String email, String gooruOid, User user, String title, String inviteUser, String classCode, String courseId){
 		final String serverpath = this.getServerConstants().getProperty(SERVERPATH);
-		String url = serverpath + "#students-view&id=" + gooruOid+"&pageSize=10&pageNum=0&pos=1" ;
-		String shortenUrl = this.shareService.getShortenUrl(url, true);
+		StringBuilder url = new StringBuilder();
+		url.append(serverpath).append("#students-view&id=").append(gooruOid).append("#c-id=").append(courseId).append("&MEMBERMAILID=").append(email).append("&pageSize=10&pageNum=0&pos=1");
+		String shortenUrl = this.shareService.getShortenUrl(url.toString(), true);
 		EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.SEND_MAIL_TO_OPEN_CLASS_USER.getEvent());
 		Map<String, Object> map = eventMapData(eventMapping);
 		map.put("serverpath",serverpath);
@@ -751,6 +752,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		map.put(MEMBERMAILID, email);
 		map.put(GOORU_OID, gooruOid);
 		map.put(RECIPIENT, email);
+		map.put(COURSE_ID, courseId);
 		map.put("classCode", classCode);
 		if(shortenUrl != null){
 			Map<String, Object> result = JsonDeserializer.deserialize(shortenUrl, new TypeReference<Map<String, Object>>(){

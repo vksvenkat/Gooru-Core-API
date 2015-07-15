@@ -45,6 +45,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepo
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PostServiceImpl extends BaseServiceImpl implements PostService, ConstantProperties, ParameterProperties {
@@ -143,6 +145,7 @@ public class PostServiceImpl extends BaseServiceImpl implements PostService, Con
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Post> getContentPosts(final String gooruOid, final Integer limit, final Integer offset, final String type) {
 		rejectIfNull(type, GL0006, TYPE);
 		final CustomTableValue contentType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.POST_TYPE.getTable(), type);

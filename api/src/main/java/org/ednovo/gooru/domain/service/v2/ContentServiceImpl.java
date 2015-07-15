@@ -59,6 +59,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service("v2Content")
 public class ContentServiceImpl extends BaseServiceImpl implements ContentService, ConstantProperties, ParameterProperties {
@@ -104,6 +106,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 	
 	
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> createTagAssoc(String gooruOid, List<String> labels, User apiCaller) {
 		List<Map<String, Object>> contentTagAssocs = new ArrayList<Map<String, Object>>();
 		Content content = this.contentRepository.findContentByGooruId(gooruOid);
@@ -164,6 +167,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteTagAssoc(String gooruOid, List<String> labels, User apiCaller) {
 		List<Map<String, Object>> contentTagAssocs = new ArrayList<Map<String, Object>>();
 		Content content = this.contentRepository.findContentByGooruId(gooruOid);
@@ -217,6 +221,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 	
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getContentTagAssoc(String gooruOid, User user) {
 		List<Map<String, Object>> contentList = new ArrayList<Map<String, Object>>();
 		List<ContentTagAssoc> contentTagAssocs = this.contentRepository.getContentTagByContent(gooruOid, user.getGooruUId());
@@ -230,6 +235,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Content updateContent(String gooruOid, Content newContent) {
 		Content content = this.getContentRepository().findContentByGooruId(gooruOid);
 		if (content != null) {
@@ -271,6 +277,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 	}
 	
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Map<String, Object>> getUserContentTagList(String gooruUid, Integer limit, Integer offset) {
 		if(this.getUserService().findByGooruId(gooruUid) == null ) {
 			throw new NotFoundException(gooruUid + " not found ", GL0056);
@@ -291,6 +298,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Map<String, Object>> getResourceContentTagList(String gooruOid, Integer limit, Integer offset) {	
 		List<Object[]> results = this.getContentRepository().getResourceContentTagList(gooruOid, limit, offset);
 		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String,Object>>();
@@ -308,6 +316,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 	}
 	
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<String> getContentPermission(String gooruOid, User apiCaller) {
 		Content content = this.getContentRepository().findContentByGooruId(gooruOid, true);
 		return getContentPermission(content, apiCaller);
