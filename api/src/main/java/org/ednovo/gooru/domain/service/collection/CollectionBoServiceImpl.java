@@ -80,7 +80,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(unit, GL0056, 404, UNIT);
 		this.resetSequence(lessonId, collection.getContent().getGooruOid(), user.getPartyUid());
 		this.deleteCollection(collectionId);
-		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getContent().getContentType().getName(), DELETE);
+		this.updateContentMetaDataSummary(lesson.getContentId(), collection.getContent().getContentType().getName(), DELETE);
 	}
 
 	@Override
@@ -98,7 +98,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			Map<String, Object> data = generateCollectionMetaData(collection, collection, user);
 			data.put(SUMMARY, MetaConstants.COLLECTION_SUMMARY);
 			createContentMeta(collection, data);
-			updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getCollectionType(), ADD);
+			updateContentMetaDataSummary(lesson.getContentId(), collection.getCollectionType(), ADD);
+			
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
@@ -375,7 +376,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(course, GL0056, 404, COURSE);
 		String collectionType = moveCollection(collectionId, lesson, user);
 		if (collectionType != null) {
-			updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collectionType, ADD);
+			updateContentMetaDataSummary(lesson.getContentId(), collectionType, ADD);
 		}
 	}
 
@@ -422,9 +423,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		CollectionItem lesson = this.getCollectionDao().getParentCollection(collectionId);
 		reject(!(lesson.getCollection().getGooruOid().equalsIgnoreCase(targetCollection.getGooruOid())), GL0111, 404, lesson.getCollection().getCollectionType());
 		if (lesson.getCollection().getCollectionType().equalsIgnoreCase(LESSON)) {
-			CollectionItem unit = this.getCollectionDao().getParentCollection(lesson.getCollection().getContentId());
-			CollectionItem course = this.getCollectionDao().getParentCollection(unit.getCollection().getContentId());
-			this.updateMetaDataSummary(course.getCollection().getContentId(), unit.getCollection().getContentId(), lesson.getCollection().getContentId(), collectionType, DELETE);
+			updateContentMetaDataSummary(lesson.getCollection().getContentId(), collectionType, DELETE);
 		}
 		return targetCollection.getCollectionType();
 	}

@@ -18,9 +18,6 @@ public class MetaConstants {
 	static {
 		Map<String, Object> courseSummary = new HashMap<String, Object>();
 		courseSummary.put(UNIT_COUNT, 0);
-		courseSummary.put(LESSON_COUNT, 0);
-		courseSummary.put(ASSESSMENT_COUNT, 0);
-		courseSummary.put(COLLECTION_COUNT, 0);
 		COURSE_SUMMARY = Collections.unmodifiableMap(courseSummary);
 	}
 
@@ -28,8 +25,6 @@ public class MetaConstants {
 	static {
 		Map<String, Object> unitSummary = new HashMap<String, Object>();
 		unitSummary.put(LESSON_COUNT, 0);
-		unitSummary.put(ASSESSMENT_COUNT, 0);
-		unitSummary.put(COLLECTION_COUNT, 0);
 		UNIT_SUMMARY = Collections.unmodifiableMap(unitSummary);
 	}
 
