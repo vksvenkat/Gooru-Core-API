@@ -378,10 +378,10 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 	public void updateContentMetaDataSummary(Long parentId, String contentType, String action) {
 		ContentMeta parentContentMeta = this.getContentRepository().getContentMeta(parentId);
 		if (parentContentMeta != null) {
-		int count = this.getCollectionDao().getCollectionItemCount(parentId, contentType);
-		if(action.equalsIgnoreCase(DELETE)){
-			count -=1;
-		}
+			int count = this.getCollectionDao().getCollectionItemCount(parentId, contentType);
+			if(action.equalsIgnoreCase(DELETE)){
+				count -=1;
+			}
 			Map<String, Object> metaData = JsonDeserializer.deserialize(parentContentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
 			});
 			Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
@@ -400,7 +400,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 			}
 			metaData.put(SUMMARY, summary);
 			updateContentMeta(parentContentMeta, metaData);
-		}
+			}
 	}
 	
 	public CollectionDao getCollectionDao() {
