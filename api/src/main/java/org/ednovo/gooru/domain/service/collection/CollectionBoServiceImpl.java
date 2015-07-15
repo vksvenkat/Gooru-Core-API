@@ -125,7 +125,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void updateCollection(String collectionId, Collection newCollection, User user) {
+	public void updateCollection(String parentId, String collectionId, Collection newCollection, User user) {
 		boolean hasUnrestrictedContentAccess = this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user);
 		// TO-Do add validation for collection type and collaborator validation
 		Collection collection = getCollectionDao().getCollection(collectionId);
@@ -157,6 +157,14 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			if (newCollection.getNetwork() != null) {
 				collection.setNetwork(newCollection.getNetwork());
 			}
+		}
+		if(newCollection.getPosition() != null){
+			if(parentId == null){
+				CollectionItem parentCollectionItem = this.getCollectionDao().getCollectionItemById(collectionId, user);
+				parentId = parentCollectionItem.getCollection().getGooruOid();
+			}
+			Collection parentCollection = getCollectionDao().getCollectionByUser(parentId, user.getPartyUid());
+			this.resetSequence(parentCollection, collectionId, newCollection.getPosition(), user.getPartyUid());
 		}
 		if (newCollection.getMediaFilename() != null) {
 			String folderPath = Collection.buildResourceFolder(collection.getContentId());
@@ -190,7 +198,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			collectionItem.setStop(newCollectionItem.getStop());
 		}
 		if (newCollectionItem.getPosition() != null) {
-			this.resetSequence(collection, collectionItem.getContent().getGooruOid(), newCollectionItem.getPosition(), user.getPartyUid());
+			Collection parentCollection = getCollectionDao().getCollectionByUser(collectionId, user.getPartyUid());
+			this.resetSequence(parentCollection, collectionItem.getContent().getGooruOid(), newCollectionItem.getPosition(), user.getPartyUid());
 		}
 		this.getCollectionDao().save(collectionItem);
 	}

@@ -14,7 +14,7 @@ public interface CollectionBoService extends AbstractCollectionService {
 
 	ActionResponseDTO<Collection> createCollection(String courseId, String unitId, String lessonId, User user, Collection collection);
 
-	void updateCollection(String collectionId, Collection newCollection, User user);
+	void updateCollection(String parentId, String collectionId, Collection newCollection, User user);
 
 	void updateCollectionItem(String collectionId, String collectionItemId, CollectionItem newCollectionItem, User user);
 
