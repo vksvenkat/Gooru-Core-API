@@ -32,7 +32,7 @@ public interface SubdomainRepository extends BaseRepository {
 
 	List<Subdomain> getSubdomains(Integer limit, Integer offset);
 
-	Subdomain getSubdomain(Integer subdomainId);
+	List<Subdomain> getSubdomain(Integer subdomainId);
 
 	List<Subdomain> getSubdomains(List<Integer> subdomainIds);
 

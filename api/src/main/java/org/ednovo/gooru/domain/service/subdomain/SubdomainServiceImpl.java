@@ -77,8 +77,8 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Subdomain getSubdomain(Integer subdomainId) {
-		Subdomain subdomain = this.getSubdomainRepository().getSubdomain(subdomainId);
+	public List<Subdomain> getSubdomain(Integer subdomainId) {
+		List<Subdomain>  subdomain = this.getSubdomainRepository().getSubdomain(subdomainId);
 		rejectIfNull(subdomain, GL0056, 404, SUBDOMAIN);
 		return subdomain;
 	}
@@ -94,7 +94,7 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteSubdomain(Integer subdomainId) {
-		Subdomain subdomain = this.getSubdomainRepository().getSubdomain(subdomainId);
+		List<Subdomain>  subdomain = this.getSubdomainRepository().getSubdomain(subdomainId);
 		rejectIfNull(subdomain, GL0056, 404, SUBDOMAIN);
 		this.getSubdomainRepository().remove(subdomain);
 	}
