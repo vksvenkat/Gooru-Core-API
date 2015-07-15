@@ -50,7 +50,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping(value = { RequestMappingUri.DOMAIN })
-public class DomainRestController extends BaseController implements ConstantProperties, ParameterProperties {
+public class DomainRestController extends BaseController implements ConstantProperties {
 
 	@Autowired
 	public DomainService domainService;
