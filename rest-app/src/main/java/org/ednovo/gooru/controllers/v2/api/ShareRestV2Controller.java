@@ -90,7 +90,6 @@ public class ShareRestV2Controller extends BaseController implements ConstantPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_URL_SHORTEN })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/url/shorten/{contentOid}", method = { RequestMethod.POST })
 	public ModelAndView createContentShortenUrl(@PathVariable(CONTENT_OID) final String contentGooruOid, @RequestBody final String data, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) final boolean clearCache, final HttpServletRequest request,
 			final HttpServletResponse response) throws Exception {
@@ -99,7 +98,6 @@ public class ShareRestV2Controller extends BaseController implements ConstantPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_URL_SHORTEN })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/url/shorten", method = { RequestMethod.POST })
 	public ModelAndView createShortenUrl(@RequestBody final String data, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) final boolean clearCache, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final JSONObject json = requestData(data);

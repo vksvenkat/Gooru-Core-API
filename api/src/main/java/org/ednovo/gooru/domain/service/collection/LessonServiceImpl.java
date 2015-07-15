@@ -13,14 +13,11 @@ import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
-
-import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
 public class LessonServiceImpl extends AbstractCollectionServiceImpl implements LessonService {
@@ -40,7 +37,7 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 			Map<String, Object> data = generateLessonMetaData(collection, collection, user);
 			data.put(SUMMARY, MetaConstants.LESSON_SUMMARY);
 			createContentMeta(collection, data);
-			updateUnitMetaDataSummary(course.getContentId(), parentCollection.getContentId());
+			updateContentMetaDataSummary(parentCollection.getContentId(), LESSON, ADD);
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
@@ -74,33 +71,9 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		rejectIfNull(course, GL0056,404, COURSE);
 		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
 		rejectIfNull(unit, GL0056,404, UNIT);
-		this.deleteValidation(lesson.getContent().getContentId(), LESSON);
 		this.resetSequence(unitId, lesson.getContent().getGooruOid(), user.getPartyUid());
 		this.deleteCollection(lessonId);
-		this.updateMetaDataSummary(course.getContentId(), unit.getContentId());
-	}
-	
-	private void updateMetaDataSummary(Long courseId, Long unitId) {
-		ContentMeta unitContentMeta = this.getContentRepository().getContentMeta(unitId);
-		ContentMeta courseContentMeta = this.getContentRepository().getContentMeta(courseId);
-		if (unitContentMeta != null) {
-			updateSummaryMeta(unitContentMeta);
-		}
-		if (courseContentMeta != null) {
-			updateSummaryMeta(courseContentMeta);
-		}
-		
-	}
-	
-	@SuppressWarnings("unchecked")
-	private void updateSummaryMeta(ContentMeta contentMeta) {
-		Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
-		});
-		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
-		int lessonCount =  ((Number) summary.get(MetaConstants.LESSON_COUNT)).intValue() -1;
-		summary.put(MetaConstants.LESSON_COUNT, lessonCount);
-		metaData.put(SUMMARY, summary);
-		updateContentMeta(contentMeta, metaData);
+		updateContentMetaDataSummary(unit.getContentId(), LESSON, DELETE);
 	}
 	
 	@Override
@@ -121,31 +94,6 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 			lessons.add(mergeMetaData(lesson));
 		}
 		return lessons;
-	}
-
-	@SuppressWarnings("unchecked")
-	private void updateUnitMetaDataSummary(Long courseId, Long unitId) {
-		ContentMeta unitContentMeta = this.getContentRepository().getContentMeta(unitId);
-		ContentMeta courseContentMeta = this.getContentRepository().getContentMeta(courseId);
-		int lessonCount = this.getCollectionDao().getCollectionItemCount(unitId, CollectionType.LESSON.getCollectionType());
-		if (unitContentMeta != null) {
-			Map<String, Object> metaData = JsonDeserializer.deserialize(unitContentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
-			});
-
-			Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
-			summary.put(MetaConstants.LESSON_COUNT, lessonCount);
-			metaData.put(SUMMARY, summary);
-			updateContentMeta(unitContentMeta, metaData);
-		}
-		if (courseContentMeta != null) {
-			Map<String, Object> metaData = JsonDeserializer.deserialize(courseContentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
-			});
-			Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
-			int courseLessonCount = ((Number) summary.get(MetaConstants.LESSON_COUNT)).intValue() + 1;
-			summary.put(MetaConstants.LESSON_COUNT, courseLessonCount);
-			metaData.put(SUMMARY, summary);
-			updateContentMeta(courseContentMeta, metaData);
-		}
 	}
 
 	private Map<String, Object> generateLessonMetaData(Collection collection, Collection newCollection, User user) {
