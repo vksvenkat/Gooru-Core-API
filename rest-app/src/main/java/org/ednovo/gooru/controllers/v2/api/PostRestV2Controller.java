@@ -61,7 +61,6 @@ public class PostRestV2Controller extends BaseController implements ParameterPro
 	private PostService postService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_POST_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "")
 	public ModelAndView createPost(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
@@ -73,7 +72,6 @@ public class PostRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_POST_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	public ModelAndView updatePost(@RequestBody String data, @PathVariable(value = ID) String postId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Post post = this.getPostService().updatePost(postId, this.buildPostFromInputParameters(data, request));
@@ -84,14 +82,12 @@ public class PostRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_POST_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	public ModelAndView getPost(HttpServletRequest request, @PathVariable(value = ID) String postId, HttpServletResponse response) throws Exception {
 		return toModelAndViewWithIoFilter(this.getPostService().getPost(postId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, POST_INCLUDE_FIELDS);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_POST_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "")
 	public ModelAndView getPosts(@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
@@ -99,7 +95,6 @@ public class PostRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_POST_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
 	public void deletePost(@PathVariable(value = ID) String postId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
@@ -107,7 +102,6 @@ public class PostRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_POST_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/comment")
 	public ModelAndView getPostComments(HttpServletRequest request, @PathVariable(value = ID) String gooruOid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,
 			HttpServletResponse response) throws Exception {

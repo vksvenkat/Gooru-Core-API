@@ -42,6 +42,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRe
 import org.ednovo.gooru.json.serializer.util.JsonSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.rosaloves.bitlyj.Bitly;
 import com.rosaloves.bitlyj.Url;
@@ -62,6 +64,7 @@ public class ShareServiceImpl extends BaseServiceImpl implements ShareService, P
 	private RedisService redisService;
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public String getShortenUrl(final String fullUrl, boolean clearCache) {
 		String cacheKey = fullUrl + HYPHEN + TaxonomyUtil.GOORU_ORG_UID;
 		String resonseData = null;
