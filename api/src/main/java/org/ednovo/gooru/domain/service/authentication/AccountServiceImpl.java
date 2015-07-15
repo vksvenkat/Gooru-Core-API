@@ -363,11 +363,11 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		if (host != null){			
 			String hostElements [] = host.split(REGX_DOT);
 			StringBuffer domainName = new StringBuffer();
-			if(hostElements.length == 2){
+			if(hostElements.length >= 2){
 				domainName.append(hostElements[0]).append(DOT).append(hostElements[1]);
-			} else {
-				domainName.append(hostElements[1]).append(DOT).append(hostElements[2]);
+				domainName.append(hostElements[hostElements.length - 2]).append(DOT).append(hostElements[hostElements.length - 1]);
 			}
+			
 			registeredRefererDomains = application.getRefererDomains();
 			
 			if(registeredRefererDomains != null ){				

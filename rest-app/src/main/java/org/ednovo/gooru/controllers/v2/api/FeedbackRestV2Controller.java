@@ -44,8 +44,6 @@ import org.ednovo.gooru.domain.service.FeedbackService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,7 +59,6 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 	private FeedbackService feedbackService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "")
 	public ModelAndView createFeedback(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -75,7 +72,6 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	public ModelAndView updateFeedback(@RequestBody final String data, @PathVariable(value = ID) final String feedbackId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -85,7 +81,6 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	public ModelAndView getFeedback(@PathVariable(value = ID) final String feedbackId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final String includes[] = (String[]) ArrayUtils.addAll(FEEDBACK_INCLUDE_FIELDS, ERROR_INCLUDE);
@@ -93,7 +88,6 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{type}/value")
 	public ModelAndView getCustomValues(final HttpServletRequest request, @PathVariable(value = TYPE) final String type, final HttpServletResponse response) throws Exception {
 
@@ -101,7 +95,6 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "")
 	public ModelAndView getFeedbacks(final HttpServletRequest request, @RequestParam(value = TYPE, required = true) final String type, @RequestParam(value = TARGET_TYPE, required = true) final String targetType, @RequestParam(value = CREATOR_UID, required = false) final String creatorUid,
 			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") final Integer limit, final HttpServletResponse response) throws Exception {
@@ -110,7 +103,6 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/resource", "/collection" })
 	public ModelAndView getContentFlags(HttpServletRequest request, @RequestParam(value = STATUS, required = false) final String status, @RequestParam(value = REPORTED_FLAG_TYPE, required = false) final String reportedFlagType, @RequestParam(value = "startDate", required = false) final String startDate,
 			@RequestParam(value = END_DATE, required = false) final String endDate, @RequestParam(value = SEARCH_QUERY, required = false) final String searchQuery, @RequestParam(value = DESCRIPTION, required = false) final String description,
@@ -121,7 +113,6 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
 	public void deleteFeedback(@PathVariable(value = ID) final String feedbackId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
