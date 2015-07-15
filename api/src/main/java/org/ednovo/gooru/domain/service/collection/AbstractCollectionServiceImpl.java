@@ -377,11 +377,11 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 	@SuppressWarnings("unchecked")
 	public void updateContentMetaDataSummary(Long parentId, String contentType, String action) {
 		ContentMeta parentContentMeta = this.getContentRepository().getContentMeta(parentId);
+		if (parentContentMeta != null) {
 		int count = this.getCollectionDao().getCollectionItemCount(parentId, contentType);
 		if(action.equalsIgnoreCase(DELETE)){
 			count -=1;
 		}
-		if (parentContentMeta != null) {
 			Map<String, Object> metaData = JsonDeserializer.deserialize(parentContentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
 			});
 			Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
@@ -402,6 +402,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 			updateContentMeta(parentContentMeta, metaData);
 		}
 	}
+	
 	public CollectionDao getCollectionDao() {
 		return collectionDao;
 	}
