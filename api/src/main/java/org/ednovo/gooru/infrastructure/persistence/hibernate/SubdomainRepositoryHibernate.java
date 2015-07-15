@@ -47,11 +47,12 @@ public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implem
 	private static final String STANDARDS = "select code_id as codeId, ifnull(common_core_dot_notation, display_code) as code, label  from code where parent_id =:codeId";
 
 	@Override
-	public List<Subdomain> getSubdomain(Integer subdomainId) {
+	public Map<String, Object> getSubdomain(Integer subdomainId) {
 		Query query = getSession().createSQLQuery(SUBDOMAIN);
 		query.setParameter(SUBDOMAIN_ID, subdomainId);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
-		return list(query);
+		List results = query.list();
+		return (Map<String, Object>) ((results.size() > 0) ? results.get(0) : null);
 	}
 	
 	@Override

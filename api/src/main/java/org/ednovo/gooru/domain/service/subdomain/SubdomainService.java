@@ -34,7 +34,7 @@ public interface SubdomainService {
 
 	ActionResponseDTO<Subdomain> createSubdomain(Subdomain subDomain, User user);
 
-	List<Subdomain> getSubdomain(Integer subdomainId);
+	Map<String, Object> getSubdomain(Integer subdomainId);
 
 	List<Subdomain> getSubdomains(Integer limit, Integer offset);
 
