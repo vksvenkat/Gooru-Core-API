@@ -118,6 +118,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 				if (data != null) {
 					collection.put(SETTINGS, JsonDeserializer.deserialize(String.valueOf(data), new TypeReference<Map<String, String>>() {
 					}));
+					collection.remove(DATA);
 				}
 				collections.add(collection);
 			}
