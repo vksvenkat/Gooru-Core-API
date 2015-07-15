@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
@@ -17,7 +18,6 @@ import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.InviteUser;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserClass;
-import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ConfigConstants;
@@ -95,6 +95,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 			return BaseUtil.generateBase48Encode(7);
 		}
 	}
+
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateClass(String classUId, UserClass newUserClass, User user) {
@@ -337,22 +338,25 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getClassCollectionSettings(String classUid, String unitId, int limit, int offset) {
-		List<Map<String, Object>> lessons = getClassRepository().getCollectionItem(unitId, limit, offset);
-		List<Map<String, Object>> lessonList = new ArrayList<Map<String, Object>>();
-		for (Map<String, Object> lesson : lessons) {
-			Long contentId = ((Number) lesson.get(CONTENT_ID)).longValue();
-			List<Map<String, Object>> classCollectionSettings = this.getClassRepository().getClassCollectionSettings(contentId, classUid);
-			lesson.put(ITEMS, classCollectionSettings);
-			lessonList.add(lesson);
-		}
-		return lessonList;
+		throw new NotImplementedException("release - 1.6 : this feature is put on hold,  we  may implement this in further releases. ");
+		/*
+		 * List<Map<String, Object>> lessons =
+		 * getClassRepository().getCollectionItem(unitId, limit, offset);
+		 * List<Map<String, Object>> lessonList = new ArrayList<Map<String,
+		 * Object>>(); for (Map<String, Object> lesson : lessons) { Long
+		 * contentId = ((Number) lesson.get(CONTENT_ID)).longValue();
+		 * List<Map<String, Object>> classCollectionSettings =
+		 * this.getClassRepository().getClassCollectionSettings(contentId,
+		 * classUid); lesson.put(ITEMS, classCollectionSettings);
+		 * lessonList.add(lesson); } return lessonList;
+		 */
 	}
 
 	@Override
 	public List<Map<String, Object>> getClassUnits(String courseId, int limit, int offset) {
 		return getClassRepository().getCollectionItem(courseId, limit, offset);
 	}
-	
+
 	@Override
 	public Map<String, Object> getClassCollections(String lessonId, int limit, int offset) {
 		Map<String, Object> lesson = this.getLessonService().getLesson(lessonId);

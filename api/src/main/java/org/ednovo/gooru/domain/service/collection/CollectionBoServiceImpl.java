@@ -554,6 +554,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			Map<String, Object> metaData = JsonDeserializer.deserialize(lessonContentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
 			});
 			Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
+			if (summary != null && summary.size() > 0) {
 			int resourceCount = ((Number) summary.get(MetaConstants.RESOURCE_COUNT)).intValue();
 			int questionCount = ((Number) summary.get(MetaConstants.QUESTION_COUNT)).intValue();
 			if (type.equalsIgnoreCase(RESOURCE)) {
@@ -564,6 +565,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			}
 			metaData.put(SUMMARY, summary);
 			updateContentMeta(lessonContentMeta, metaData);
+			}
 		}
 	}
 
