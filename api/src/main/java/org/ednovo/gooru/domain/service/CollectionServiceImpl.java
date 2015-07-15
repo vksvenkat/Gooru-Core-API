@@ -500,7 +500,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	private Map<String, Object> setFolderItem(final Map<String, Object> folderItem, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem, String orderBy, String excludeType) {
-		final String typeName = String.valueOf(folderItem.get(COLLECTION_TYPE));
+		final String typeName = String.valueOf(folderItem.get(TYPE));
 		final String collectionGooruOid = String.valueOf(folderItem.get(GOORU_OID));
 		Object thumbnail = folderItem.get(IMAGE_PATH);
 		if (thumbnail != null) {
