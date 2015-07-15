@@ -41,7 +41,7 @@ public interface AccountService {
 
 	UserToken loginAs(String gooruUid, HttpServletRequest request) throws Exception;
 
-	User userAuthentication(User newUser, String secretKey, String apiKey, String source, HttpServletRequest request);
+	User userAuthentication(User newUser, String secretKey, String apiKey, String source, String userCategory, HttpServletRequest request);
 
 	ActionResponseDTO<UserToken> switchSession(String sessionToken) throws Exception;
 

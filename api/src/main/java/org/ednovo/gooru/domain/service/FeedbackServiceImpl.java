@@ -30,7 +30,6 @@ import java.util.Map;
 
 import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.core.api.model.Content;
-import org.ednovo.gooru.core.api.model.ContextDTO;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Feedback;
 import org.ednovo.gooru.core.api.model.Resource;
@@ -57,11 +56,10 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
-import org.ednovo.goorucore.application.serializer.JsonDeserializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackService, ParameterProperties, ConstantProperties {
@@ -111,6 +109,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Feedback> updateFeedback(String feedbackId, Feedback newFeedback, User user) {
 		List<Feedback> feedbacks = this.getFeedbackRepository().getFeedbacks(feedbackId, null);
 		List<Feedback> feedbackList = new ArrayList<Feedback>();
@@ -174,6 +173,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteFeedback(String feedbackId, User user) throws Exception {
 		Feedback feedback = this.getFeedbackRepository().getFeedback(feedbackId);
 		
@@ -200,6 +200,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Feedback getFeedback(String feedbackId) {
 		return this.getFeedbackRepository().getFeedback(feedbackId);
 	}
@@ -215,6 +216,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Feedback> getContentFeedbacks(String feedbackCategory, String feedbackType, String assocGooruOid, String creatorUid, Integer limit, Integer offset, String orderBy) {
 		String type = null;
 		String category = null;
@@ -246,6 +248,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Feedback> getFeedbacks(String feedbackCategory, String feedbackTargetType, String feedbackType, String feedbackCreatorUid, Integer limit, Integer offset) {
 		String feedbackTarget = CustomProperties.Table.TARGET.getTable() + "_" + feedbackTargetType;
 		String type = getTableNameByFeedbackCategory(feedbackCategory, feedbackTargetType) + "_" + feedbackType;
@@ -342,6 +345,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Feedback> createFeedbacks(Feedback feedback, User user) {
 		return setFeedbackData(feedback, user);
 	}
@@ -463,12 +467,14 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getFlags(Integer limit, Integer offset, String category, String type, String status, String reportedFlagType, String startDate, String endDate, String searchQuery, String description, String reportQuery) throws Exception {
 		return this.getFeedbackRepository().getContentFlags(limit, offset, getTableNameByFeedbackCategory(CustomProperties.FeedbackCategory.REPORT.getFeedbackCategory(), CustomProperties.Target.CONTENT.getTarget()), type, status, reportedFlagType,
 				BaseUtil.dateFormat(startDate, "/", "-"), BaseUtil.dateFormat(endDate, "/", "-"), searchQuery, description, reportQuery);
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getContentFeedbackStarRating(String assocGooruOid) {
 		String feedbackType = CustomProperties.Table.FEEDBACK_RATING_TYPE.getTable() + "_" + CustomProperties.FeedbackRatingType.STAR.getFeedbackRatingType();
 		return this.getFeedbackRepository().getContentFeedbackRating(assocGooruOid, feedbackType);
@@ -490,12 +496,14 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<Object, Object> getContentFeedbackThumbRating(String assocGooruOid) {
 		rejectIfNull(this.getContentRepository().findContentByGooruId(assocGooruOid), GL0056, _CONTENT);
 		return this.getFeedbackRepository().getContentFeedbackThumbs(assocGooruOid, CustomProperties.Table.FEEDBACK_RATING_TYPE.getTable() + "_" + CustomProperties.FeedbackRatingType.THUMB.getFeedbackRatingType());
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Integer getContentFeedbackAggregateByType(String assocGooruOid, String feedbackType) {
 		String type = CustomProperties.Table.FEEDBACK_OTHER_TYPE.getTable() + "_" + feedbackType;
 		rejectIfNull(this.getContentRepository().findContentByGooruId(assocGooruOid), GL0056, _CONTENT);
@@ -531,6 +539,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<CustomTableValue> getCustomValues(String category, String type) {
 		return this.getCustomTableRepository().getCustomValues(getTableNameByFeedbackCategory(category, type));
 	}

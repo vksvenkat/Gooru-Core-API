@@ -169,7 +169,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	public void resetSequence(Collection parentCollection, String gooruOid, Integer newSequence, String userUid) {
 		int max = this.getCollectionDao().getCollectionItemMaxSequence(parentCollection.getContentId());
-		reject((max > newSequence), GL0007, 404, ITEM_SEQUENCE);
+		reject((max >= newSequence), GL0007, 404, ITEM_SEQUENCE);
 		CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(parentCollection.getGooruOid(), gooruOid, userUid);
 		if (collectionItem != null) {
 			List<CollectionItem> resetCollectionSequence = null;
@@ -184,7 +184,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 			}
 			if (resetCollectionSequence != null) {
 				for (CollectionItem collectionSequence : resetCollectionSequence) {
-					if (collectionSequence.getContent().getGooruOid() != gooruOid) {
+					if (!collectionSequence.getContent().getGooruOid().equalsIgnoreCase(gooruOid)) {
 						collectionSequence.setItemSequence(displaySequence++);
 					} else if (collectionSequence.getContent().getGooruOid().equalsIgnoreCase(gooruOid)) {
 						collectionSequence.setItemSequence(newSequence);
@@ -335,12 +335,16 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 					contentClassifications.add(contentClassification);
 					Map<String, Object> assocCode = new HashMap<String, Object>();
 					assocCode.put(ID, code.getCodeId());
-					assocCode.put(ROOT_NODE_ID, code.getRootNodeId());
-					String displayCode = code.getCommonCoreDotNotation();
-					if (displayCode == null) {
-						displayCode = code.getdisplayCode();
+					if (typeId == MetaConstants.CONTENT_CLASSIFICATION_STANDARD_TYPE_ID) {
+						assocCode.put(ROOT_NODE_ID, code.getRootNodeId());
+						String displayCode = code.getCommonCoreDotNotation();
+						if (displayCode == null) {
+							displayCode = code.getdisplayCode();
+						}
+						assocCode.put(CODE, displayCode);
+					} else if (typeId == MetaConstants.CONTENT_CLASSIFICATION_SKILLS_TYPE_ID) {
+						assocCode.put(LABEL, code.getLabel());
 					}
-					assocCode.put(CODE, displayCode);
 					codes.add(assocCode);
 				}
 				this.getContentRepository().saveAll(contentClassifications);
