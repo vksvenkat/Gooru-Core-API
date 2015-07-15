@@ -46,6 +46,9 @@ public class CountryRepositoryHibernate extends BaseRepositoryHibernate implemen
 	@Override
 	public List<Country> getCountries(Integer limit, Integer offset) {
 		Query query = getSession().createQuery(COUNTRYS);
+		if (limit == null) {
+			limit = 0;
+		}
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
 		query.setFirstResult(offset);
 		return list(query);
