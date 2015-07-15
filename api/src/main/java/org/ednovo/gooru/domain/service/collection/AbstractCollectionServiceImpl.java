@@ -184,7 +184,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 			}
 			if (resetCollectionSequence != null) {
 				for (CollectionItem collectionSequence : resetCollectionSequence) {
-					if (collectionSequence.getContent().getGooruOid() != gooruOid) {
+					if (!collectionSequence.getContent().getGooruOid().equalsIgnoreCase(gooruOid)) {
 						collectionSequence.setItemSequence(displaySequence++);
 					} else if (collectionSequence.getContent().getGooruOid().equalsIgnoreCase(gooruOid)) {
 						collectionSequence.setItemSequence(newSequence);
