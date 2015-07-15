@@ -69,7 +69,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollection(String courseId, String unitId, String lessonId, String collectionId, User user) {
-		CollectionItem collection = this.getCollectionDao().getCollectionItem(lessonId ,collectionId, user.getPartyUid());
+		CollectionItem collection = this.getCollectionDao().getCollectionItem(lessonId, collectionId, user.getPartyUid());
 		rejectIfNull(collection, GL0056, 404, COLLECTION);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user), GL0099, 403, COLLECTION);
 		Collection lesson = getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
@@ -99,7 +99,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			data.put(SUMMARY, MetaConstants.COLLECTION_SUMMARY);
 			createContentMeta(collection, data);
 			updateContentMetaDataSummary(lesson.getContentId(), collection.getCollectionType(), ADD);
-			
+
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
@@ -169,8 +169,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				collection.setNetwork(newCollection.getNetwork());
 			}
 		}
-		if(newCollection.getPosition() != null){
-			if(parentId == null){
+		if (newCollection.getPosition() != null) {
+			if (parentId == null) {
 				CollectionItem parentCollectionItem = this.getCollectionDao().getCollectionItemById(collectionId, user);
 				parentId = parentCollectionItem.getCollection().getGooruOid();
 			}
@@ -396,7 +396,6 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				super.createCollection(targetCollection, user);
 			}
 		}
-		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		moveCollection(collectionId, targetCollection, user);
 	}
 
@@ -416,6 +415,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		createCollectionItem(collectionItem, targetCollection, sourceCollectionItem.getContent(), user);
 		resetSequence(sourceCollectionItem.getCollection().getGooruOid(), sourceCollectionItem.getContent().getGooruOid(), user.getPartyUid());
 		getCollectionDao().remove(sourceCollectionItem);
+		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		return contentType;
 	}
 
@@ -555,16 +555,16 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			});
 			Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
 			if (summary != null && summary.size() > 0) {
-			int resourceCount = ((Number) summary.get(MetaConstants.RESOURCE_COUNT)).intValue();
-			int questionCount = ((Number) summary.get(MetaConstants.QUESTION_COUNT)).intValue();
-			if (type.equalsIgnoreCase(RESOURCE)) {
-				summary.put(MetaConstants.RESOURCE_COUNT, action.equalsIgnoreCase(ADD) ? (resourceCount + 1) : (resourceCount - 1));
-			}
-			if (type.equalsIgnoreCase(QUESTION)) {
-				summary.put(MetaConstants.QUESTION_COUNT, action.equalsIgnoreCase(ADD) ? (questionCount + 1) : (questionCount - 1));
-			}
-			metaData.put(SUMMARY, summary);
-			updateContentMeta(lessonContentMeta, metaData);
+				int resourceCount = ((Number) summary.get(MetaConstants.RESOURCE_COUNT)).intValue();
+				int questionCount = ((Number) summary.get(MetaConstants.QUESTION_COUNT)).intValue();
+				if (type.equalsIgnoreCase(RESOURCE)) {
+					summary.put(MetaConstants.RESOURCE_COUNT, action.equalsIgnoreCase(ADD) ? (resourceCount + 1) : (resourceCount - 1));
+				}
+				if (type.equalsIgnoreCase(QUESTION)) {
+					summary.put(MetaConstants.QUESTION_COUNT, action.equalsIgnoreCase(ADD) ? (questionCount + 1) : (questionCount - 1));
+				}
+				metaData.put(SUMMARY, summary);
+				updateContentMeta(lessonContentMeta, metaData);
 			}
 		}
 	}
