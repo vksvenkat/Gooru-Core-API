@@ -131,11 +131,9 @@ public class MethodAuthorizationAspect extends OperationAuthorizer {
 				if (paramNames != null && paramValues != null) {
 					for (int paramNameIndex = 0; paramNameIndex < paramNames.length; paramNameIndex++) {
 						String paramName = paramNames[paramNameIndex];
-						if (paramName instanceof String) {
-							if (paramName.equals(partyUidName)) {
-								if (paramValues[paramNameIndex] != null) {
-									partyUid = (String) paramValues[paramNameIndex];
-								}
+						if (paramName.equals(partyUidName)) {
+							if (paramValues[paramNameIndex] != null) {
+								partyUid = (String) paramValues[paramNameIndex];
 							}
 						}
 					}

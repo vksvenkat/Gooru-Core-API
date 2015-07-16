@@ -389,100 +389,100 @@ public class ResourceRestController extends BaseController implements ParameterP
 
 		if (resourceList != null) {
 			logger.info("Thumbnail downloader:retrieved " + resourceList.size());
-		} else {
-			logger.info("Thumbnail downloader:resourceList is null");
-		}
+			for (Resource resource : resourceList) {
+				if (processedCount >= numberOfImagesToDownload) {
+					break;
+				}
+				if (resource.getThumbnail() == null) {
+					try {
+						File collectionDir = new File(resource.getOrganization().getNfsStorageArea().getInternalPath() + resource.getFolder());
 
-		for (Resource resource : resourceList) {
-			if (processedCount >= numberOfImagesToDownload) {
-				break;
-			}
-			if (resource.getThumbnail() == null) {
-				try {
-					File collectionDir = new File(resource.getOrganization().getNfsStorageArea().getInternalPath() + resource.getFolder());
-
-					if (!collectionDir.exists()) {
-						if (logLevel.equalsIgnoreCase(DEBUG)) {
-							logger.info(THUMBNAIL_DOWNLOADER + resource.getGooruOid() + ":creating folder " + resource.getFolder());
-						}
-						collectionDir.mkdir();
-					}
-					String fileName = null;
-					File thumbnailFolder = new File(collectionDir.getAbsolutePath() + "/slides/");
-					if (thumbnailFolder.exists()) {
-						FileFilter fileFilter = new WildcardFileFilter("thumbnail.~*~");
-						File[] files = collectionDir.listFiles(fileFilter);
-						if (files != null && files.length > 0) {
-							fileName = "slides/" + files[0].getName();
+						if (!collectionDir.exists()) {
 							if (logLevel.equalsIgnoreCase(DEBUG)) {
-								logger.info(THUMBNAIL_DOWNLOADER + resource.getGooruOid() + ":had existing files at " + resource.getFolder());
+								logger.info(THUMBNAIL_DOWNLOADER + resource.getGooruOid() + ":creating folder " + resource.getFolder());
 							}
-						} else {
-							fileFilter = new WildcardFileFilter("thumbnail1.~*~");
-							files = collectionDir.listFiles(fileFilter);
+							collectionDir.mkdir();
+						}
+						String fileName = null;
+						File thumbnailFolder = new File(collectionDir.getAbsolutePath() + "/slides/");
+						if (thumbnailFolder.exists()) {
+							FileFilter fileFilter = new WildcardFileFilter("thumbnail.~*~");
+							File[] files = collectionDir.listFiles(fileFilter);
 							if (files != null && files.length > 0) {
 								fileName = "slides/" + files[0].getName();
 								if (logLevel.equalsIgnoreCase(DEBUG)) {
 									logger.info(THUMBNAIL_DOWNLOADER + resource.getGooruOid() + ":had existing files at " + resource.getFolder());
 								}
+							} else {
+								fileFilter = new WildcardFileFilter("thumbnail1.~*~");
+								files = collectionDir.listFiles(fileFilter);
+								if (files != null && files.length > 0) {
+									fileName = "slides/" + files[0].getName();
+									if (logLevel.equalsIgnoreCase(DEBUG)) {
+										logger.info(THUMBNAIL_DOWNLOADER + resource.getGooruOid() + ":had existing files at " + resource.getFolder());
+									}
+								}
 							}
 						}
-					}
 
-					if ((fileName == null || fileName.isEmpty()) && resource.getTitle() != null && downloadImages.equalsIgnoreCase(ONE)) {
-						String lesson = resource.getTitle();
-						String prefix = "Interactive:";
-						if (resource.getResourceType().getName().equalsIgnoreCase(ANIMATION_KMZ) && lesson.startsWith("Interactive:")) {
-							lesson = lesson.substring(prefix.length());
+						if ((fileName == null || fileName.isEmpty()) && resource.getTitle() != null && downloadImages.equalsIgnoreCase(ONE)) {
+							String lesson = resource.getTitle();
+							String prefix = "Interactive:";
+							if (resource.getResourceType().getName().equalsIgnoreCase(ANIMATION_KMZ) && lesson.startsWith("Interactive:")) {
+								lesson = lesson.substring(prefix.length());
+							}
+							String imageURLInfo = ImageUtil.getThumbnailUrlByQuery(lesson, null, null);
+
+							if (imageURLInfo != null && !imageURLInfo.isEmpty()) {
+								String parts[] = imageURLInfo.split("\\|");
+
+								if (parts.length < 3) {
+									logger.info(THUMBNAIL_DOWNLOADER + resource.getGooruOid() + ":partial results for " + lesson);
+									continue;
+								}
+
+								String extension = "." + parts[0];
+								String imageThumbnailURL = parts[2];
+								fileName = resource.getGooruOid() + extension;
+
+								String resourceImageFolder = resource.getOrganization().getNfsStorageArea().getInternalPath() + resource.getFolder();
+								logger.info("Thumbnail downloader:Resource " + resource.getGooruOid() + " didn't have image. downloading from " + resourceImageFolder + fileName);
+								GooruImageUtil.downloadWebResourceToFile(imageThumbnailURL, resourceImageFolder, fileName, parts[0]);
+								resourceImageUtil.sendMsgToGenerateThumbnails(resource, fileName);
+								downloadedCount++;
+							} else {
+								logger.info(THUMBNAIL_DOWNLOADER + resource.getGooruOid() + ":no image found for " + lesson);
+							}
 						}
-						String imageURLInfo = ImageUtil.getThumbnailUrlByQuery(lesson, null, null);
+						if (fileName != null) {
+							processedCount++;
+							if (logLevel.equalsIgnoreCase(DEBUG)) {
+								logger.info(THUMBNAIL_DOWNLOADER + resource.getGooruOid() + ":updating thumbnail " + resource.getFolder());
+							}
+							// A thumbnail was either found, or downloaded.
+							resource.setThumbnail(fileName);
 
-						if (imageURLInfo != null && !imageURLInfo.isEmpty()) {
-							String parts[] = imageURLInfo.split("\\|");
+							Errors errors = new BindException(Resource.class, RESOURCE);
+							this.getResourceService().saveResource(resource, errors, false);
 
-							if (parts.length < 3) {
-								logger.info(THUMBNAIL_DOWNLOADER + resource.getGooruOid() + ":partial results for " + lesson);
+							// add to index.
+							if (errors.hasErrors()) {
+								logger.error("Thumbnail downloader:Error saving resource" + errors.toString());
 								continue;
 							}
-
-							String extension = "." + parts[0];
-							String imageThumbnailURL = parts[2];
-							fileName = resource.getGooruOid() + extension;
-
-							String resourceImageFolder = resource.getOrganization().getNfsStorageArea().getInternalPath() + resource.getFolder();
-							logger.info("Thumbnail downloader:Resource " + resource.getGooruOid() + " didn't have image. downloading from " + resourceImageFolder + fileName);
-							GooruImageUtil.downloadWebResourceToFile(imageThumbnailURL, resourceImageFolder, fileName, parts[0]);
-							resourceImageUtil.sendMsgToGenerateThumbnails(resource, fileName);
-							downloadedCount++;
-						} else {
-							logger.info(THUMBNAIL_DOWNLOADER + resource.getGooruOid() + ":no image found for " + lesson);
+							indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 						}
+
+					} catch (Exception e) {
+						logger.warn("Thumbnail downloader:Resource " + resource.getGooruOid() + " had a problem" + ExceptionUtils.getFullStackTrace(e));
+						Thread.sleep(1000);
 					}
-					if (fileName != null) {
-						processedCount++;
-						if (logLevel.equalsIgnoreCase(DEBUG)) {
-							logger.info(THUMBNAIL_DOWNLOADER + resource.getGooruOid() + ":updating thumbnail " + resource.getFolder());
-						}
-						// A thumbnail was either found, or downloaded.
-						resource.setThumbnail(fileName);
-
-						Errors errors = new BindException(Resource.class, RESOURCE);
-						this.getResourceService().saveResource(resource, errors, false);
-
-						// add to index.
-						if (errors.hasErrors()) {
-							logger.error("Thumbnail downloader:Error saving resource" + errors.toString());
-							continue;
-						}
-						indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
-					}
-
-				} catch (Exception e) {
-					logger.warn("Thumbnail downloader:Resource " + resource.getGooruOid() + " had a problem" + ExceptionUtils.getFullStackTrace(e));
-					Thread.sleep(1000);
 				}
 			}
+		} else {
+			logger.info("Thumbnail downloader:resourceList is null");
 		}
+
 		logger.info("Thumbnail downloader:Finished processing:processed=" + processedCount + ":downloaded=" + downloadedCount);
 
 		return new ModelAndView(REST_MODEL);
