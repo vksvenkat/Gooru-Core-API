@@ -43,9 +43,7 @@ public class CopyCollectionServiceImpl extends AbstractResourceServiceImpl imple
 		final Collection lesson = this.getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
 		rejectIfNull(lesson, GL0056, 404, LESSON);
 		Collection destCollection = copyCollection(sourceCollection, lesson, user, newCollection);
-		final Collection unit = this.getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
-		final Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
-		updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), destCollection.getCollectionType(), LESSON);
+		updateContentMetaDataSummary(lesson.getContentId(), destCollection.getCollectionType(), LESSON);
 		return destCollection;
 	}
 

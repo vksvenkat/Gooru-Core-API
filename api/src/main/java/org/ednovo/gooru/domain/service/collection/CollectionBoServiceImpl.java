@@ -69,7 +69,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollection(String courseId, String unitId, String lessonId, String collectionId, User user) {
-		CollectionItem collection = this.getCollectionDao().getCollectionItem(lessonId ,collectionId, user.getPartyUid());
+		CollectionItem collection = this.getCollectionDao().getCollectionItem(lessonId, collectionId, user.getPartyUid());
 		rejectIfNull(collection, GL0056, 404, COLLECTION);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user), GL0099, 403, COLLECTION);
 		Collection lesson = getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
@@ -80,7 +80,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(unit, GL0056, 404, UNIT);
 		this.resetSequence(lessonId, collection.getContent().getGooruOid(), user.getPartyUid());
 		this.deleteCollection(collectionId);
-		this.updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getContent().getContentType().getName(), DELETE);
+		this.updateContentMetaDataSummary(lesson.getContentId(), collection.getContent().getContentType().getName(), DELETE);
 	}
 
 	@Override
@@ -98,7 +98,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			Map<String, Object> data = generateCollectionMetaData(collection, collection, user);
 			data.put(SUMMARY, MetaConstants.COLLECTION_SUMMARY);
 			createContentMeta(collection, data);
-			updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collection.getCollectionType(), ADD);
+			updateContentMetaDataSummary(lesson.getContentId(), collection.getCollectionType(), ADD);
+
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
@@ -132,7 +133,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void updateCollection(String collectionId, Collection newCollection, User user) {
+	public void updateCollection(String parentId, String collectionId, Collection newCollection, User user) {
 		boolean hasUnrestrictedContentAccess = this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user);
 		// TO-Do add validation for collection type and collaborator validation
 		Collection collection = getCollectionDao().getCollection(collectionId);
@@ -168,6 +169,14 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				collection.setNetwork(newCollection.getNetwork());
 			}
 		}
+		if (newCollection.getPosition() != null) {
+			if (parentId == null) {
+				CollectionItem parentCollectionItem = this.getCollectionDao().getCollectionItemById(collectionId, user);
+				parentId = parentCollectionItem.getCollection().getGooruOid();
+			}
+			Collection parentCollection = getCollectionDao().getCollectionByUser(parentId, user.getPartyUid());
+			this.resetSequence(parentCollection, collectionId, newCollection.getPosition(), user.getPartyUid());
+		}
 		if (newCollection.getMediaFilename() != null) {
 			String folderPath = Collection.buildResourceFolder(collection.getContentId());
 			this.getGooruImageUtil().imageUpload(newCollection.getMediaFilename(), folderPath, COLLECTION_IMAGE_DIMENSION);
@@ -200,7 +209,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			collectionItem.setStop(newCollectionItem.getStop());
 		}
 		if (newCollectionItem.getPosition() != null) {
-			this.resetSequence(collection, collectionItem.getContent().getGooruOid(), newCollectionItem.getPosition(), user.getPartyUid());
+			Collection parentCollection = getCollectionDao().getCollectionByUser(collectionId, user.getPartyUid());
+			this.resetSequence(parentCollection, collectionItem.getContent().getGooruOid(), newCollectionItem.getPosition(), user.getPartyUid());
 		}
 		this.getCollectionDao().save(collectionItem);
 	}
@@ -366,7 +376,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(course, GL0056, 404, COURSE);
 		String collectionType = moveCollection(collectionId, lesson, user);
 		if (collectionType != null) {
-			updateMetaDataSummary(course.getContentId(), unit.getContentId(), lesson.getContentId(), collectionType, ADD);
+			updateContentMetaDataSummary(lesson.getContentId(), collectionType, ADD);
 		}
 	}
 
@@ -386,7 +396,6 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				super.createCollection(targetCollection, user);
 			}
 		}
-		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		moveCollection(collectionId, targetCollection, user);
 	}
 
@@ -406,6 +415,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		createCollectionItem(collectionItem, targetCollection, sourceCollectionItem.getContent(), user);
 		resetSequence(sourceCollectionItem.getCollection().getGooruOid(), sourceCollectionItem.getContent().getGooruOid(), user.getPartyUid());
 		getCollectionDao().remove(sourceCollectionItem);
+		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		return contentType;
 	}
 
@@ -413,9 +423,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		CollectionItem lesson = this.getCollectionDao().getParentCollection(collectionId);
 		reject(!(lesson.getCollection().getGooruOid().equalsIgnoreCase(targetCollection.getGooruOid())), GL0111, 404, lesson.getCollection().getCollectionType());
 		if (lesson.getCollection().getCollectionType().equalsIgnoreCase(LESSON)) {
-			CollectionItem unit = this.getCollectionDao().getParentCollection(lesson.getCollection().getContentId());
-			CollectionItem course = this.getCollectionDao().getParentCollection(unit.getCollection().getContentId());
-			this.updateMetaDataSummary(course.getCollection().getContentId(), unit.getCollection().getContentId(), lesson.getCollection().getContentId(), collectionType, DELETE);
+			updateContentMetaDataSummary(lesson.getCollection().getContentId(), collectionType, DELETE);
 		}
 		return targetCollection.getCollectionType();
 	}
@@ -546,16 +554,18 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			Map<String, Object> metaData = JsonDeserializer.deserialize(lessonContentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
 			});
 			Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
-			int resourceCount = ((Number) summary.get(MetaConstants.RESOURCE_COUNT)).intValue();
-			int questionCount = ((Number) summary.get(MetaConstants.QUESTION_COUNT)).intValue();
-			if (type.equalsIgnoreCase(RESOURCE)) {
-				summary.put(MetaConstants.RESOURCE_COUNT, action.equalsIgnoreCase(ADD) ? (resourceCount + 1) : (resourceCount - 1));
+			if (summary != null && summary.size() > 0) {
+				int resourceCount = ((Number) summary.get(MetaConstants.RESOURCE_COUNT)).intValue();
+				int questionCount = ((Number) summary.get(MetaConstants.QUESTION_COUNT)).intValue();
+				if (type.equalsIgnoreCase(RESOURCE)) {
+					summary.put(MetaConstants.RESOURCE_COUNT, action.equalsIgnoreCase(ADD) ? (resourceCount + 1) : (resourceCount - 1));
+				}
+				if (type.equalsIgnoreCase(QUESTION)) {
+					summary.put(MetaConstants.QUESTION_COUNT, action.equalsIgnoreCase(ADD) ? (questionCount + 1) : (questionCount - 1));
+				}
+				metaData.put(SUMMARY, summary);
+				updateContentMeta(lessonContentMeta, metaData);
 			}
-			if (type.equalsIgnoreCase(QUESTION)) {
-				summary.put(MetaConstants.QUESTION_COUNT, action.equalsIgnoreCase(ADD) ? (questionCount + 1) : (questionCount - 1));
-			}
-			metaData.put(SUMMARY, summary);
-			updateContentMeta(lessonContentMeta, metaData);
 		}
 	}
 

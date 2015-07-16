@@ -60,7 +60,7 @@ public interface CollectionService extends ScollectionService {
 	
 	List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem, String topLevelCollectionType, String orderBy, String excludeType);
 	
-	List<Map<String, Object>> getCollectionItem(String gooruOid, String sharing, String type,String collectionType, Integer itemLimit, boolean fetchChildItem, String orderBy, String excludeType);
+	List<Map<String, Object>> getCollectionItem(String gooruOid, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem, String orderBy, String excludeType);
 	
 	List<Map<String, Object>> getFolderItem(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, String sortOrder, String excludeType);
 	

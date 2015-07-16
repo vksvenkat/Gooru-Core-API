@@ -272,6 +272,9 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 			}
 
 			query.setFirstResult(startAt);
+			if (pageSize == null) {
+				pageSize = 1;
+			}
 			query.setMaxResults(pageSize != null ? (pageSize > MAX_LIMIT ? MAX_LIMIT : pageSize) : pageSize);
 			return list(query);
 		}

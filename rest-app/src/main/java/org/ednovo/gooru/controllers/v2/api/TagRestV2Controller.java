@@ -75,7 +75,6 @@ public class TagRestV2Controller extends BaseController implements ParameterProp
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "", method = RequestMethod.POST)
 	public ModelAndView createTag(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, TAG_ADD_RESOURCE);
@@ -92,7 +91,6 @@ public class TagRestV2Controller extends BaseController implements ParameterProp
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	public ModelAndView updateTag(@PathVariable(ID) final String gooruOid, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, TAG_UPDATE);
@@ -108,7 +106,6 @@ public class TagRestV2Controller extends BaseController implements ParameterProp
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	public ModelAndView getTag(@PathVariable(ID) final String gooruOid, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, TAG_READ);
@@ -119,7 +116,6 @@ public class TagRestV2Controller extends BaseController implements ParameterProp
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public ModelAndView getTags(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, TAG_READ);
@@ -128,7 +124,6 @@ public class TagRestV2Controller extends BaseController implements ParameterProp
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	public void deleteTag(final HttpServletRequest request, final HttpServletResponse response, @PathVariable(ID) final String gooruOid) throws Exception {
 		request.setAttribute(PREDICATE, TAG_READ);
@@ -137,7 +132,6 @@ public class TagRestV2Controller extends BaseController implements ParameterProp
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/content")
 	public ModelAndView getTagContentAssoc(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @PathVariable(ID) final String tagGooruOid, 
@@ -150,7 +144,6 @@ public class TagRestV2Controller extends BaseController implements ParameterProp
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/resource")
 	public ModelAndView getResourceByLabel(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @PathVariable(ID) final String label, 
@@ -168,7 +161,6 @@ public class TagRestV2Controller extends BaseController implements ParameterProp
 	
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/user")
 	public ModelAndView getTagAssocUser(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @PathVariable(ID) final String tagGooruOid, final HttpServletRequest request,
 			final HttpServletResponse response) throws Exception {
@@ -182,7 +174,6 @@ public class TagRestV2Controller extends BaseController implements ParameterProp
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/{id}/synonyms")
 	public ModelAndView createTagSynonyms(@PathVariable(ID) final String tagGooruOid, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, TAG_READ);
@@ -194,7 +185,6 @@ public class TagRestV2Controller extends BaseController implements ParameterProp
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}/synonyms/{sid}")
 	public ModelAndView updateTagSynonyms(@PathVariable(ID) final String tagGooruOid, @PathVariable(SID) final Integer tagSynonymsId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, TAG_READ);
@@ -206,7 +196,6 @@ public class TagRestV2Controller extends BaseController implements ParameterProp
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/synonyms")
 	public ModelAndView getTagSynonyms(@PathVariable(ID) final String tagGooruOid, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, TAG_READ);
@@ -217,7 +206,6 @@ public class TagRestV2Controller extends BaseController implements ParameterProp
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/synonyms/{sid}", method = RequestMethod.DELETE)
 	public void deleteTagSynonyms(final HttpServletRequest request, final HttpServletResponse response, @PathVariable(ID) final String tagGooruOid, @PathVariable(SID) final Integer synonymsId) throws Exception {
 		request.setAttribute(PREDICATE, TAG_READ);
