@@ -55,6 +55,9 @@ public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implem
 	@Override
 	public List<Subdomain> getSubdomains(Integer limit, Integer offset) {
 		Query query = getSession().createQuery(SUBDOMAINS);
+		if (limit == null) {
+			limit = 0;
+		}
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
 		query.setFirstResult(offset);
 		return list(query);

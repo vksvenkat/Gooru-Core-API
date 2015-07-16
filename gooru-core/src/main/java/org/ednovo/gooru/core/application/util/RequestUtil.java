@@ -318,7 +318,7 @@ public class RequestUtil implements ParameterProperties {
 		String requestScheme = request.getScheme();
 		
 		if (requestScheme.contains("http://")) {
-			assetUri.replace("http://", "https://");
+			return assetUri.replace("http://", "https://");
 
 		}
 		return assetUri;

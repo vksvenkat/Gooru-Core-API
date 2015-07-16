@@ -134,7 +134,7 @@ public class CollectionUtil implements ParameterProperties {
 				addNewCollaborators(content, userList, apiCaller, predicate, false);
 			}
 		}
-		if (userList.size() > 0) {
+		if (userList != null && userList.size() > 0) {
 			for (User user : userList) {
 				user.setEmailId(user.getIdentities().iterator().next().getExternalId());
 			}
@@ -153,7 +153,7 @@ public class CollectionUtil implements ParameterProperties {
 				addNewCollaborators(collection, userList, apiCaller, predicate, false);
 			}
 		}
-		if (userList.size() > 0) {
+		if (userList != null && userList.size() > 0) {
 			User user = userList.get(0);
 			user.setEmailId(user.getIdentities().iterator().next().getExternalId());
 			return user;
