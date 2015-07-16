@@ -74,6 +74,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
@@ -120,6 +122,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	private static final Logger LOGGER = LoggerFactory.getLogger(CollectionServiceImpl.class);
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<CollectionItem> createQuestionWithCollectionItem(final String collectionId, final String data, final User user, final String mediaFileName, final String sourceReference) throws Exception {
 		ActionResponseDTO<CollectionItem> response = null;
 		final Collection collection = collectionRepository.getCollectionByGooruOid(collectionId, null);
@@ -231,6 +234,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(final String collectionItemId, final String data, final List<Integer> deleteAssets, final User user, final String mediaFileName) throws Exception {
 		final CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
 		if (collectionItem == null) {
@@ -240,6 +244,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(final String collectionId, final String resourceId, final String data, final List<Integer> deleteAssets, final User user, final String mediaFileName) throws Exception {
 		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemByResourceOid(collectionId, resourceId);
 		if (collectionItem == null) {
@@ -249,6 +254,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteQuestionWithCollectionItem(final String collectionId, final String resourceId) {
 		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemByResourceOid(collectionId, resourceId);
 		if (collectionItem == null) {
@@ -263,6 +269,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<CollectionItem> moveCollectionToFolder(final String sourceId, final String targetId, final User user) throws Exception {
 		ActionResponseDTO<CollectionItem> responseDTO = null;
 		final Collection source = collectionRepository.getCollectionByGooruOid(sourceId, null);
@@ -573,6 +580,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Code> getCollectionStandards(final Integer codeId, final String query, final Integer limit, final Integer offset, final User user) {
 		final SearchResults<Code> result = new SearchResults<Code>();
 		final List<Object[]> list = this.getTaxonomyRespository().getCollectionStandards(codeId, query, limit, offset);
@@ -678,6 +686,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Collection> getCollections(final Integer offset, final Integer limit, final User user, final String publishStatus) {
 
 		final List<Collection> collections = this.getCollectionRepository().getCollectionsList(user, limit, offset, CustomProperties.Table.PUBLISH_STATUS.getTable() + UNDER_SCORE + publishStatus);
@@ -689,6 +698,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Collection> updateCollectionForPublish(final List<Map<String, String>> collection, final User user) throws Exception {
 
 		final List<String> gooruOids = new ArrayList<String>();
@@ -746,6 +756,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Collection> updateCollectionForReject(final List<Map<String, String>> collection, final User user) throws Exception {
 
 		final List<String> gooruOids = new ArrayList<String>();
@@ -817,6 +828,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Boolean resourceCopiedFrom(final String gooruOid, final String gooruUid) {
 		Resource resource = collectionRepository.findResourceCopiedFrom(gooruOid, gooruUid);
 		return resource != null ? true : false;
