@@ -45,10 +45,12 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	private static final String COLLECTIONITEM_BY_USERUID = "FROM CollectionItem ci where ci.content.gooruOid=:gooruOid and ci.associatedUser.partyUid=:partyUid";
 
 	private static final String GET_PARENTCOLLECTION = "FROM CollectionItem ci where ci.content.contentId=:contentId";
-	
+
 	private static final String GET_COLLECTION_ITEM_ID = "FROM CollectionItem ci where ci.collectionItemId =:collectionItemId";
-	
+
 	private static final String GET_COLLECTION_ITEM_LIST = "FROM CollectionItem ci where ci.collection.gooruOid =:collectionId";
+
+	private static final String COLLECTION_ITEMS = "select r.title, c.gooru_oid as gooruOid, r.type_name as resourceType, r.folder, r.thumbnail, ct.value as resourceFormat, ci.collection_item_id as collectionItemId, r.url, ci.item_sequence as itemSequence, r.description, ci.start, ci.stop, ci.narration, ci.narration_type, rs.domain_name as domainName, rs.attribution   from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id  left join resource_source rs on rs.resource_source_id = r.resource_source_id     where rc.gooru_oid =:collectionId";
 
 	@Override
 	public Collection getCollection(String collectionId) {
@@ -165,7 +167,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	}
 
 	@Override
-	public List<CollectionItem> getCollectionItems(String gooruOid, int parameterOne, int parameterTwo, String userUid){ 
+	public List<CollectionItem> getCollectionItems(String gooruOid, int parameterOne, int parameterTwo, String userUid) {
 		Query query = getSession().createQuery(GET_COLLECTION_SEQUENCE);
 		query.setParameter(PARAMETER_ONE, parameterOne);
 		query.setParameter(PARAMETER_TWO, parameterTwo);
@@ -212,11 +214,19 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 		query.setParameter(COLLECTION_ITEM_ID, collectionItemId);
 		return (CollectionItem) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
-	
+
 	@Override
 	public List<CollectionItem> getCollectionItems(String collectionId) {
 		Query query = getSession().createQuery(GET_COLLECTION_ITEM_LIST);
 		query.setParameter(COLLECTION_ID, collectionId);
+		return list(query);
+	}
+
+	@Override
+	public List<Map<String, Object>> getCollectionItemById(String collectionId) {
+		Query query = getSession().createSQLQuery(COLLECTION_ITEMS);
+		query.setParameter(COLLECTION_ID, collectionId);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
 		return list(query);
 	}
 
