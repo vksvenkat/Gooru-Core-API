@@ -25,6 +25,7 @@ package org.ednovo.gooru.controllers.v1.api;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
@@ -96,7 +97,7 @@ public class TaxonomyCourseRestController extends BaseController implements Cons
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_READ })
 	@RequestMapping(value = RequestMappingUri.DOMAIN_BY_TAXONOMY_COURSE, method = RequestMethod.GET)
-	public ModelAndView getDomains(@PathVariable(value = ID) Integer courseId, HttpServletRequest request, HttpServletResponse response,@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit) {
+	public ModelAndView getDomains(@PathVariable(value = ID) Integer courseId, HttpServletRequest request, HttpServletResponse response,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit) {
 		return toModelAndViewWithIoFilter(getTaxonomyCourseService().getDomains(courseId, limit, offset),RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, DOMAIN_INCLUDES);
 	}
 	
