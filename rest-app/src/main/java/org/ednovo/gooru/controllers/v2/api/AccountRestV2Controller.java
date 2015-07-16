@@ -127,7 +127,7 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	public ModelAndView loginAs(@PathVariable(value = ID) final String gooruUid, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		if(gooruUid.contains(ANONYMOUS)) {
 			response.setHeader("Access-Control-Allow-Origin", request.getHeader(HOST));
-			response.setHeader("Access-Control-Allow-Headers", "Cache-Control, Pragma, Origin, Authorization, Content-Type, X-Requested-With");
+			response.setHeader("Access-Control-Allow-Headers", "Cache-Control, Pragma, Origin, Authorization, Content-Type, X-Requested-With, Accept");
 			response.setHeader("Access-Control-Allow-Methods", "POST");
 		}
 		final UserToken userToken = this.getAccountService().loginAs(gooruUid, request);
