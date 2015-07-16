@@ -36,11 +36,11 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 
 	private static final String GET_COLLECTION_ITEM_COUNT = "select count(1) as count from collection_item ci inner join collection  c  on c.content_id = ci.collection_content_id inner join collection co on ci.resource_content_id  = co.content_id   where c.content_id =:collectionId and co.collection_type =:collectionType";
 
-	private static final String GET_COLLECTION_SEQUENCE = "FROM CollectionItem ci where ci.collection.gooruOid=:gooruOid and ci.associatedUser.partyUid=:userUid and ci.itemSequence between :parameterOne and :parameterTwo order by ci.itemSequence";
+	private static final String GET_COLLECTION_SEQUENCE = "FROM CollectionItem ci where ci.collection.gooruOid=:gooruOid and ci.itemSequence between :parameterOne and :parameterTwo ";
 
 	private static final String GET_COLLECTIONITEM_BY_GOORUOID = "FROM CollectionItem where content.gooruOid=:gooruOid and collection.gooruOid=:parentGooruOid and associatedUser.partyUid=:userUid";
 
-	private final static String GET_COLLECTIONITEM_BY_SEQUENCE = "FROM CollectionItem where collection.gooruOid=:parentId and associatedUser.partyUid=:userUid and itemSequence>:sequence order by itemSequence";
+	private final static String GET_COLLECTIONITEM_BY_SEQUENCE = "FROM CollectionItem where collection.gooruOid=:parentId and itemSequence>:sequence ";
 
 	private static final String COLLECTIONITEM_BY_USERUID = "FROM CollectionItem ci where ci.content.gooruOid=:gooruOid and ci.associatedUser.partyUid=:partyUid";
 
@@ -167,12 +167,19 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	}
 
 	@Override
-	public List<CollectionItem> getCollectionItems(String gooruOid, int parameterOne, int parameterTwo, String userUid) {
-		Query query = getSession().createQuery(GET_COLLECTION_SEQUENCE);
+	public List<CollectionItem> getCollectionItems(String gooruOid, int parameterOne, int parameterTwo, String userUid){ 
+		StringBuilder hql = new StringBuilder(GET_COLLECTION_SEQUENCE);
+		if(userUid != null){
+			hql.append(" and ci.associatedUser.partyUid=:userUid");
+		}
+		hql.append(" order by ci.itemSequence");
+		Query query = getSession().createQuery(hql.toString());
 		query.setParameter(PARAMETER_ONE, parameterOne);
 		query.setParameter(PARAMETER_TWO, parameterTwo);
 		query.setParameter(GOORU_OID, gooruOid);
-		query.setParameter(USER_UID, userUid);
+		if(userUid != null){
+			query.setParameter(USER_UID, userUid);
+		}
 		return list(query);
 	}
 
@@ -187,10 +194,17 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 
 	@Override
 	public List<CollectionItem> getCollectionItems(String parentId, int sequence, String userUid) {
-		Query query = getSession().createQuery(GET_COLLECTIONITEM_BY_SEQUENCE);
+		StringBuilder hql = new StringBuilder(GET_COLLECTIONITEM_BY_SEQUENCE);
+		if(userUid != null){
+			hql.append("and associatedUser.partyUid=:userUid ");
+		}
+		hql.append("order by itemSequence");
+		Query query = getSession().createQuery(hql.toString());
+		if(userUid != null){
+			query.setParameter(USER_UID, userUid);
+		}
 		query.setParameter(PARENT_ID, parentId);
 		query.setParameter(SEQUENCE, sequence);
-		query.setParameter(USER_UID, userUid);
 		return list(query);
 	}
 
