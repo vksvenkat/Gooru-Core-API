@@ -128,7 +128,7 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 		if(gooruUid.contains(ANONYMOUS)) {
 			response.setHeader("Access-Control-Allow-Origin", request.getHeader(HOST));
 			response.setHeader("Access-Control-Allow-Headers", "Cache-Control, Pragma, Origin, Authorization, Content-Type, X-Requested-With, Accept");
-			response.setHeader("Access-Control-Allow-Methods", "POST");
+			response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT");
 		}
 		final UserToken userToken = this.getAccountService().loginAs(gooruUid, request);
 		if (userToken == null) {
