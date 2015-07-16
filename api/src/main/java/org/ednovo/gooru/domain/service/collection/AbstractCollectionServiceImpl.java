@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.application.util.SerializerUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
@@ -60,6 +61,9 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	@Autowired
 	private TaxonomyCourseRepository taxonomyCourseRepository;
+	
+	@Autowired
+	private AsyncExecutor asyncExecutor;
 
 	@Autowired
 	private SettingService settingService;
@@ -173,6 +177,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 				collectionItem.setItemSequence(sequence++);
 			}
 			this.getCollectionDao().saveAll(resetCollectionSequence);
+			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + userUid + "*");
 		}
 	}
 
@@ -207,6 +212,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 				}
 				this.getCollectionDao().saveAll(resetCollectionSequence);
 			}
+			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + userUid + "*");
 		}
 	}
 
@@ -445,6 +451,10 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	public SettingService getSettingService() {
 		return settingService;
+	}
+	
+	public AsyncExecutor getAsyncExecutor() {
+		return asyncExecutor;
 	}
 
 }
