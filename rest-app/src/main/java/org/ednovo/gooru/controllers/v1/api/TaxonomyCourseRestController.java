@@ -49,10 +49,10 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping(value = { RequestMappingUri.TAXONOMY_COURSE })
-public class TaxonomyCourseRestController extends BaseController implements ConstantProperties, ParameterProperties {
+public class TaxonomyCourseRestController extends BaseController implements ConstantProperties {
 
 	@Autowired
-	public TaxonomyCourseService TaxonomycourseService;
+	public TaxonomyCourseService taxonomyCourseService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COURSE_ADD })
 	@RequestMapping(method = RequestMethod.POST)
@@ -101,7 +101,7 @@ public class TaxonomyCourseRestController extends BaseController implements Cons
 	}
 	
 	public TaxonomyCourseService getTaxonomyCourseService() {
-		return TaxonomycourseService;
+		return taxonomyCourseService;
 	}
 
 	private TaxonomyCourse buildCourseFromInputParameters(String data) {
