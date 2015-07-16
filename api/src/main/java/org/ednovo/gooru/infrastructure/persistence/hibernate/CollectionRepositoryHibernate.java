@@ -839,9 +839,9 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public List<Collection> getCollectionsList(final User user, final Integer limit, final Integer offset, final String publishStatus) {
-		String hql = " FROM Collection collection   WHERE  collection.collectionType=:type and " + generateOrgAuthQuery("collection.");
+		String hql = " FROM Collection collection   WHERE   collection.collectionType IN ('collection', 'assessment', 'quiz') and " + generateOrgAuthQuery("collection.");
 		if (publishStatus != null) {
-			hql += " and collection.publishStatus IS NOT NULL and  collection.collectionType in ('collection', 'assessment', 'quiz') and  collection.publishStatus.keyValue =:pending order by collection.lastModified desc";
+			hql += " and collection.publishStatus IS NOT NULL and  collection.publishStatus.keyValue =:pending order by collection.lastModified desc";
 		}
 
 		Query query = getSession().createQuery(hql);
