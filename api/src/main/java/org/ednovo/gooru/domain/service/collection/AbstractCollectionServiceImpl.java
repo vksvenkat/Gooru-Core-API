@@ -13,7 +13,6 @@ import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
-import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentClassification;
 import org.ednovo.gooru.core.api.model.ContentMeta;
@@ -184,7 +183,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 			}
 			if (resetCollectionSequence != null) {
 				for (CollectionItem collectionSequence : resetCollectionSequence) {
-					if (collectionSequence.getContent().getGooruOid() != gooruOid) {
+					if (!collectionSequence.getContent().getGooruOid().equalsIgnoreCase(gooruOid)) {
 						collectionSequence.setItemSequence(displaySequence++);
 					} else if (collectionSequence.getContent().getGooruOid().equalsIgnoreCase(gooruOid)) {
 						collectionSequence.setItemSequence(newSequence);
@@ -308,17 +307,6 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		return metaValues;
 	}
 
-	@SuppressWarnings("unchecked")
-	public void deleteValidation(Long contentId, String collectionType) {
-		ContentMeta contentMeta = this.getContentRepository().getContentMeta(contentId);
-		Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
-		});
-		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
-		int assessmentCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue();
-		int collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue();
-		reject((assessmentCount == 0 && collectionCount == 0), GL0110, 400, collectionType);
-	}
-
 	public List<Map<String, Object>> updateContentCode(Content content, List<Integer> codeIds, Short typeId) {
 		this.getContentClassificationRepository().deleteContentClassification(content.getContentId(), typeId);
 		List<Map<String, Object>> codes = null;
@@ -385,49 +373,36 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		user.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(getSettingService().getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf(user.get(GOORU_UID)) + ".png");
 		return user;
 	}
-
-	protected void updateMetaDataSummary(Long courseId, Long unitId, Long lessonId, String collectionType, String action) {
-		ContentMeta unitContentMeta = this.getContentRepository().getContentMeta(unitId);
-		ContentMeta courseContentMeta = this.getContentRepository().getContentMeta(courseId);
-		ContentMeta lessonContentMeta = this.getContentRepository().getContentMeta(lessonId);
-		if (lessonContentMeta != null) {
-			updateSummaryMeta(collectionType, lessonContentMeta, action);
-		}
-		if (unitContentMeta != null) {
-			updateSummaryMeta(collectionType, unitContentMeta, action);
-		}
-		if (courseContentMeta != null) {
-			updateSummaryMeta(collectionType, courseContentMeta, action);
-		}
-	}
-
+	
 	@SuppressWarnings("unchecked")
-	protected void updateSummaryMeta(String collectionType, ContentMeta contentMeta, String action) {
-		Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
-		});
-		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
-		if (collectionType.equalsIgnoreCase(CollectionType.ASSESSMENT.getCollectionType())) {
-			int assessmentCount = ((Number) summary.get(MetaConstants.ASSESSMENT_COUNT)).intValue();
-			if (action.equalsIgnoreCase(DELETE)) {
-				assessmentCount -= 1;
-			} else if (action.equalsIgnoreCase(ADD)) {
-				assessmentCount += 1;
+	public void updateContentMetaDataSummary(Long parentId, String contentType, String action) {
+		ContentMeta parentContentMeta = this.getContentRepository().getContentMeta(parentId);
+		if (parentContentMeta != null) {
+			int count = this.getCollectionDao().getCollectionItemCount(parentId, contentType);
+			if(action.equalsIgnoreCase(DELETE)){
+				count -=1;
 			}
-			summary.put(MetaConstants.ASSESSMENT_COUNT, assessmentCount);
-		}
-		if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
-			int collectionCount = ((Number) summary.get(MetaConstants.COLLECTION_COUNT)).intValue();
-			if (action.equalsIgnoreCase(DELETE)) {
-				collectionCount -= 1;
-			} else if (action.equalsIgnoreCase(ADD)) {
-				collectionCount += 1;
+			Map<String, Object> metaData = JsonDeserializer.deserialize(parentContentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
+			});
+			Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
+			
+			if(contentType.equalsIgnoreCase(UNIT)){
+				summary.put(MetaConstants.UNIT_COUNT, count);
 			}
-			summary.put(MetaConstants.COLLECTION_COUNT, collectionCount);
-		}
-		metaData.put(SUMMARY, summary);
-		updateContentMeta(contentMeta, metaData);
+			if(contentType.equalsIgnoreCase(LESSON)){
+				summary.put(MetaConstants.LESSON_COUNT, count);
+			}
+			if(contentType.equalsIgnoreCase(COLLECTION)){
+				summary.put(MetaConstants.COLLECTION_COUNT, count);
+			}
+			if(contentType.equalsIgnoreCase(ASSESSMENT)){
+				summary.put(MetaConstants.ASSESSMENT_COUNT, count);
+			}
+			metaData.put(SUMMARY, summary);
+			updateContentMeta(parentContentMeta, metaData);
+			}
 	}
-
+	
 	public CollectionDao getCollectionDao() {
 		return collectionDao;
 	}

@@ -46,6 +46,9 @@ public class CountryRepositoryHibernate extends BaseRepositoryHibernate implemen
 	@Override
 	public List<Country> getCountries(Integer limit, Integer offset) {
 		Query query = getSession().createQuery(COUNTRYS);
+		if (limit == null) {
+			limit = 0;
+		}
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
 		query.setFirstResult(offset);
 		return list(query);
@@ -78,6 +81,9 @@ public class CountryRepositoryHibernate extends BaseRepositoryHibernate implemen
 		if (countryUid != null) {
 			query.setParameter(COUNTRY_UID, countryUid);
 		}
+		if (limit == null) {
+			limit = 0;
+		}
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
 		query.setFirstResult(offset);
 		return list(query);
@@ -106,6 +112,9 @@ public class CountryRepositoryHibernate extends BaseRepositoryHibernate implemen
 		Query query = getSession().createQuery(CITYS);
 		query.setParameter(COUNTRY_UID, countryUid);
 		query.setParameter(STATE_UID, stateUid);
+		if (limit == null) {
+			limit = 0;
+		}
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
 		query.setFirstResult(offset);
 		return list(query);

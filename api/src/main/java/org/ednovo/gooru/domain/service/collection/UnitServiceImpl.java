@@ -19,15 +19,12 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.SubdomainRepository;
-import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
-
-import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
 public class UnitServiceImpl extends AbstractCollectionServiceImpl implements UnitService, ConstantProperties, ParameterProperties {
@@ -48,7 +45,7 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 			Map<String, Object> data = generateUnitMetaData(collection, collection, user);
 			data.put(SUMMARY, MetaConstants.UNIT_SUMMARY);
 			createContentMeta(collection, data);
-			updateCourseMetaData(parentCollection.getContentId());
+			updateContentMetaDataSummary(parentCollection.getContentId(), UNIT, ADD);
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
@@ -99,51 +96,9 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(unitId, user), GL0099, 403, UNIT);
 		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(course, GL0056, COURSE);
-		this.deleteValidation(unit.getContent().getContentId(), UNIT);
 		this.resetSequence(courseId, unit.getContent().getGooruOid(), user.getPartyUid());
 		this.deleteCollection(unitId);
-		this.updateMetaDataSummary(course.getContentId(), unit.getContent().getContentId());
-	}
-
-	private void updateMetaDataSummary(Long courseId, Long unitId) {
-		ContentMeta unitContentMeta = this.getContentRepository().getContentMeta(unitId);
-		ContentMeta courseContentMeta = this.getContentRepository().getContentMeta(courseId);
-		if (courseContentMeta != null) {
-			updateSummaryMeta(courseContentMeta, unitContentMeta);
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private void updateSummaryMeta(ContentMeta contentMeta, ContentMeta unitContentMeta) {
-		Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
-		});
-		Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
-		Map<String, Object> unitMetaData = JsonDeserializer.deserialize(unitContentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
-		});
-		Map<String, Object> unitSummary = (Map<String, Object>) unitMetaData.get(SUMMARY);
-
-		int unitCount = ((Number) summary.get(MetaConstants.UNIT_COUNT)).intValue() - 1;
-		summary.put(MetaConstants.UNIT_COUNT, unitCount);
-
-		int lessonCount = ((Number) summary.get(MetaConstants.LESSON_COUNT)).intValue() - ((Number) unitSummary.get(MetaConstants.LESSON_COUNT)).intValue();
-		summary.put(MetaConstants.LESSON_COUNT, lessonCount);
-
-		metaData.put(SUMMARY, summary);
-		updateContentMeta(contentMeta, metaData);
-	}
-
-	private void updateCourseMetaData(Long courseId) {
-		ContentMeta contentMeta = this.getContentRepository().getContentMeta(courseId);
-		if (contentMeta != null) {
-			int unitCount = this.getCollectionDao().getCollectionItemCount(courseId, CollectionType.UNIT.getCollectionType());
-			Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
-			});
-			@SuppressWarnings("unchecked")
-			Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
-			summary.put(MetaConstants.UNIT_COUNT, unitCount);
-			metaData.put(SUMMARY, summary);
-			updateContentMeta(contentMeta, metaData);
-		}
+		updateContentMetaDataSummary(course.getContentId(), UNIT, DELETE);
 	}
 
 	private Map<String, Object> generateUnitMetaData(Collection collection, Collection newCollection, User user) {
