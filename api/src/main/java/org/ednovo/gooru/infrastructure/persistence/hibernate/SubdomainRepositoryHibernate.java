@@ -42,7 +42,7 @@ public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implem
 
 	private static final String SUBDOMAIN_BY_IDS = "FROM Subdomain  WHERE subdomainId in (:subdomainId)";
 
-	private static final String SUBDOMAIN_STANDARDS = "select s.code_id as codeId, ifnull(common_core_dot_notation, display_code) as code, label from subdomain_attribute_mapping  s  inner join  code c on s.code_id = c.code_id where s.subdomain_id=:subdomainId order by c.sequence";
+	private static final String SUBDOMAIN_STANDARDS = "select s.code_id as codeId, ifnull(common_core_dot_notation, display_code) as code, label, s.type_id as typeId from subdomain_attribute_mapping  s  inner join  code c on s.code_id = c.code_id where s.subdomain_id=:subdomainId order by c.sequence";
 
 	private static final String STANDARDS = "select code_id as codeId, ifnull(common_core_dot_notation, display_code) as code, label  from code where parent_id =:codeId order by sequence";
 
@@ -55,6 +55,9 @@ public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implem
 	@Override
 	public List<Subdomain> getSubdomains(Integer limit, Integer offset) {
 		Query query = getSession().createQuery(SUBDOMAINS);
+		if (limit == null) {
+			limit = 0;
+		}
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
 		query.setFirstResult(offset);
 		return list(query);

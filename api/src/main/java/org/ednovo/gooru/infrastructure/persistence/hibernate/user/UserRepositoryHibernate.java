@@ -884,6 +884,9 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 			hql = "select userRole From UserRole userRole  WHERE 1=1 AND " + generateOrgAuthQuery("userRole.");
 		}
 		Query query = getSession().createQuery(hql);
+		if (limit == null) {
+			limit = 0;
+		}
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
 		query.setFirstResult(offset);
 		addOrgAuthParameters(query);
@@ -915,6 +918,9 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	@Override
 	public List<EntityOperation> findAllEntityNames(Integer offset, Integer limit) {
 		Query query = getSession().createQuery(FIND_ALL_ENTITY_NAME);
+		if (limit == null) {
+			limit = 0;
+		}
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
 		query.setFirstResult(offset);
 		return query.list();

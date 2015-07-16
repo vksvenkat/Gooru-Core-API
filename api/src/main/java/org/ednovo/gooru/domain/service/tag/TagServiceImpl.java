@@ -68,6 +68,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepo
 import org.ednovo.gooru.infrastructure.persistence.hibernate.tag.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
@@ -116,6 +118,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	private UserService userService;
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Tag> createTag(Tag newTag, User user) {
 		Tag tag = this.getTagRepository().findTagByLabel(newTag.getLabel());
 		
@@ -151,6 +154,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Tag updateTag(String gooruOid, Tag newTag, User apiCaller) {
 		Tag tag = this.getTagRepository().findTagByTagId(gooruOid);
 		if (tag == null) {
@@ -189,6 +193,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Tag> getTags(Integer offset, Integer limit) {
 		List<Tag> tag = this.getTagRepository().getTags(offset, limit);
 		if (tag.size() <= 0) {
@@ -198,6 +203,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Tag> getTag(String gooruOid) {
 		List<Tag> tag = this.getTagRepository().getTag(gooruOid);
 		if (tag.size() <= 0) {
@@ -207,6 +213,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteTag(String gooruOid) {
 		List<Tag> tags = this.getTagRepository().getTag(gooruOid);
 		if (tags.size() <= 0) {
@@ -216,11 +223,13 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<ContentTagAssoc> getTagContentAssoc(String tagGooruOid, Integer limit, Integer offset) {
 		return this.getTagRepository().getTagContentAssoc(tagGooruOid, limit, offset);
 	}
 	
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getResourceByLabel(String label, Integer limit, Integer offset, String gooruUid) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		List<Object[]> results = this.getTagRepository().getResourceByLabel(label, limit, offset,  gooruUid);
@@ -319,11 +328,13 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<UserTagAssoc> getTagAssocUser(String tagGooruOid, Integer limit, Integer offset) {
 		return this.getTagRepository().getTagAssocUser(tagGooruOid, limit, offset);
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public TagSynonyms createTagSynonyms(TagSynonyms tagSynonyms, String tagGooruOid, User user) {
 		Tag tag = this.getTagRepository().findTagByTagId(tagGooruOid);
 		if (tag == null) {
@@ -347,6 +358,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public TagSynonyms updateTagSynonyms(TagSynonyms newTagSynonyms, String tagGooruOid, Integer tagSynonymsId, User user) {
 		Tag tag = this.getTagRepository().findTagByTagId(tagGooruOid);
 		TagSynonyms tagSynonyms = this.getTagRepository().findTagSynonymById(tagSynonymsId);
@@ -375,12 +387,14 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<TagSynonyms> getTagSynonyms(String tagGooruOid) {
 
 		return this.getTagRepository().getTagSynonyms(tagGooruOid);
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteTagSynonyms(String tagGooruOid, Integer synonymsId) {
 		TagSynonyms tagSynonyms = this.getTagRepository().getSynonymByTagAndSynonymId(tagGooruOid, synonymsId);
 		if (tagSynonyms == null) {

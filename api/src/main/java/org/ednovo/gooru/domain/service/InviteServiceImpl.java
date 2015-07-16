@@ -91,6 +91,7 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 		final UserClass userClass = this.getClassRepository().getClassById(classUid);
 		rejectIfNull(userClass, GL0056, 404, CLASS);
 		// To Do, Fix me
+
 		CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, PENDING);
 		List<String> emailIds = new ArrayList<String>();
 		User creator = getUserRepository().findByGooruId(userClass.getUserUid());
@@ -103,7 +104,7 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 			}
 			try {
 				if (userClass.getVisibility()) {
-					this.getMailHandler().sendMailToOpenClassUser(email, userClass.getPartyUid(), creator, userClass.getName(), user.getUsername(), userClass.getGroupCode());
+					this.getMailHandler().sendMailToOpenClassUser(email, userClass.getPartyUid(), creator, userClass.getName(), user.getUsername(), userClass.getGroupCode(), userClass.getCourseGooruOid());
 				} else {
 					this.getMailHandler().sendMailToInviteUser(email, userClass.getPartyUid(), creator, userClass.getName(), user.getUsername(), userClass.getGroupCode());
 				}

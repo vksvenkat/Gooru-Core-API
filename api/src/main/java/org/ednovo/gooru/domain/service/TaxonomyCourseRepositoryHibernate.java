@@ -64,6 +64,9 @@ public class TaxonomyCourseRepositoryHibernate extends BaseRepositoryHibernate i
 	@Override
 	public List<TaxonomyCourse> getCourses(Integer limit, Integer offset) {
 		Query query = getSession().createQuery(GET_COURSES);
+		if (limit == null) {
+			limit = 0;
+		}
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
 		query.setFirstResult(offset);
 		return list(query);

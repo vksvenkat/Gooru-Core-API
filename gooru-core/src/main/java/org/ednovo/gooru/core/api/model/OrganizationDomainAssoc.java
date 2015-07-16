@@ -2,7 +2,7 @@ package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
 
-public class OrganizationDomainAssoc extends OrganizationModel implements Serializable {
+public class OrganizationDomainAssoc extends OrganizationModel {
 
 	/**
 	 * 
