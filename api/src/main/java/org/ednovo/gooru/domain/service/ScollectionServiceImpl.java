@@ -970,6 +970,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<User> getCollaborators(String collectionId) {
 		final Collection collection = this.getCollectionByGooruOid(collectionId, null);
 		rejectIfNull(collection, GL0056, _COLLECTION);
