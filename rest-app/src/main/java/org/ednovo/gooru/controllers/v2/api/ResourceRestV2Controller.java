@@ -71,7 +71,6 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	private ResourceImportService resourceImportService;
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.NOT_SUPPORTED, noRollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "")
 	public ModelAndView createResource(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, RESOURCE_CREATE_RESOURCE);
@@ -83,7 +82,6 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	public ModelAndView updateResource(@RequestBody final String data, @PathVariable(value = ID) final String resourceId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, RES_UPDATE_RES);
@@ -100,14 +98,12 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	public ModelAndView getResource(final HttpServletRequest request, @PathVariable(ID) final String resourceId, final HttpServletResponse response) throws Exception {
 		return toModelAndViewWithIoFilter(this.getResourceService().getResource(resourceId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, RESOURCE_INCLUDE_FIELDS);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/collection/resource/list")
 	public ModelAndView listResourcesUsedInCollections(@RequestParam(value = DATA_OBJECT, required = true) String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -116,7 +112,6 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
 	public void deleteResource(@PathVariable(value = ID) final String resourceId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, RESOURCE_DELETE_RESOURCE);
@@ -126,7 +121,6 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/collaborators/{id}", method = { RequestMethod.PUT })
 	public ModelAndView addCollborators(@PathVariable(value = ID) final String collectionId, final HttpServletRequest request, final HttpServletResponse response, @RequestParam(value = "collaborator", required = true) final String collaboratorId) {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -139,7 +133,6 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/collaborators/{id}", method = RequestMethod.GET)
 	public ModelAndView getCollaborators(@PathVariable(value = ID) final String collectionId, final HttpServletRequest request, final HttpServletResponse response) {
 
@@ -150,7 +143,6 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/collaborators/{id}", method = RequestMethod.DELETE)
 	public ModelAndView deleteCollaborators(@PathVariable(value = ID) final String collectionId, final HttpServletRequest request, final HttpServletResponse response, @RequestParam(value = "collaborator", required = true) final String collaboratorId) {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -164,7 +156,6 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.DELETE, RequestMethod.PUT }, value = "/{id}/taxonomy")
 	public void deleteTaxonomyResource(@RequestBody final String data, @PathVariable(value = ID) final String resourceId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, RESOURCE_DELETE_RESOURCE_TAXONOMY);
@@ -181,7 +172,6 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/suggest/meta/info")
 	public ModelAndView suggestResourceMetaData(@RequestParam(value = URL) final String url, @RequestParam(value = TITLE, required = false) final String title, @RequestParam(value = FETCH_THUMBNAIL, required = false, defaultValue = "false") final boolean fetchThumbnail,
 			final HttpServletRequest request, final HttpServletResponse response) throws Exception {
@@ -189,7 +179,6 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/{id}/media")
 	public ModelAndView updateResourceImage(final HttpServletRequest request, @PathVariable(ID) final String resourceId, @RequestBody final String data, final HttpServletResponse response) throws Exception {
 		final JSONObject json = requestData(data);
@@ -207,7 +196,6 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "content/{id}")
 	public void deleteContentProvider(@PathVariable(value = ID) final String gooruOid, @RequestParam(value = "providerType") final String providerType, @RequestParam(value = "name") final String name, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		this.getResourceService().deleteContentProvider(gooruOid, providerType, name);
@@ -220,7 +208,6 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{id}/collection")
 	public ModelAndView getUserListByResourceId(@PathVariable(value = ID) final String resourceId, @RequestParam(value = SHARING, required = false ,defaultValue = PUBLIC) final String sharing, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") final Integer limit,
 			final HttpServletRequest request, final HttpServletResponse response) {
@@ -228,7 +215,6 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.NOT_SUPPORTED, noRollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "{type}/import")
 	public void createResource(@PathVariable(value = TYPE) final String type, @RequestParam(value = FILENAME) final String filename, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);

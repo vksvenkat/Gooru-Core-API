@@ -38,20 +38,23 @@ public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implem
 
 	private static final String SUBDOMAINS = "FROM Subdomain";
 
-	private static final String SUBDOMAIN = "FROM Subdomain subdomain WHERE subdomain.subdomainId=:subdomainId";
-
+	private static final String SUBDOMAIN = "select sd.subdomain_id as subdomainId,sd.course_id as courseId,sd.domain_id as domainId,c.name as courseName,d.name as domainName from subdomain sd join course c on sd.course_id = c.course_id join domain d on sd.domain_id = d.domain_id where sd.subdomain_id=:subdomainId";
+	
 	private static final String SUBDOMAIN_BY_IDS = "FROM Subdomain  WHERE subdomainId in (:subdomainId)";
 
-	private static final String SUBDOMAIN_STANDARDS = "select s.code_id as codeId, ifnull(common_core_dot_notation, display_code) as code, label from subdomain_attribute_mapping  s  inner join  code c on s.code_id = c.code_id where s.subdomain_id=:subdomainId order by c.sequence";
+	private static final String SUBDOMAIN_STANDARDS = "select s.code_id as codeId, ifnull(common_core_dot_notation, display_code) as code, label, s.type_id as typeId from subdomain_attribute_mapping  s  inner join  code c on s.code_id = c.code_id where s.subdomain_id=:subdomainId order by c.sequence";
 
 	private static final String STANDARDS = "select code_id as codeId, ifnull(common_core_dot_notation, display_code) as code, label  from code where parent_id =:codeId order by sequence";
 
 	@Override
-	public Subdomain getSubdomain(Integer subdomainId) {
-		Query query = getSession().createQuery(SUBDOMAIN).setParameter(SUBDOMAIN_ID, subdomainId);
-		return (Subdomain) (query.list().size() > 0 ? query.list().get(0) : null);
+	public Map<String, Object> getSubdomain(Integer subdomainId) {
+		Query query = getSession().createSQLQuery(SUBDOMAIN);
+		query.setParameter(SUBDOMAIN_ID, subdomainId);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		List<Map<String, Object>> results = query.list();
+		return (Map<String, Object>) ((results.size() > 0) ? results.get(0) : null);
 	}
-
+	
 	@Override
 	public List<Subdomain> getSubdomains(Integer limit, Integer offset) {
 		Query query = getSession().createQuery(SUBDOMAINS);
@@ -84,4 +87,5 @@ public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implem
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
 		return list(query);
 	}
+
 }

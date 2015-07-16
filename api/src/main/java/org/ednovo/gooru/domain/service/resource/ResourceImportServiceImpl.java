@@ -41,8 +41,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.apache.commons.lang.StringUtils;
+
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -59,6 +61,7 @@ public class ResourceImportServiceImpl extends FileImporter implements ResourceI
 	private ResourceService resourceService;
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.NOT_SUPPORTED, noRollbackFor = Exception.class)
 	public void createOrUpdateResource(String filename, User user) {
 		final String mediaFileName = UserGroupSupport.getUserOrganizationNfsInternalPath() + Constants.UPLOADED_MEDIA_FOLDER + '/' + filename;
 		List<String> keys = null;
