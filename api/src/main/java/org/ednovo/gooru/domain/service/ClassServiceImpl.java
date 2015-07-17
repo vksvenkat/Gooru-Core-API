@@ -325,14 +325,18 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateClassSettings(String classUid, List<ClassCollectionSettings> classCollectionSettings) {
-		UserClass userClass = this.getClassRepository().getClassById(classUid);
-		rejectIfNull(userClass, GL0056, 404, CLASS);
-		List<ClassCollectionSettings> settings = new ArrayList<ClassCollectionSettings>();
-		for (ClassCollectionSettings classCollectionSetting : classCollectionSettings) {
-			classCollectionSetting.setClassId(userClass.getClassId());
-			settings.add(classCollectionSetting);
-		}
-		this.getClassRepository().saveAll(settings);
+		throw new NotImplementedException("release - 1.6 : this feature is put on hold,  we  may implement this in further releases. ");
+		/*
+		 * UserClass userClass =
+		 * this.getClassRepository().getClassById(classUid);
+		 * rejectIfNull(userClass, GL0056, 404, CLASS);
+		 * List<ClassCollectionSettings> settings = new
+		 * ArrayList<ClassCollectionSettings>(); for (ClassCollectionSettings
+		 * classCollectionSetting : classCollectionSettings) {
+		 * classCollectionSetting.setClassId(userClass.getClassId());
+		 * settings.add(classCollectionSetting); }
+		 * this.getClassRepository().saveAll(settings);
+		 */
 	}
 
 	@Override
@@ -433,6 +437,23 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		return content;
 	}
 
+	@Override
+	public boolean hasTeachAndStudy(String gooruUid) {
+		final List<Map<String, Object>> teachClasses = this.getClassRepository().getClasses(gooruUid, false, 1, 0);
+		boolean hasTeachAndStudy = false;
+		if (!gooruUid.contains(ANONYMOUS)) {
+			if (teachClasses != null && teachClasses.size() > 0) {
+				hasTeachAndStudy = true;
+			} else {
+				final List<Map<String, Object>> studyClasses = this.getClassRepository().getStudyClasses(gooruUid, 1, 0);
+				if (studyClasses != null && studyClasses.size() > 0) {
+					hasTeachAndStudy = true;
+				}
+			}
+		}
+		return hasTeachAndStudy;
+	}
+
 	public CollectionDao getCollectionDao() {
 		return collectionDao;
 	}
@@ -460,4 +481,5 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	public LessonService getLessonService() {
 		return lessonService;
 	}
+
 }

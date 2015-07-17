@@ -47,7 +47,7 @@ import org.springframework.validation.Errors;
 public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements TaxonomyCourseService, ParameterProperties, ConstantProperties {
 
 	@Autowired
-	private TaxonomyCourseRepository TaxonomycourseRepository;
+	private TaxonomyCourseRepository taxonomyCourseRepository;
 
 	@Autowired
 	private SubjectRepository subjectRepository;
@@ -163,7 +163,7 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 	}
 
 	public TaxonomyCourseRepository getTaxonomyCourseRepository() {
-		return TaxonomycourseRepository;
+		return taxonomyCourseRepository;
 	}
 
 	public SubjectRepository getSubjectRepository() {
