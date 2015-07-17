@@ -80,6 +80,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
@@ -158,6 +160,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Classpage> createClasspage(Classpage newClasspage, CollectionItem newCollectionItem, String gooruOid, User user, boolean addToMy) throws Exception {
 		Errors errors = validateClasspage(newClasspage);
 		if (!errors.hasErrors()) {
@@ -184,7 +187,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		}
 		return new ActionResponseDTO<Classpage>(newClasspage, errors);
 	}
-
+	
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Classpage> updateClasspage(Classpage newClasspage, String updateClasspageId, Boolean hasUnrestrictedContentAccess, final String data) throws Exception {
 		Classpage classpage = this.getClasspage(updateClasspageId, null, null);
 		rejectIfNull(classpage, GL0056, "classpage");
@@ -248,6 +253,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Classpage getClasspage(String classpageCode, User user) throws Exception {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(classpageCode);
 		if (classpage == null) {
@@ -258,6 +264,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteClasspage(String classpageId, User user) {
 		Classpage classpage = this.getClasspage(classpageId, null, null);
 		if (classpage != null) {
@@ -284,6 +291,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Classpage> getClasspages(Integer offset, Integer limit, User user, String title, String author, String userName) {
 		if (userService.isContentAdmin(user)) {
 			List<Classpage> classpages = this.getCollectionRepository().getClasspages(offset, limit, title, author, userName);
@@ -298,6 +306,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Classpage getClasspage(String collectionId, User user, String merge) {
 		Classpage classpage = this.getCollectionRepository().getClasspageByGooruOid(collectionId, null);
 		if (classpage != null && merge != null) {
@@ -334,6 +343,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<CollectionItem> createClasspageItem(String assignmentGooruOid, String classpageGooruOid, CollectionItem collectionItem, User user, String type) throws Exception {
 		Classpage classpage = null;
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(assignmentGooruOid, null);
@@ -418,6 +428,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, boolean skipPagination, String orderBy) {
 		return this.getCollectionRepository().getMyClasspage(offset, limit, user, skipPagination, orderBy);
 	}
@@ -428,12 +439,14 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Classpage> createClasspage(Classpage classpage, String collectionId, boolean addToMy) throws Exception {
 
 		return this.createClasspage(classpage, classpage.getCollectionItem(), collectionId, classpage.getUser(), addToMy);
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> classpageUserJoin(String code, List<String> mailIds, User apiCaller) throws Exception {
 		List<Map<String, Object>> classpageMember = new ArrayList<Map<String, Object>>();
 		UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(code);
@@ -485,6 +498,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void classpageUserRemove(String code, List<String> mailIds, User apiCaller) throws Exception {
 		UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(code);
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
@@ -609,6 +623,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Map<String, Object>> getMemberList(String code, Integer offset, Integer limit, String filterBy) {
 		final Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
 		if (classpage == null) {
@@ -665,11 +680,13 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<String> classMemberSuggest(String queryText, String gooruUid) {
 		return this.getUserGroupRepository().classMemberSuggest(queryText, gooruUid);
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Map<String, Object>> getMyStudy(User user, String orderBy, Integer offset, Integer limit, String type, String itemType) {
 		if (user.getPartyUid().equalsIgnoreCase(ANONYMOUS)) {
 			throw new NotFoundException(generateErrorMessage("GL0056", "User"), "GL0056");
@@ -747,6 +764,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, User apiCaller, String orderBy, boolean optimize, String status, String type) {
 		final List<Object[]> results = this.getCollectionRepository().getClasspageItems(gooruOid, limit, offset, apiCaller.getPartyUid(), orderBy, status, type);
 		final List<Map<String, Object>> collectionItems = new ArrayList<Map<String, Object>>();
@@ -798,6 +816,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return collectionItems;
 	}
 
+	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getClasspageAssoc(Integer offset, Integer limit, String classpageId, String collectionId, String title, String collectionTitle, String classCode, String collectionCreator, String collectionItemId) {
 		String gooruUid = null;
 		if (collectionCreator != null) {
@@ -831,6 +851,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Collection createPathway(String classId, Collection pathway, String collectionId, Boolean isRequired, User user) throws Exception {
 		final Classpage classpage = this.getCollectionRepository().getClasspageByGooruOid(classId, null);
 		if (classpage == null) {
@@ -849,6 +870,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Collection updatePathway(final String classId, final String pathwayGooruOid, final Collection newPathway, final User user, final String data) throws Exception {
 		final Collection pathwayCollection = this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, ResourceType.Type.PATHWAY.getType());
 		rejectIfNull(pathwayCollection, GL0056, PATHWAY);
@@ -867,6 +889,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deletePathway(String classId, String pathwayGooruOid, User user) {
 		final List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByParentId(pathwayGooruOid, null, null);
 		for (final CollectionItem item : collectionItems) {
@@ -902,6 +925,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<CollectionItem> getPathwayItemsSearchResults(final String classId, final String pathwayId, final Integer offset, final Integer limit, final String orderBy, final User user) {
 		final Collection pathway = this.getCollectionRepository().getCollectionByIdWithType(pathwayId, PATHWAY);
 		final List<CollectionItem> collectionItems = getPathwayItems(classId, pathwayId, offset, limit, orderBy, user);
@@ -913,6 +937,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<CollectionItem> reorderPathwaySequence(String classId, String pathwayGooruOid, int newSequence, User user) throws Exception {
 		final Classpage classpage = this.getCollectionRepository().getClasspageByGooruOid(classId, null);
 		if (classpage == null) {
@@ -932,6 +957,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public CollectionItem pathwayItemMoveWithReorder(String classId, String pathwayGooruOid, String sourceId, String taregetId, Integer newSequence, User user) throws Exception {
 		CollectionItem targetItem = null;
 		final CollectionItem sourceItem = this.getCollectionRepository().getCollectionItemById(sourceId);
@@ -991,6 +1017,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deletePathwayItem(final String classId, final String pathwayGooruOid, final String collectionItemId, final User user) {
 		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, PATHWAY) == null) {
 			throw new BadRequestException(generateErrorMessage(GL0056, PATHWAY), GL0056);
@@ -1004,6 +1031,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<CollectionItem> updatePathwayItem(final String classId, final String pathwayGooruOid, final String collectionItemId, final CollectionItem newcollectionItem, final User user, final String data) throws Exception {
 		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, PATHWAY) == null) {
 			throw new BadRequestException(generateErrorMessage(GL0056, PATHWAY), GL0056);
@@ -1017,6 +1045,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getParentDetails(final String collectionItemId) {
 		final List<Object[]> result = this.getCollectionRepository().getParentDetails(collectionItemId);
 		final Map<String, Object> items = new HashMap<String, Object>();
