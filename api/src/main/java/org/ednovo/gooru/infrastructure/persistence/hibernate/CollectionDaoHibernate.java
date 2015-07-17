@@ -169,9 +169,9 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	}
 
 	@Override
-	public List<CollectionItem> getCollectionItems(String gooruOid, int parameterOne, int parameterTwo, String userUid){ 
+	public List<CollectionItem> getCollectionItems(String gooruOid, int parameterOne, int parameterTwo, String userUid, String collectionType){ 
 		StringBuilder hql = new StringBuilder(GET_COLLECTION_SEQUENCE);
-		if(userUid != null){
+		if(!(collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(COLLECTION_ITEM))){
 			hql.append(" and ci.associatedUser.partyUid=:userUid");
 		}
 		hql.append(" order by ci.itemSequence");
@@ -179,7 +179,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 		query.setParameter(PARAMETER_ONE, parameterOne);
 		query.setParameter(PARAMETER_TWO, parameterTwo);
 		query.setParameter(GOORU_OID, gooruOid);
-		if(userUid != null){
+		if(!(collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(COLLECTION_ITEM))){
 			query.setParameter(USER_UID, userUid);
 		}
 		return list(query);
@@ -195,14 +195,14 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	}
 
 	@Override
-	public List<CollectionItem> getCollectionItems(String parentId, int sequence, String userUid) {
+	public List<CollectionItem> getCollectionItems(String parentId, int sequence, String userUid, String collectionType) {
 		StringBuilder hql = new StringBuilder(GET_COLLECTIONITEM_BY_SEQUENCE);
-		if(userUid != null){
+		if(!(collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(COLLECTION_ITEM))){
 			hql.append("and associatedUser.partyUid=:userUid ");
 		}
 		hql.append("order by itemSequence");
 		Query query = getSession().createQuery(hql.toString());
-		if(userUid != null){
+		if(!(collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(COLLECTION_ITEM))){
 			query.setParameter(USER_UID, userUid);
 		}
 		query.setParameter(PARENT_ID, parentId);
