@@ -136,6 +136,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Organization> saveOrganization(Organization organizationData, User user, HttpServletRequest request) {
 		Errors errors = validateNullFields(organizationData);
 		rejectIfMaxLimitExceed(400, organizationData.getPartyName(), GL0014, PARTY_NAME, "400");
@@ -241,6 +242,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Organization> updateOrganization(Organization newOrganization, String existingOrganizationUid, User apiCaller) throws Exception {
 		Organization existingOrganization = null;
 		Errors errors = validateNullFields(newOrganization);
@@ -316,6 +318,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<User> getUsersByOrganization(String type, String organizationUid, String parentOrganizationUid, Integer offset, Integer limit) {
 		SearchResults<User> result = new SearchResults<User>();
 		result.setSearchResults(this.getUserRepository().findUsersByOrganization(type.equalsIgnoreCase(CustomProperties.InstitutionType.SCHOOL_DISTRICT.getInstitutionType()) ? organizationUid : null, type.equalsIgnoreCase(CustomProperties.InstitutionType.SCHOOL.getInstitutionType()) ? parentOrganizationUid : null, offset, limit));
