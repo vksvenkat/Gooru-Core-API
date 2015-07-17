@@ -58,7 +58,7 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		Collection parentCollection = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(collection, GL0056, COURSE);
 		if(newCollection.getPosition() != null){
-			this.resetSequence(parentCollection, collection.getGooruOid() , newCollection.getPosition(), user.getPartyUid());
+			this.resetSequence(parentCollection, collection.getGooruOid() , newCollection.getPosition(), user.getPartyUid(), UNIT);
 		}
 		this.updateCollection(collection, newCollection, user);
 		Map<String, Object> data = generateUnitMetaData(collection, newCollection, user);
@@ -96,7 +96,7 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(unitId, user), GL0099, 403, UNIT);
 		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(course, GL0056, COURSE);
-		this.resetSequence(courseId, unit.getContent().getGooruOid(), user.getPartyUid());
+		this.resetSequence(courseId, unit.getContent().getGooruOid(), user.getPartyUid(), UNIT);
 		updateContentMetaDataSummary(course.getContentId(), UNIT, DELETE);
 		Collection deleteUnit = this.getCollectionDao().getCollection(unitId);
 		deleteUnit.setIsDeleted((short) 1);

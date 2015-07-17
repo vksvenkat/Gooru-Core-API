@@ -20,7 +20,7 @@ public class Resource extends Content implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -9010445497258009775L;
+	private static final long serialVersionUID = 6586694154253184566L;
 
 	private static final String INDEX_TYPE = "resource";
 

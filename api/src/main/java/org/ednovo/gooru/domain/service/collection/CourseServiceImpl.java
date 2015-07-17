@@ -59,7 +59,7 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		}
 		this.updateCollection(collection, newCollection, user);
 		if (newCollection.getPosition() != null) {
-			this.resetSequence(parentCollection, collection.getGooruOid(), newCollection.getPosition(), user.getPartyUid());
+			this.resetSequence(parentCollection, collection.getGooruOid(), newCollection.getPosition(), user.getPartyUid(), COURSE);
 		}
 	}
 
@@ -98,7 +98,7 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		UserClass deleteCourse = this.getCollectionDao().getClassByCourse(course.getContentId());
 		deleteCourse.setCourseContentId(null);
 		this.getCollectionDao().save(deleteCourse);		
-		this.resetSequence(parentCollection.getGooruOid(), course.getGooruOid(), user.getPartyUid());
+		this.resetSequence(parentCollection.getGooruOid(), course.getGooruOid(), user.getPartyUid(), COURSE);
 		course.setIsDeleted((short) 1);
 		this.getCollectionDao().save(course);
 	}
