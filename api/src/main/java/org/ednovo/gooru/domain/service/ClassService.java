@@ -37,7 +37,9 @@ public interface ClassService {
 	void updateClassSettings(String classUid, List<ClassCollectionSettings> classCollectionSettings);
 
 	Map<String, Object> getClassCollections(String lessonId, int limit, int offset);
-	
+
 	List<Map<String, Object>> getClassUnits(String courseId, int limit, int offset);
+
+	boolean hasTeachAndStudy(String gooruUid);
 
 }

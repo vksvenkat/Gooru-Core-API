@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.application.util.SerializerUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
@@ -60,6 +61,9 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	@Autowired
 	private TaxonomyCourseRepository taxonomyCourseRepository;
+	
+	@Autowired
+	private AsyncExecutor asyncExecutor;
 
 	@Autowired
 	private SettingService settingService;
@@ -154,22 +158,39 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	}
 
-	public void resetSequence(String parentGooruOid, String gooruOid, String userUid) {
-		CollectionItem itemSequence = this.getCollectionDao().getCollectionItem(parentGooruOid, gooruOid, userUid);
-		int sequence = itemSequence.getItemSequence();
-		List<CollectionItem> resetCollectionSequence = this.getCollectionDao().getCollectionItems(parentGooruOid, sequence, userUid);
+	public void resetSequence(String parentGooruOid, String collectionItemId, String userUid) {
+		CollectionItem itemSequence;
+		List<CollectionItem> resetCollectionSequence;
+		int sequence;
+		if(userUid != null){
+			itemSequence = this.getCollectionDao().getCollectionItem(parentGooruOid, collectionItemId, userUid);
+			sequence = itemSequence.getItemSequence();
+			resetCollectionSequence = this.getCollectionDao().getCollectionItems(parentGooruOid, sequence, userUid);
+		}
+		else{
+			itemSequence = this.getCollectionDao().getCollectionItem(collectionItemId);
+			sequence = itemSequence.getItemSequence();
+			resetCollectionSequence = this.getCollectionDao().getCollectionItems(parentGooruOid, sequence, null);
+		}
 		if (resetCollectionSequence != null) {
 			for (CollectionItem collectionItem : resetCollectionSequence) {
 				collectionItem.setItemSequence(sequence++);
 			}
 			this.getCollectionDao().saveAll(resetCollectionSequence);
+			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + userUid + "*");
 		}
 	}
 
 	public void resetSequence(Collection parentCollection, String gooruOid, Integer newSequence, String userUid) {
 		int max = this.getCollectionDao().getCollectionItemMaxSequence(parentCollection.getContentId());
 		reject((max >= newSequence), GL0007, 404, ITEM_SEQUENCE);
-		CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(parentCollection.getGooruOid(), gooruOid, userUid);
+		CollectionItem collectionItem;
+		if(userUid != null){
+			collectionItem = this.getCollectionDao().getCollectionItem(parentCollection.getGooruOid(), gooruOid, userUid);
+		}
+		else{
+			collectionItem = this.getCollectionDao().getCollectionItem(gooruOid);
+		}
 		if (collectionItem != null) {
 			List<CollectionItem> resetCollectionSequence = null;
 			int displaySequence;
@@ -183,14 +204,15 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 			}
 			if (resetCollectionSequence != null) {
 				for (CollectionItem collectionSequence : resetCollectionSequence) {
-					if (!collectionSequence.getContent().getGooruOid().equalsIgnoreCase(gooruOid)) {
+					if (!collectionSequence.getContent().getGooruOid().equalsIgnoreCase(collectionItem.getContent().getGooruOid())) {
 						collectionSequence.setItemSequence(displaySequence++);
-					} else if (collectionSequence.getContent().getGooruOid().equalsIgnoreCase(gooruOid)) {
+					} else if (collectionSequence.getContent().getGooruOid().equalsIgnoreCase(collectionItem.getContent().getGooruOid())) {
 						collectionSequence.setItemSequence(newSequence);
 					}
 				}
 				this.getCollectionDao().saveAll(resetCollectionSequence);
 			}
+			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + userUid + "*");
 		}
 	}
 
@@ -429,6 +451,10 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	public SettingService getSettingService() {
 		return settingService;
+	}
+	
+	public AsyncExecutor getAsyncExecutor() {
+		return asyncExecutor;
 	}
 
 }

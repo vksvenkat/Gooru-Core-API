@@ -905,6 +905,8 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	final static String SUBJECT_INCLUDES[] = { "*.name", "*.subjectId", "*.thumbnails", "thumbnails.url" };
 
 	final static String SUBDOMAIN_INCLUDES[] = { "*.subdomainId", "*.courseId", "*.domainId" };
+	
+	final static String SUBDOMAIN_INCLUDE[] = { "*.subdomainId", "*.courseId", "*.domainId","*.courseName","*.domainName" };
 
 	public static final String PIPE = "|";
 

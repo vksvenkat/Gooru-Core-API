@@ -97,5 +97,7 @@ public interface ContentRepository extends BaseRepository {
 	List<ContentMetaAssociation> getContentMetaAssociation(String gooruOid, String key);
 	
 	List<ContentMetaAssociation> getContentMetaAssoc(Long contentId);
+	
+	List<Content> getContentListById(List<String> gooruOids);
 
 }

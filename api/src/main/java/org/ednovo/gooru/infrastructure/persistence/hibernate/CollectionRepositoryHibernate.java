@@ -609,7 +609,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (orderBy != null && orderBy.equalsIgnoreCase(SEQUENCE)) {
 			sql += " order by ci.item_sequence desc ";
 		} else {
-			sql += " order by ci.association_date desc ";
+			sql += " order by ci.item_sequence";
 		}
 		Query query = getSession().createSQLQuery(sql);
 		if (collectionType != null) {

@@ -75,6 +75,17 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 	private List<Tag> tagSet;
 
 	private Boolean isDeleted;
+	
+	public void setIsDeleted(Boolean isDeleted) {
+		if(isDeleted == null){
+			isDeleted = false;
+		}
+		this.isDeleted = isDeleted;
+	}
+
+	public Boolean getIsDeleted() {
+		return isDeleted;
+	}
 
 	private Map<String, Object> meta;
 
@@ -273,14 +284,6 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 
 	public CustomTableValue getStatusType() {
 		return statusType;
-	}
-
-	public void setIsDeleted(Boolean isDeleted) {
-		this.isDeleted = isDeleted;
-	}
-
-	public Boolean getIsDeleted() {
-		return isDeleted;
 	}
 
 	public void setMeta(Map<String, Object> meta) {
