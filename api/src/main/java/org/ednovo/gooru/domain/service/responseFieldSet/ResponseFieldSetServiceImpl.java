@@ -38,6 +38,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.responseFieldSet.ResponseFieldSetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service("responseFieldSetService")
 public class ResponseFieldSetServiceImpl implements ResponseFieldSetService,ParameterProperties,ConstantProperties {
@@ -53,6 +55,7 @@ public class ResponseFieldSetServiceImpl implements ResponseFieldSetService,Para
     private BaseRepository baseRepository;	
 	
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ResponseFieldSet addResponseFieldSet(String fieldsName,User user) throws Exception {
 	  if(isContentAdmin(user))
 	  {
@@ -84,6 +87,7 @@ public class ResponseFieldSetServiceImpl implements ResponseFieldSetService,Para
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ResponseFieldSet updateResponseFieldSet(String fieldId,String fieldsName, User apiCaller) throws Exception {
 		
 		 ResponseFieldSet responseField = null;
@@ -107,6 +111,7 @@ public class ResponseFieldSetServiceImpl implements ResponseFieldSetService,Para
 }
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public String deleteResponseFieldSet(String fieldId, User apiCaller) throws Exception {
 		ResponseFieldSet responseField = null;
 		
@@ -137,12 +142,14 @@ public class ResponseFieldSetServiceImpl implements ResponseFieldSetService,Para
 		}
 	}
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ResponseFieldSet getResponseFieldSet(String fieldId, String gooruUId)
 	{
 		return responseFieldSetRepository.getResponseFieldSet(fieldId,gooruUId);
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<ResponseFieldSet> getResponseFieldSet() {
 		return responseFieldSetRepository.getResponseFieldSet();
 	}
