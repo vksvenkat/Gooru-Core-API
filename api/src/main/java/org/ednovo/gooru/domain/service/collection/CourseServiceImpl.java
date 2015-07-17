@@ -96,8 +96,10 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(courseUId, user), GL0099, 403, COURSE);
 		Collection parentCollection = getCollectionDao().getCollection(user.getPartyUid(), CollectionType.SHElf.getCollectionType());
 		UserClass deleteCourse = this.getCollectionDao().getClassByCourse(course.getContentId());
-		deleteCourse.setCourseContentId(null);
-		this.getCollectionDao().save(deleteCourse);		
+		if( deleteCourse != null){
+			deleteCourse.setCourseContentId(null);
+			this.getCollectionDao().save(deleteCourse);
+		}
 		this.resetSequence(parentCollection.getGooruOid(), course.getGooruOid(), user.getPartyUid(), COURSE);
 		course.setIsDeleted((short) 1);
 		this.getCollectionDao().save(course);

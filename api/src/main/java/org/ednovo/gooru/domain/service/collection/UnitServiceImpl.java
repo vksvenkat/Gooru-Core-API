@@ -98,9 +98,8 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		rejectIfNull(course, GL0056, COURSE);
 		this.resetSequence(courseId, unit.getContent().getGooruOid(), user.getPartyUid(), UNIT);
 		updateContentMetaDataSummary(course.getContentId(), UNIT, DELETE);
-		Collection deleteUnit = this.getCollectionDao().getCollection(unitId);
-		deleteUnit.setIsDeleted((short) 1);
-		this.getCollectionDao().save(deleteUnit);		
+		unit.getContent().setIsDeleted((short) 1);
+		this.getCollectionDao().save(unit);		
 	}
 
 	private Map<String, Object> generateUnitMetaData(Collection collection, Collection newCollection, User user) {

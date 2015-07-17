@@ -73,9 +73,8 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		rejectIfNull(unit, GL0056,404, UNIT);
 		this.resetSequence(unitId, lesson.getContent().getGooruOid(), user.getPartyUid(), LESSON);
 		updateContentMetaDataSummary(unit.getContentId(), LESSON, DELETE);
-		Collection deleteLesson = this.getCollectionDao().getCollection(lessonId);
-		deleteLesson.setIsDeleted((short) 1);
-		this.getCollectionDao().save(deleteLesson);
+		lesson.getContent().setIsDeleted((short) 1);
+		this.getCollectionDao().save(lesson);
 	}
 	
 	@Override
