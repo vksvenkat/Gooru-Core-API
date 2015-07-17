@@ -91,5 +91,7 @@ public class RequestMappingUri {
 	public static final String CLASS_UNIT_LESSON_COLLECTION = "/{id}/course/{courseId}/unit/{unitId}/lesson/{lessonId}/collection";
 	
 	public static final String CLASS_UNIT = "/{id}/course/{courseId}/unit";
+	
+	public static final String CLASS_TEACH_STUDY = "/has-teach-study";
 
 }

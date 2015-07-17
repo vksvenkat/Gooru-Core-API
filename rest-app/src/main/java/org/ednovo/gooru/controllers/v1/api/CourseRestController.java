@@ -28,7 +28,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @RequestMapping(value = { RequestMappingUri.COURSE })
 @Controller
-public class CourseRestController extends BaseController implements ConstantProperties, ParameterProperties {
+public class CourseRestController extends BaseController implements ConstantProperties {
 
 	@Autowired
 	private CourseService courseService;
