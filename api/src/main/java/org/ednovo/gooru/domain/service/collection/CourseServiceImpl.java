@@ -56,7 +56,7 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		}
 		this.updateCollection(collection, newCollection, user);
 		if (newCollection.getPosition() != null) {
-			this.resetSequence(parentCollection, collection.getGooruOid(), newCollection.getPosition(), user.getPartyUid());
+			this.resetSequence(parentCollection, collection.getGooruOid(), newCollection.getPosition(), user.getPartyUid(), COURSE);
 		}
 	}
 
@@ -91,7 +91,7 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		rejectIfNull(course, GL0056, COURSE);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(courseUId, user), GL0099, 403, COURSE);
 		Collection parentCollection = getCollectionDao().getCollection(user.getPartyUid(), CollectionType.SHElf.getCollectionType());
-		this.resetSequence(parentCollection.getGooruOid(), course.getGooruOid(), user.getPartyUid());
+		this.resetSequence(parentCollection.getGooruOid(), course.getGooruOid(), user.getPartyUid(), COURSE);
 		this.deleteCollection(courseUId);
 	}
 

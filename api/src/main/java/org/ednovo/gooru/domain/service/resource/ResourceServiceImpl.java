@@ -110,6 +110,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
@@ -229,6 +231,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getResource(final String gooruOid) {
 		final Resource resource = this.findResourceByContentGooruId(gooruOid);
 		if (resource == null) {
@@ -726,6 +729,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public String updateResourceImage(final String gooruContentId, final String fileName) throws IOException {
 		final Resource resource = this.getResourceRepository().findResourceByContentGooruId(gooruContentId);
 		if (resource == null) {
@@ -847,6 +851,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteResource(final String gooruContentId, final User apiCaller) {
 		final Resource resource = resourceRepository.findResourceByContentGooruId(gooruContentId);
 		if (resource == null || resource.getResourceType().getName().equalsIgnoreCase(APPLICATION) || resource.getResourceType().getName().equalsIgnoreCase(SCOLLECTION) || resource.getResourceType().getName().equalsIgnoreCase(FOLDER)
@@ -1392,11 +1397,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getSuggestedResourceMetaData(final String url, final String title, final boolean fetchThumbnail) {
 		return getResourceImageUtil().getResourceMetaData(url, title, fetchThumbnail);
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.NOT_SUPPORTED, noRollbackFor = Exception.class)
 	public Resource createResource(final Resource newResource, final List<String> tags, final User user, boolean updateIfExist) throws Exception {
 		Resource resource = null;
 		if (newResource.getUrl() != null && !newResource.getUrl().isEmpty() && newResource.getAttach() == null) {
@@ -1518,6 +1525,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Resource> updateResource(final String resourceId, final Resource newResource, final List<String> resourceTags, final User user) throws Exception {
 		final Resource resource = this.resourceRepository.findResourceByContentGooruId(resourceId);
 		rejectIfNull(resource, GL0056, 404, RESOURCE);
@@ -1702,12 +1710,14 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Resource> listResourcesUsedInCollections(final String limit, final String offset, final User user) {
 		return this.getResourceRepository().listResourcesUsedInCollections(Integer.parseInt(limit), Integer.parseInt(offset));
 
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Resource deleteTaxonomyResource(final String resourceId, final Resource newResource, final User user) {
 
 		Resource resource = resourceRepository.findResourceByContentGooruId(resourceId);
@@ -1823,6 +1833,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<User> addCollaborator(final String collectionId, final User user, final String collaboratorId, final String collaboratorOperation) {
 		final Content content = contentRepository.findContentByGooruId(collectionId);
 		if (content == null) {
@@ -1836,6 +1847,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		return null;
 	}
 
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteContentProvider(String gooruOid, String providerType, String name) {
 		this.getContentRepository().deleteContentProvider(gooruOid, providerType, name);
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
@@ -1943,6 +1956,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Collection> getCollectionsByResourceId(String resourceId, String sharing, Integer limit, Integer offset) {
 		List<Collection> collections = this.getResourceRepository().getCollectionsByResourceId(resourceId, sharing, limit, offset);
 		final CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.COURSE.getUserClassificationType());

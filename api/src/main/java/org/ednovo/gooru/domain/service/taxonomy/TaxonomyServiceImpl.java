@@ -231,7 +231,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 		Code parentTaxonomy = (Code) taxonomyRepository.get(Code.class, new Integer(parentCode));
 
 		List<Code> siblings = this.findChildTaxonomyCodeByOrder(parentTaxonomy.getCodeId(), order);
-		if (siblings.size() != 0 || siblings != null) {
+		if (siblings != null && siblings.size() != 0) {
 			for (Code sibling : siblings) {
 				sibling.setDisplayOrder(sibling.getDisplayOrder() + 1);
 				this.updateOrder(sibling);
@@ -309,7 +309,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 		node.setDisplayOrder(new Integer(order));
 
 		List<Code> siblings = this.findChildTaxonomyCodeByOrder(node.getParentId(), order);
-		if (siblings.size() != 0 || siblings != null) {
+		if ( siblings != null && siblings.size() != 0) {
 			for (Code sibling : siblings) {
 				sibling.setDisplayOrder(sibling.getDisplayOrder() + 1);
 				this.updateOrder(sibling);

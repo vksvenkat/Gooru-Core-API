@@ -78,7 +78,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(course, GL0056, 404, COURSE);
 		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
 		rejectIfNull(unit, GL0056, 404, UNIT);
-		this.resetSequence(lessonId, collection.getContent().getGooruOid(), user.getPartyUid());
+		this.resetSequence(lessonId, collection.getCollectionItemId(), user.getPartyUid(), COLLECTION);
 		this.deleteCollection(collectionId);
 		this.updateContentMetaDataSummary(lesson.getContentId(), collection.getContent().getContentType().getName(), DELETE);
 	}
@@ -170,12 +170,12 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			}
 		}
 		if (newCollection.getPosition() != null) {
+			CollectionItem parentCollectionItem = this.getCollectionDao().getCollectionItemById(collectionId, user);
 			if (parentId == null) {
-				CollectionItem parentCollectionItem = this.getCollectionDao().getCollectionItemById(collectionId, user);
 				parentId = parentCollectionItem.getCollection().getGooruOid();
 			}
 			Collection parentCollection = getCollectionDao().getCollectionByUser(parentId, user.getPartyUid());
-			this.resetSequence(parentCollection, collectionId, newCollection.getPosition(), user.getPartyUid());
+			this.resetSequence(parentCollection, parentCollectionItem.getCollectionItemId(), newCollection.getPosition(), user.getPartyUid(), COLLECTION);
 		}
 		if (newCollection.getMediaFilename() != null) {
 			String folderPath = Collection.buildResourceFolder(collection.getContentId());
@@ -197,8 +197,6 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	public void updateCollectionItem(String collectionId, final String collectionItemId, CollectionItem newCollectionItem, User user) {
 		final CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, 404, _COLLECTION_ITEM);
-		Collection collection = this.getCollectionDao().getCollectionByType(collectionId, COLLECTION_TYPES);
-		rejectIfNull(collection, GL0056, 404, COLLECTION);
 		if (newCollectionItem.getNarration() != null) {
 			collectionItem.setNarration(newCollectionItem.getNarration());
 		}
@@ -210,7 +208,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		}
 		if (newCollectionItem.getPosition() != null) {
 			Collection parentCollection = getCollectionDao().getCollectionByUser(collectionId, user.getPartyUid());
-			this.resetSequence(parentCollection, collectionItem.getContent().getGooruOid(), newCollectionItem.getPosition(), user.getPartyUid());
+			this.resetSequence(parentCollection, collectionItem.getCollectionItemId(), newCollectionItem.getPosition(), user.getPartyUid(), COLLECTION_ITEM);
 		}
 		this.getCollectionDao().save(collectionItem);
 	}
@@ -413,7 +411,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			contentType = sourceCollectionItem.getContent().getContentType().getName();
 		}
 		createCollectionItem(collectionItem, targetCollection, sourceCollectionItem.getContent(), user);
-		resetSequence(sourceCollectionItem.getCollection().getGooruOid(), sourceCollectionItem.getContent().getGooruOid(), user.getPartyUid());
+		resetSequence(sourceCollectionItem.getCollection().getGooruOid(), sourceCollectionItem.getCollectionItemId(), user.getPartyUid(), COLLECTION);
 		getCollectionDao().remove(sourceCollectionItem);
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		return contentType;
@@ -578,7 +576,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(resource, GL0056, 404, RESOURCE);
 		String contentType = resource.getContentType().getName();
 		Long collectionContentId = collectionItem.getCollection().getContentId();
-		this.resetSequence(collectionId, collectionItemId, userUid);
+		this.resetSequence(collectionId, collectionItem.getCollectionItemId(), userUid, COLLECTION_ITEM);
 		if (contentType.equalsIgnoreCase(QUESTION)) {
 			getCollectionDao().remove(resource);
 		} else {

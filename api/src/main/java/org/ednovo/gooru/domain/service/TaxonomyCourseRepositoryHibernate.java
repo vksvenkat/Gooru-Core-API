@@ -67,7 +67,7 @@ public class TaxonomyCourseRepositoryHibernate extends BaseRepositoryHibernate i
 		if (limit == null) {
 			limit = 0;
 		}
-		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
+		query.setMaxResults(limit > MAX_LIMIT ? MAX_LIMIT : limit);
 		query.setFirstResult(offset);
 		return list(query);
 	}

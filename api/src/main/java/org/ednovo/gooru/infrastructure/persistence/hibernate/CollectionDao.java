@@ -24,11 +24,11 @@ public interface CollectionDao extends BaseRepository {
 
 	int getCollectionItemCount(Long contentId, String collectionType);
 
-	List<CollectionItem> getCollectionItems(String gooruOid, int parameterOne, int parameterTwo, String userUid);
+	List<CollectionItem> getCollectionItems(String gooruOid, int parameterOne, int parameterTwo, String userUid, String collectionType);
 
 	CollectionItem getCollectionItem(String parentGooruOid, String gooruOid, String userUid);
 
-	List<CollectionItem> getCollectionItems(String parentId, int sequence, String userUid);
+	List<CollectionItem> getCollectionItems(String parentId, int sequence, String userUid, String collectionType);
 
 	CollectionItem getCollectionItemById(String gooruOid, User user);
 
@@ -39,4 +39,6 @@ public interface CollectionDao extends BaseRepository {
 	List<CollectionItem> getCollectionItems(String collectionId);
 	
 	List<Map<String, Object>> getCollectionItemById(String collectionId);
+	
+	List<Collection> getCollections(List<String> collectionIds);
 }

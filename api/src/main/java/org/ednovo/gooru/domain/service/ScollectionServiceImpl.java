@@ -475,6 +475,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollection(final String collectionId, final User user) {
 		final Collection collection = this.getCollectionByGooruOid(collectionId, null);
 		rejectIfNull(collection, GL0056, _COLLECTION);
@@ -629,6 +630,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<CollectionItem> updateCollectionItem(final CollectionItem newcollectionItem, final String collectionItemId, final User user, final String data) throws Exception {
 		final CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
 		if (collectionItem == null) {
@@ -693,6 +695,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public CollectionItem getCollectionItem(final String collectionItemId, final boolean includeAdditionalInfo, final User user, final String rootNodeId) {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, _COLLECTION_ITEM);
@@ -711,6 +714,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollectionItem(final String collectionItemId, final User user, boolean indexCollection) {
 		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		if (collectionItem != null && collectionItem.getContent() != null) {
@@ -764,6 +768,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<CollectionItem> reorderCollectionItem(final String collectionItemId, final int newSequence, final User user) throws Exception {
 		final CollectionItem collectionItem = getCollectionRepository().getCollectionItemById(collectionItemId);
 		if (collectionItem == null) {
@@ -965,6 +970,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<User> getCollaborators(String collectionId) {
 		final Collection collection = this.getCollectionByGooruOid(collectionId, null);
 		rejectIfNull(collection, GL0056, _COLLECTION);
@@ -1070,6 +1076,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<CollectionItem> setCollectionItemMetaInfo(final List<CollectionItem> collectionItems, final String rootNodeId, final boolean includeView) {
 		if (collectionItems != null) {
 			for (final CollectionItem collectionItem : collectionItems) {
@@ -1152,6 +1159,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Collection> getResourceMoreInfo(final String resourceGooruOid) {
 		return this.getCollectionRepository().getCollectionsByResourceId(resourceGooruOid);
 	}
@@ -1308,6 +1316,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public CollectionItem copyCollectionItem(final String collectionItemId, final String collectionId) throws Exception {
 		final CollectionItem sourceCollectionItem = this.getCollectionItem(collectionItemId, false, null, null);
 		rejectIfNull(sourceCollectionItem, GL0056, _COLLECTION_ITEM);
@@ -1492,6 +1501,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Collection> updateCollection(final Collection newCollection, final String updateCollectionId, final String ownerUId, final String creatorUId, final boolean hasUnrestrictedContentAccess, final String relatedContentId, final User updateUser, final String data)
 			throws Exception {
 		String gooruUid = null;
@@ -1690,6 +1700,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Collection copyCollection(final String collectionId, final Collection newCollection, final boolean addToShelf, final String parentId, final User user) throws Exception {
 		final Collection sourceCollection = this.getCollection(collectionId, false, false, false, user, null, null, false, false, false, false);
 		rejectIfNull(sourceCollection, GL0056, _COLLECTION);
@@ -1798,6 +1809,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<CollectionItem> createResourceWithCollectionItem(String collectionId, Resource newResource, String start, String stop, List<String> tags, User user) throws Exception {
 		ActionResponseDTO<CollectionItem> response = null;
 		if (collectionId != null) {
@@ -1827,6 +1839,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<CollectionItem> updateResourceWithCollectionItem(final String collectionItemId, final Resource newResource, final List<String> tags, final User user, String data) throws Exception {
 		final CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, 404, COLLECTION_ITEM);
@@ -1944,11 +1957,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<CollectionItem> getCollectionItems(String collectionId, Integer offset, final Integer limit, final String orderBy, String type) {
 		return this.getCollectionRepository().getCollectionItems(collectionId, offset, limit, orderBy, "classpage");
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getCollection(final String gooruOid, final Map<String, Object> collection, final String rootNodeId) {
 		final Collection collectionObj = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
 		collection.put(METAINFO, setMetaData(collectionObj, false, rootNodeId));
@@ -1969,6 +1984,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, String>> getParentCollection(final String collectionGooruOid, final String gooruUid, final boolean reverse) {
 		final List<Map<String, String>> parentNode = new ArrayList<Map<String, String>>();
 		getCollection(collectionGooruOid, gooruUid, parentNode);
@@ -2038,7 +2054,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		this.getResourceRepository().save(newResource);
 	}
-
+	
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteBulkCollections(final List<String> gooruOids) {
 		final List<Collection> collections = collectionRepository.getCollectionListByIds(gooruOids);
 		final StringBuffer removeContentIds = new StringBuffer();
@@ -2058,7 +2076,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	public boolean isResourceType(final Resource resource) {
 		boolean isResourceType = false;
-		if (!resource.getResourceType().equals(ResourceType.Type.SCOLLECTION.getType()) && !resource.getResourceType().equals(ResourceType.Type.CLASSPAGE.getType()) && !resource.getResourceType().equals(ResourceType.Type.FOLDER.getType())) {
+		if (!resource.getResourceType().getName().equals(ResourceType.Type.SCOLLECTION.getType()) && !resource.getResourceType().getName().equals(ResourceType.Type.CLASSPAGE.getType()) && !resource.getResourceType().getName().equals(ResourceType.Type.FOLDER.getType())) {
 			isResourceType = true;
 		}
 		return isResourceType;
