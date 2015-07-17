@@ -2076,7 +2076,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	public boolean isResourceType(final Resource resource) {
 		boolean isResourceType = false;
-		if (!resource.getResourceType().equals(ResourceType.Type.SCOLLECTION.getType()) && !resource.getResourceType().equals(ResourceType.Type.CLASSPAGE.getType()) && !resource.getResourceType().equals(ResourceType.Type.FOLDER.getType())) {
+		if (!resource.getResourceType().getName().equals(ResourceType.Type.SCOLLECTION.getType()) && !resource.getResourceType().getName().equals(ResourceType.Type.CLASSPAGE.getType()) && !resource.getResourceType().getName().equals(ResourceType.Type.FOLDER.getType())) {
 			isResourceType = true;
 		}
 		return isResourceType;

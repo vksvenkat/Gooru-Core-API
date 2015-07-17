@@ -197,8 +197,6 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	public void updateCollectionItem(String collectionId, final String collectionItemId, CollectionItem newCollectionItem, User user) {
 		final CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, 404, _COLLECTION_ITEM);
-		Collection collection = this.getCollectionDao().getCollectionByType(collectionId, COLLECTION_TYPES);
-		rejectIfNull(collection, GL0056, 404, COLLECTION);
 		if (newCollectionItem.getNarration() != null) {
 			collectionItem.setNarration(newCollectionItem.getNarration());
 		}
