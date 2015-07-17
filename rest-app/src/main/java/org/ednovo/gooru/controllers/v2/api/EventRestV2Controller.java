@@ -66,7 +66,6 @@ public class EventRestV2Controller extends BaseController implements ConstantPro
 	private MailHandler mailHandler;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_EVENT_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "")
 	public ModelAndView createEvent(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
@@ -77,7 +76,6 @@ public class EventRestV2Controller extends BaseController implements ConstantPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_EVENT_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.PUT }, value = "/{id}")
 	public ModelAndView updateEvent(@PathVariable(value = ID) String id, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Event event = getEventService().updateEvent(id, this.buildEventFromInputParameters(data));
@@ -87,7 +85,6 @@ public class EventRestV2Controller extends BaseController implements ConstantPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_EVENT_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	public ModelAndView getEvent(@PathVariable(value = ID) String id, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(EVENT_INCLUDES, ERROR_INCLUDE);
@@ -95,7 +92,6 @@ public class EventRestV2Controller extends BaseController implements ConstantPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_EVENT_LIST })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "")
 	public ModelAndView getEvents(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -104,7 +100,6 @@ public class EventRestV2Controller extends BaseController implements ConstantPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_EVENT_MAPPING_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "/{id}/template-mapping")
 	public ModelAndView createEventMapping(@PathVariable(value = ID) String id, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
@@ -115,7 +110,6 @@ public class EventRestV2Controller extends BaseController implements ConstantPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_EVENT_MAPPING_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.PUT }, value = "/{id}/template-mapping")
 	public ModelAndView updateEventMapping(@PathVariable(value = ID) String id, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
@@ -126,14 +120,12 @@ public class EventRestV2Controller extends BaseController implements ConstantPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_EVENT_MAPPING_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{id}/template-mapping")
 	public void deleteEventMapping(@PathVariable(value = ID) String eventUid, @RequestParam(value = TEMPLATE_UID) String templateUid, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		this.getEventService().deleteEventMapping(eventUid, templateUid);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_EVENT_MAPPING_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/template-mapping")
 	public ModelAndView getEventMapping(@PathVariable(value = ID) String eventUid, @RequestParam(value = TEMPLATE_UID) String templateUid, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(EVENT_MAPPING_INCLUDES, ERROR_INCLUDE);
@@ -155,7 +147,6 @@ public class EventRestV2Controller extends BaseController implements ConstantPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_EVENT_MAIL_TRIGGER })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "/trigger/jira")
 	public void triggerMailEvent(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		this.getEventService().handleJiraEvent(buildJiraEventFromInputParameters(data));
