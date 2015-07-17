@@ -64,7 +64,8 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getCourse(String courseId) {
 		return this.getCollection(courseId, CollectionType.COURSE.getCollectionType());
-	}
+		}
+	
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -92,7 +93,8 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(courseUId, user), GL0099, 403, COURSE);
 		Collection parentCollection = getCollectionDao().getCollection(user.getPartyUid(), CollectionType.SHElf.getCollectionType());
 		this.resetSequence(parentCollection.getGooruOid(), course.getGooruOid(), user.getPartyUid());
-		this.deleteCollection(courseUId);
+		course.setIsDeleted((short) 1);
+		this.getCollectionDao().save(course);
 	}
 
 	private List<Map<String, Object>> getCourses(Map<String, Object> filters, int limit, int offset) {

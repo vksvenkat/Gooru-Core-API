@@ -121,6 +121,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 			if (filters.get(ITEM_TYPE) != null) {
 				queryAppender(sqlQuery).append(" ci.item_type != :itemType ");
 			}
+			queryAppender(sqlQuery).append(" cr.is_deleted=0 ");
 			sql.append(sqlQuery.toString());
 		}
 		sql.append(" order by ci.item_sequence");
