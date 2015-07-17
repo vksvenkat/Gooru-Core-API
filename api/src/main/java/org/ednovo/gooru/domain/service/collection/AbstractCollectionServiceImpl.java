@@ -158,20 +158,16 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	}
 
-	public void resetSequence(String parentGooruOid, String collectionItemId, String userUid) {
+	public void resetSequence(String parentGooruOid, String id, String userUid, String collectionType) {
 		CollectionItem itemSequence;
-		List<CollectionItem> resetCollectionSequence;
-		int sequence;
-		if(userUid != null){
-			itemSequence = this.getCollectionDao().getCollectionItem(parentGooruOid, collectionItemId, userUid);
-			sequence = itemSequence.getItemSequence();
-			resetCollectionSequence = this.getCollectionDao().getCollectionItems(parentGooruOid, sequence, userUid);
+		if(!(collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(COLLECTION_ITEM))){
+			itemSequence = this.getCollectionDao().getCollectionItem(parentGooruOid, id, userUid);
 		}
 		else{
-			itemSequence = this.getCollectionDao().getCollectionItem(collectionItemId);
-			sequence = itemSequence.getItemSequence();
-			resetCollectionSequence = this.getCollectionDao().getCollectionItems(parentGooruOid, sequence, null);
+			itemSequence = this.getCollectionDao().getCollectionItem(id);
 		}
+		int sequence = itemSequence.getItemSequence();
+		List<CollectionItem> resetCollectionSequence = this.getCollectionDao().getCollectionItems(parentGooruOid, sequence, userUid, collectionType);
 		if (resetCollectionSequence != null) {
 			for (CollectionItem collectionItem : resetCollectionSequence) {
 				collectionItem.setItemSequence(sequence++);
@@ -181,11 +177,11 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		}
 	}
 
-	public void resetSequence(Collection parentCollection, String gooruOid, Integer newSequence, String userUid) {
+	public void resetSequence(Collection parentCollection, String gooruOid, Integer newSequence, String userUid, String collectionType) {
 		int max = this.getCollectionDao().getCollectionItemMaxSequence(parentCollection.getContentId());
 		reject((max >= newSequence), GL0007, 404, ITEM_SEQUENCE);
 		CollectionItem collectionItem;
-		if(userUid != null){
+		if(!(collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(COLLECTION_ITEM))){
 			collectionItem = this.getCollectionDao().getCollectionItem(parentCollection.getGooruOid(), gooruOid, userUid);
 		}
 		else{
@@ -196,10 +192,10 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 			int displaySequence;
 			int oldSequence = collectionItem.getItemSequence();
 			if (newSequence > oldSequence) {
-				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), oldSequence, newSequence, userUid);
+				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), oldSequence, newSequence, userUid, collectionType);
 				displaySequence = oldSequence;
 			} else {
-				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), newSequence, oldSequence, userUid);
+				resetCollectionSequence = this.getCollectionDao().getCollectionItems(collectionItem.getCollection().getGooruOid(), newSequence, oldSequence, userUid, collectionType);
 				displaySequence = newSequence + 1;
 			}
 			if (resetCollectionSequence != null) {
