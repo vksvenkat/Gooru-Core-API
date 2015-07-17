@@ -48,6 +48,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.auth.OAuthRepositor
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
@@ -70,6 +72,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	private UserService userService;
 	
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Application> createApplication(Application application, User apiCaller) {
 		final Errors errors = validateCreateApplication(application);
 		if (!errors.hasErrors()) {
@@ -107,6 +110,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Application updateApplication(Application newapplication, String apiKey) {
 		Application application = this.getApplicationRepository().getApplication(apiKey);
 		rejectIfNull(application, GL0056, APPLICATION);
@@ -136,6 +140,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Application getApplication(String apiKey) {
 		Application application = this.getApplicationRepository().getApplication(apiKey);
 		rejectIfNull(application, GL0056, 404, APPLICATION );
@@ -145,6 +150,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Application> getApplications(User user, String organizationUid,String gooruUid, Integer limit, Integer offset) {
 		SearchResults<Application> result = new SearchResults<Application>();
 		if(organizationUid == null){
@@ -163,6 +169,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteApplication(String apiKey){
 		Application application = this.getApplicationRepository().getApplication(apiKey);
 		rejectIfNull(application, GL0056,404, APPLICATION);
@@ -177,6 +184,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	}
 	
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<ApplicationItem> createApplicationItem(ApplicationItem applicationItem,String apiKey, User apiCaller) {
 		final Errors errors = validateCreateApplicationItem(applicationItem);
 		if (!errors.hasErrors()) {
@@ -190,6 +198,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	}
 	
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<ApplicationItem>  updateApplicationItem(String apikey,ApplicationItem newApplicationItem, String applicationItemId, User apiCaller) throws Exception {
 		ApplicationItem applicationItem = this.getApplicationRepository().getApplicationItem(applicationItemId,apikey);
 		final Errors errors = validateUpdateApplicationItem(applicationItem);
@@ -214,6 +223,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	}
 	
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ApplicationItem getApplicationItem(String apikey,String applicationItemId) throws Exception{
 		ApplicationItem applicationItem = this.getApplicationRepository().getApplicationItem(applicationItemId,apikey);
 		rejectIfNull(applicationItem, GL0056, 404, APPLICATION_ITEM);
@@ -228,6 +238,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<ApplicationItem> getApplicationItemByApiKey(String apiKey) throws Exception {
 		List<ApplicationItem> applicationItemList = this.getApplicationRepository().getApplicationItemByApiKey(apiKey);
 		rejectIfNull(applicationItemList, GL0007, 404, API_KEY);		
@@ -235,6 +246,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	}
 	
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteApplicationItemByItemId(String apikey,String applicationItemId) throws Exception{
 		ApplicationItem applicationItem = getApplicationRepository().getApplicationItem(applicationItemId,apikey);
 		rejectIfNull(applicationItem, GL0056,404, APPLICATION_ITEM);
