@@ -64,6 +64,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
@@ -305,6 +307,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Organization> getOrganizations(String type, String parentOrganizationUid, String stateProvinceId, Integer offset, Integer limit) {
 		SearchResults<Organization> result = new SearchResults<Organization>();
 		result.setSearchResults(this.getOrganizationRepository().getOrganizations(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable() + UNDER_SCORE + type, parentOrganizationUid, stateProvinceId, offset, limit));
