@@ -133,6 +133,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<OAuthClient> updateOAuthClient(OAuthClient oAuthClient, String id) {
 		rejectIfNull(oAuthClient, GL0056, "oAuthClient");
 		OAuthClient exsitsOAuthClient = (OAuthClient) oAuthRepository.findOAuthClientByOAuthKey(id);
@@ -173,6 +174,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<OAuthClient> listOAuthClientByOrganization(String organizationUId, Integer offset, Integer limit, String grantType) throws Exception {
 
 		List<OAuthClient> oAuthClient = this.getOAuthRepository().listOAuthClientByOrganization(organizationUId, offset, limit, grantType);
