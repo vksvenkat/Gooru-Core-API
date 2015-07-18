@@ -50,7 +50,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 
 	private static final String GET_COLLECTION_ITEM_LIST = "FROM CollectionItem ci where ci.collection.gooruOid =:collectionId";
 
-	private static final String COLLECTION_ITEMS = "select r.title, c.gooru_oid as gooruOid, r.type_name as resourceType, r.folder, r.thumbnail, ct.value as resourceFormat, ci.collection_item_id as collectionItemId, r.url, ci.item_sequence as itemSequence, r.description, ci.start, ci.stop, ci.narration, ci.narration_type, rs.domain_name as domainName, rs.attribution   from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id  left join resource_source rs on rs.resource_source_id = r.resource_source_id     where rc.gooru_oid =:collectionId";
+	private static final String COLLECTION_ITEMS = "select r.title, c.gooru_oid as gooruOid,c.content_id as resourceContentId ,c.sharing as sharing, r.type_name as resourceType, r.folder, r.grade, r.thumbnail, ct.value as resourceFormat, ci.collection_item_id as collectionItemId, r.url, ci.item_sequence as itemSequence, r.description, ci.start, ci.stop, ci.narration, ci.narration_type, rs.domain_name as domainName, rs.attribution   from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id  left join resource_source rs on rs.resource_source_id = r.resource_source_id     where rc.gooru_oid =:collectionId";
 
 	private static final String COLLECTION_LIST = "FROM Collection where gooruOid in (:collectionId)";
 
@@ -169,9 +169,9 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	}
 
 	@Override
-	public List<CollectionItem> getCollectionItems(String gooruOid, int parameterOne, int parameterTwo, String userUid){ 
+	public List<CollectionItem> getCollectionItems(String gooruOid, int parameterOne, int parameterTwo, String userUid, String collectionType){ 
 		StringBuilder hql = new StringBuilder(GET_COLLECTION_SEQUENCE);
-		if(userUid != null){
+		if(!(collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(COLLECTION_ITEM))){
 			hql.append(" and ci.associatedUser.partyUid=:userUid");
 		}
 		hql.append(" order by ci.itemSequence");
@@ -179,7 +179,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 		query.setParameter(PARAMETER_ONE, parameterOne);
 		query.setParameter(PARAMETER_TWO, parameterTwo);
 		query.setParameter(GOORU_OID, gooruOid);
-		if(userUid != null){
+		if(!(collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(COLLECTION_ITEM))){
 			query.setParameter(USER_UID, userUid);
 		}
 		return list(query);
@@ -195,14 +195,14 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	}
 
 	@Override
-	public List<CollectionItem> getCollectionItems(String parentId, int sequence, String userUid) {
+	public List<CollectionItem> getCollectionItems(String parentId, int sequence, String userUid, String collectionType) {
 		StringBuilder hql = new StringBuilder(GET_COLLECTIONITEM_BY_SEQUENCE);
-		if(userUid != null){
+		if(!(collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(COLLECTION_ITEM))){
 			hql.append("and associatedUser.partyUid=:userUid ");
 		}
 		hql.append("order by itemSequence");
 		Query query = getSession().createQuery(hql.toString());
-		if(userUid != null){
+		if(!(collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(COLLECTION_ITEM))){
 			query.setParameter(USER_UID, userUid);
 		}
 		query.setParameter(PARENT_ID, parentId);

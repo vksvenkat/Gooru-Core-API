@@ -70,7 +70,6 @@ public class BlackListWordCassandraServiceImpl implements BlackListWordCassandra
 		}
 		ServerValidationUtils.rejectIfNull(query, GL0006, PROFANITY_TEXT);
 		if (query != null && !query.equals(WILD_CARD)) {
-			
 				String[] blackWords = query.split(" ");
 				for (String blackWord : blackWords) {
 					blackWord = blackWord.trim();
