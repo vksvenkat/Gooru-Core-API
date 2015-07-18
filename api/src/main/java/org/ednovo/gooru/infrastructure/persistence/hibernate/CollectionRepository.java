@@ -114,9 +114,9 @@ public interface CollectionRepository extends BaseRepository {
 
 	List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, String status, String type);
 
-	List<Collection> getCollectionsList(User user, Integer limit, Integer offset, String publishStatus);
+	List<Collection> getCollectionsList(User user, Integer limit, Integer offset, Short publishstatusId);
 
-	Long getCollectionCount(String publishStatus);
+	Long getCollectionCount(Short publishstatusId);
 
 	Collection getCollectionByIdWithType(String gooruOid, String type);
 

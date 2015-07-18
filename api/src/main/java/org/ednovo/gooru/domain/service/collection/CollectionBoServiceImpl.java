@@ -609,7 +609,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			rejectIfNullOrEmpty(errors, collection.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 			rejectIfInvalidType(errors, collection.getCollectionType(), COLLECTION_TYPE, GL0007, generateErrorMessage(GL0007, COLLECTION_TYPE), Constants.COLLECTION_TYPES);
 			if (collection.getPublishStatusId() != null) {
-				rejectIfInvalidType(errors, collection.getPublishStatusId(), PUBLISH_STATUS, GL0007, generateErrorMessage(GL0007, PUBLISH_STATUS), Constants.PUBLISH_STATUS);
+				reject(Constants.PUBLISH_STATUS.containsValue(collection.getPublishStatusId()), GL0007, 400, PUBLISH_STATUS);
 			}
 		}
 		return errors;
