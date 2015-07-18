@@ -11,7 +11,7 @@ public class Collection extends Content implements Versionable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -3271310636333972691L;
+	private static final long serialVersionUID = -7671371732827160609L;
 
 	private static final String INDEX_TYPE = "scollection";
 
