@@ -84,6 +84,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	private static ResourceBundle userDefaultCustomAttributes = ResourceBundle.getBundle("properties/userDefaultCustomAttributes");
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<PartyCustomField> createPartyCustomField(String partyId, PartyCustomField partyCustomField, User user) {
 		if (partyId != null && partyId.equalsIgnoreCase(MY)) {
 			partyId = user.getUserUid();
@@ -109,12 +110,14 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<PartyCustomField> getPartyCustomFields(String partyId, final PartyCustomField partyCustomField, User user) {
 
 		return getPartyRepository().getPartyCustomFields(partyId, partyCustomField != null ? partyCustomField.getOptionalKey() : null, partyCustomField != null ? partyCustomField.getCategory() : null);
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public PartyCustomField getPartyCustomeField(String partyId, final String optionalKey, User user) {
 
 		return getPartyRepository().getPartyCustomField(partyId, optionalKey);
@@ -126,6 +129,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public PartyCustomField updatePartyCustomField(String partyId, final PartyCustomField newPartyCustomField, final User user) {
 		PartyCustomField partyCustomField = null;
 		if (partyId != null && partyId.equalsIgnoreCase(MY)) {
@@ -163,6 +167,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCustomField(String partyId, final PartyCustomField newpartyCustomField, User user) throws Exception {
 		if (newpartyCustomField != null) {
 			if (partyId != null && partyId.equalsIgnoreCase(MY)) {
@@ -227,6 +232,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<PartyCustomField> createPartyDefaultCustomAttributes(String partyId, User user, final String type) {
 		if (type != null && type.equalsIgnoreCase(USER_TYPE)) {
 			return createUserDefaultCustomAttributes(partyId, user);
