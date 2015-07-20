@@ -53,7 +53,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Country> getCountries(Integer limit, Integer offset) {
 		SearchResults<Country> result = new SearchResults<Country>();
 		result.setSearchResults(this.getCountryRepository().getCountries(limit, offset));
@@ -116,6 +116,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 	
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Province getState(String stateUid) {
 		Province province = this.getCountryRepository().getState(stateUid);
 		rejectIfNull(province, GL0056, 404,  STATE_ );
@@ -123,7 +124,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Province> getStates(String countryUid, Integer limit, Integer offset) {
 		SearchResults<Province> result = new SearchResults<Province>();
 		result.setSearchResults(this.getCountryRepository().getStates(countryUid, limit, offset));
@@ -179,7 +180,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public City getCity(String countryUid, String stateUid, String cityUid) {
 		City city = this.getCountryRepository().getCity(countryUid, stateUid, cityUid);
 		rejectIfNull(city, GL0056, 404, CITY_);
@@ -187,7 +188,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<City> getCities(String countryUid, String stateUid, Integer limit, Integer offset) {
 		SearchResults<City> result = new SearchResults<City>();
 		result.setSearchResults(this.getCountryRepository().getCities(countryUid, stateUid, limit, offset));

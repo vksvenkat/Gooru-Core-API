@@ -309,7 +309,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Organization> getOrganizations(String type, String parentOrganizationUid, String stateProvinceId, Integer offset, Integer limit) {
 		SearchResults<Organization> result = new SearchResults<Organization>();
 		result.setSearchResults(this.getOrganizationRepository().getOrganizations(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable() + UNDER_SCORE + type, parentOrganizationUid, stateProvinceId, offset, limit));
@@ -318,7 +318,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<User> getUsersByOrganization(String type, String organizationUid, String parentOrganizationUid, Integer offset, Integer limit) {
 		SearchResults<User> result = new SearchResults<User>();
 		result.setSearchResults(this.getUserRepository().findUsersByOrganization(type.equalsIgnoreCase(CustomProperties.InstitutionType.SCHOOL_DISTRICT.getInstitutionType()) ? organizationUid : null, type.equalsIgnoreCase(CustomProperties.InstitutionType.SCHOOL.getInstitutionType()) ? parentOrganizationUid : null, offset, limit));

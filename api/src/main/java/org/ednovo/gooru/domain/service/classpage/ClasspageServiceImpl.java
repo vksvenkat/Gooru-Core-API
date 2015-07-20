@@ -686,7 +686,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Map<String, Object>> getMyStudy(User user, String orderBy, Integer offset, Integer limit, String type, String itemType) {
 		if (user.getPartyUid().equalsIgnoreCase(ANONYMOUS)) {
 			throw new NotFoundException(generateErrorMessage("GL0056", "User"), "GL0056");
@@ -900,6 +900,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<CollectionItem> getPathwayItems(String classId, String pathwayId, Integer offset, Integer limit, String orderBy, User user) {
 		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayId, PATHWAY) == null) {
 			throw new BadRequestException("pathway not found");
@@ -925,7 +926,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<CollectionItem> getPathwayItemsSearchResults(final String classId, final String pathwayId, final Integer offset, final Integer limit, final String orderBy, final User user) {
 		final Collection pathway = this.getCollectionRepository().getCollectionByIdWithType(pathwayId, PATHWAY);
 		final List<CollectionItem> collectionItems = getPathwayItems(classId, pathwayId, offset, limit, orderBy, user);
@@ -1045,7 +1046,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getParentDetails(final String collectionItemId) {
 		final List<Object[]> result = this.getCollectionRepository().getParentDetails(collectionItemId);
 		final Map<String, Object> items = new HashMap<String, Object>();

@@ -61,7 +61,7 @@ public class CustomFieldsServiceImpl implements CustomFieldsService {
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.NOT_SUPPORTED, noRollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.NOT_SUPPORTED, noRollbackFor = Exception.class)
 	public CustomField findCustomFieldIfExists(String customFieldId) {
 		return customFieldRepository.findCustomFieldIfExists(customFieldId);
 	}

@@ -142,7 +142,7 @@ public class ResponseFieldSetServiceImpl implements ResponseFieldSetService,Para
 		}
 	}
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ResponseFieldSet getResponseFieldSet(String fieldId, String gooruUId)
 	{
 		return responseFieldSetRepository.getResponseFieldSet(fieldId,gooruUId);
