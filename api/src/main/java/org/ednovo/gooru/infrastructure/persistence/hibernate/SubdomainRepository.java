@@ -36,8 +36,8 @@ public interface SubdomainRepository extends BaseRepository {
 
 	List<Subdomain> getSubdomains(List<Integer> subdomainIds);
 
-	List<Map<String, Object>> getSubdomainStandards(Integer subdomainId);
+	List<Map<String, Object>> getSubdomainStandards(Integer subdomainId, String taxonomyPreference);
 
-	List<Map<String, Object>> getStandards(Integer codeId);
+	List<Map<String, Object>> getStandards(Integer codeId, String taxonomyPreference);
 
 }
