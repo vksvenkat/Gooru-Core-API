@@ -1450,6 +1450,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public UserRole createRole(String name, String description, User user) throws Exception {
 
 		UserRole userRole = findUserRoleByName(name);
@@ -1474,6 +1475,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<RoleEntityOperation> updateRoleOperation(Integer roleId, String operations) throws Exception {
 		UserRole userRole = userRepository.findUserRoleByRoleId(roleId);
 		rejectIfNull(userRole, GL0056, 404, ROLE);
@@ -1505,6 +1507,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void removeRoleOperation(Integer roleId, String operations) throws Exception {
 
 		UserRole userRole = userRepository.findUserRoleByRoleId(roleId);

@@ -39,7 +39,6 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_ADD })
 	@RequestMapping(method = RequestMethod.POST)
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView createMenu(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		User user = (User) request.getAttribute(Constants.USER);
@@ -56,7 +55,6 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_UPDATE })
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView updateMenu(@RequestBody String data, HttpServletRequest request, HttpServletResponse response, @PathVariable String id) throws Exception {
 		
 		User user = (User) request.getAttribute(Constants.USER);
@@ -68,7 +66,6 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_UPDATE })
 	@RequestMapping(method = RequestMethod.PUT, value = "/item/{id}")
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView updateMenuItem(@RequestBody String data, HttpServletRequest request, HttpServletResponse response, @PathVariable(value = ID) String menuItemUid) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		Menu menu = this.buildMenuFromInputParameters(data);
@@ -79,7 +76,6 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_READ })
 	@RequestMapping(value = "/{id}",method = RequestMethod.GET)
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getMenu(@PathVariable(value = ID) String id, HttpServletRequest request, HttpServletResponse response) throws Exception {
 	    
 		String includes[] = (String[]) ArrayUtils.addAll(MENU_INCLUDES, ERROR_INCLUDE);
@@ -88,7 +84,6 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/item" }, method = RequestMethod.GET)
 	public ModelAndView getMenuItems(@PathVariable(value = ID) String menuUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
 			@RequestParam(value = ORDER_BY, defaultValue = DESC, required = false) String orderBy, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -100,7 +95,6 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "/item/{id}")
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getMenuItem(HttpServletRequest request, HttpServletResponse response, @PathVariable String id) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(MENU_ITEM_INCLUDES, ERROR_INCLUDE);
 		includes = (String[]) ArrayUtils.addAll(includes, MENU_INCLUDES);
@@ -110,7 +104,6 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_READ })
 	@RequestMapping(value = "", method = RequestMethod.GET)  
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
    	public ModelAndView getMenuByUserRole(@RequestParam (value = CHILDFLAG , required = false,defaultValue= "true")Boolean childFlag, ModelMap model, HttpServletRequest request, HttpServletResponse response) { 
 		User user = (User) request.getAttribute(Constants.USER);
 		String includes[] = (String[]) ArrayUtils.addAll(MENU_INCLUDES, ERROR_INCLUDE);
@@ -121,7 +114,6 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 	}	
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/{menuUid}/role")
 	public ModelAndView assignRoleByMenuUid(HttpServletRequest request,HttpServletResponse response,@PathVariable(MENU_UID) String menuUid, @RequestBody String data)throws Exception {
 
@@ -129,7 +121,6 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{menuUid}/role")
 	public void removeAssignedRoleByMenuUid(HttpServletRequest request,HttpServletResponse response,@PathVariable(MENU_UID) String menuUid, @RequestBody String data)throws Exception {
 		
@@ -138,7 +129,6 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
 	public void deleteMenu(@PathVariable(value = ID) String menuUid, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
@@ -147,7 +137,6 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/item/{id}")
 	public void deleteMenuItem(@PathVariable(value = ID) String menuItemUid, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		

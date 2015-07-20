@@ -46,6 +46,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class EventServiceImpl extends BaseServiceImpl implements EventService, ParameterProperties, ConstantProperties {
@@ -71,6 +73,7 @@ public class EventServiceImpl extends BaseServiceImpl implements EventService, P
 	private static final Logger LOGGER = LoggerFactory.getLogger(EventServiceImpl.class);
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Event createEvent(final Event event, final User user) {
 		rejectIfNull(event.getName(), GL0006, EVENT__NAME);
 		final Event eventData = this.getEventRepository().getEventByName(event.getName());
@@ -85,6 +88,7 @@ public class EventServiceImpl extends BaseServiceImpl implements EventService, P
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Event updateEvent(final String id, final Event newEvent) {
 		final Event event = this.getEventRepository().getEvent(id);
 		rejectIfNull(event, GL0056, EVENT);
@@ -97,6 +101,7 @@ public class EventServiceImpl extends BaseServiceImpl implements EventService, P
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Event getEvent(final String id) {
 		return this.getEventRepository().getEvent(id);
 	}
@@ -110,6 +115,7 @@ public class EventServiceImpl extends BaseServiceImpl implements EventService, P
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public EventMapping createEventMapping(final EventMapping eventMapping, final User user) {
 		rejectIfNull(eventMapping.getEvent(),GL0006, EVENT_ID);
 		rejectIfNull(eventMapping.getEvent().getGooruOid(), GL0006,EVENT_ID);
@@ -132,6 +138,7 @@ public class EventServiceImpl extends BaseServiceImpl implements EventService, P
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public EventMapping updateEventMapping(final EventMapping newEventMapping, final User user) {
 		rejectIfNull(newEventMapping.getEvent(),GL0006, EVENT_ID);
 		rejectIfNull(newEventMapping.getEvent().getGooruOid(), GL0006,EVENT_ID);
@@ -155,6 +162,7 @@ public class EventServiceImpl extends BaseServiceImpl implements EventService, P
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteEventMapping(String eventUid, final String templateUid) {
 		EventMapping eventMapping = this.getEventMapping(eventUid, templateUid);
 		if (eventMapping != null) {
@@ -163,11 +171,13 @@ public class EventServiceImpl extends BaseServiceImpl implements EventService, P
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public EventMapping getEventMapping(final String eventUid, final String templateUid) {
 		return this.getEventRepository().getEventMapping(eventUid, templateUid);
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Event> getEvents(final Integer offset, final Integer limit) {
 		return this.getEventRepository().getEvents(offset, limit);
 	}
@@ -183,6 +193,7 @@ public class EventServiceImpl extends BaseServiceImpl implements EventService, P
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void handleJiraEvent(Map<String, String> fields) {
 		final String issueKey = sendMessageToJira(fields);
 		if (issueKey != null && fields != null && fields.get(EVENT_TYPE) != null && fields.get(EVENT_TYPE).equals(FEEDBACK)) {

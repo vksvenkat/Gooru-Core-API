@@ -27,7 +27,6 @@ public class CustomSettingRestController extends BaseController implements Const
 	private CustomSettingService customSettingService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CUSTOM_SETTING_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST)
 	public ModelAndView createCustomSetting(HttpServletRequest request, @RequestParam(value = KEY, required = true) String key, @RequestParam(value = VALUE, required = true) Boolean value, @RequestParam(value = SESSIONTOKEN, required = false) String sessionToken,
 			@RequestParam(value = FORMAT, defaultValue = JSON, required = false) String format, HttpServletResponse response) throws Exception {

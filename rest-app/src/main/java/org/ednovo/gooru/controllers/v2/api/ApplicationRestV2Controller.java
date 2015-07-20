@@ -65,7 +65,6 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_ADD })
 	@RequestMapping(method = RequestMethod.POST)
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView createApplication(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		ActionResponseDTO<Application> responseDTO = getApplicationService().createApplication(buildApplicationFromInputParameters(data), user);
@@ -80,7 +79,6 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_UPDATE })
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView updateApplication(@RequestBody String data, HttpServletRequest request, HttpServletResponse response, @PathVariable String id) throws Exception {
 		Application responseDTO = getApplicationService().updateApplication(buildApplicationFromInputParameters(data), id);
 		String includes[] = (String[]) ArrayUtils.addAll(APPLICATION_INCLUDES, ERROR_INCLUDE);
@@ -89,7 +87,6 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getApplication(HttpServletRequest request, HttpServletResponse response, @PathVariable String id) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(APPLICATION_INCLUDES, ERROR_INCLUDE);
 		includes = (String[]) ArrayUtils.addAll(includes, OAUTH_CLIENT_INCLUDES);
@@ -99,7 +96,6 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "")
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getApplications(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = ORGANIZATION_UID, required = false) String organizationUid,@RequestParam(value = ID, required = false) String gooruUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(APPLICATION_INCLUDES, ERROR_INCLUDE);
 		User user = (User) request.getAttribute(Constants.USER);
@@ -107,7 +103,6 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_OAUTH_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{apiKey}/oauth/client")
 	public ModelAndView getOAuthClientByApiKey(@PathVariable String apiKey, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, "oauthclient.read");
@@ -119,7 +114,6 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "/{apiKey}/item/{id}")
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getApplicationItem(@PathVariable(value = API_KEY) String apikey,HttpServletRequest request, HttpServletResponse response, @PathVariable String id) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(APPLICATION_ITEM_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(this.getApplicationService().getApplicationItem(apikey,id), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
@@ -127,7 +121,6 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_ADD })
 	@RequestMapping(method = RequestMethod.POST, value = "/{id}/item")
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView createApplicationItem(@PathVariable(value = ID) String apiKey,@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		ActionResponseDTO<ApplicationItem> responseDTO = getApplicationService().createApplicationItem(buildApplicationItemFromInputParameters(data),apiKey, user);
@@ -142,7 +135,6 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_UPDATE })
 	@RequestMapping(method = RequestMethod.PUT, value = "/{apiKey}/item/{id}")
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView updateApplicationItem(@PathVariable(value = API_KEY) String apikey,@PathVariable(value = ID) String applicationItemId,@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		ActionResponseDTO<ApplicationItem> responseDTO = getApplicationService().updateApplicationItem(apikey,buildApplicationItemFromInputParameters(data),applicationItemId, user);
@@ -154,7 +146,6 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_OAUTH_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{apiKey}/item")
 	public ModelAndView getApplicationItemByApiKey(@PathVariable String apiKey, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, "oauthclient.read");
@@ -163,7 +154,6 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{id}")
 	public void deleteApplication(@PathVariable(value = ID) String apikey, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
@@ -172,7 +162,6 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{apiKey}/item/{id}")
 	public void deleteApplicationItemByItemId(@PathVariable(value= API_KEY) String apikey,@PathVariable(value= ID) String applicationItemId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 

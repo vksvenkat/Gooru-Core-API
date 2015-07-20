@@ -88,7 +88,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	private RedisService redisService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "", method = RequestMethod.POST)
 	public ModelAndView createClasspage(@RequestBody final String data, @RequestParam(value = ADD_TO_SHELF, defaultValue = TRUE, required = false) final boolean addToMy, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -114,7 +113,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}", method = { RequestMethod.PUT })
 	public ModelAndView updateClasspage(@PathVariable(value = ID) final String classpageId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final JSONObject json = requestData(data);
@@ -128,7 +126,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public ModelAndView getClasspage(@PathVariable(value = ID) final String classpageId, @RequestParam(value = DATA_OBJECT, required = false) final String data, @RequestParam(value = INCLUDE_COLLECTION_ITEM, required = false, defaultValue = FALSE) final boolean includeCollectionItem,
 			@RequestParam(value = MERGE, required = false) final String merge, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
@@ -142,7 +139,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public ModelAndView getClasspages(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
 		    @RequestParam(value = TITLE, required = false) final String title, @RequestParam(value = AUTHOR, required = false) final String author,
@@ -155,7 +151,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/code/{code}", method = RequestMethod.GET)
 	public ModelAndView getClasspageByCode(@PathVariable(value = CLASSPAGE_CODE) final String classpageCode, @RequestParam(value = DATA_OBJECT, required = false) final String data, @RequestParam(value = INCLUDE_COLLECTION_ITEM, required = false, defaultValue = FALSE) final boolean includeCollectionItem,
 			final HttpServletRequest request, final HttpServletResponse response) throws Exception {
@@ -169,7 +164,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	public void deleteClasspage(@PathVariable(value = ID) final String classpageId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -177,7 +171,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/item", method = RequestMethod.POST)
 	public ModelAndView createClasspageItem(@PathVariable(value = ID) final String classpageId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -194,7 +187,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/collection/{id}/item", method = RequestMethod.POST)
 	public ModelAndView createClasspageItems(@PathVariable(value = ID) final String collectionId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -206,7 +198,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/assign/{cid}", method = RequestMethod.POST)
 	public ModelAndView assignCollection(@PathVariable(value = ID) final String classPageId,@RequestParam(value="isRequired", required=false ) final Boolean isRequired ,@RequestParam(value="direction", required=false ) final String direction,@RequestParam(value="planedEndDate", required=false ) final String planedEndDate,@PathVariable(value = CID) final String collectionId, final HttpServletRequest request, final HttpServletResponse response
 			,@RequestParam(value="minimumScore", required=false ) final String minimumScore,@RequestParam(value="estimatedTime", required=false ) final String estimatedTime,@RequestParam(value="showAnswerByQuestions", required=false ) final Boolean showAnswerByQuestions,@RequestParam(value="showHints", required=false ) final Boolean showHints,@RequestParam(value="showAnswerEnd", required=false ) final Boolean showAnswerEnd) throws Exception {
@@ -234,7 +225,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "item/{id}", method = RequestMethod.GET)
 	public ModelAndView getClasspageItem(@PathVariable(value = ID) final String collectionItemId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -244,7 +234,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{cid}/item", method = RequestMethod.GET)
 	public ModelAndView getClasspageItems(@PathVariable(value = COLLECTIONID) final String classpageId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue= "10") Integer limit,
 		@RequestParam(value = ORDER_BY, defaultValue = PLANNED_END_DATE, required = false) final String orderBy,@RequestParam(value=CLEAR_CACHE, required=false, defaultValue="false" ) final Boolean clearCache, @RequestParam(value = OPTIMIZE, required = false, defaultValue = FALSE) final Boolean optimize, @RequestParam(value = STATUS, required = false) final String status, @RequestParam(value = TYPE, required = false) final String type, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
@@ -268,7 +257,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/item/{id}", method = RequestMethod.DELETE)
 	public void deleteClasspageItem(@PathVariable(value = ID) final String collectionItemId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -276,7 +264,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{code}/member/join", method = RequestMethod.POST)
 	public ModelAndView classpageUserJoin(@PathVariable(value = CODE) final String code, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User apiCaller = (User) request.getAttribute(Constants.USER);
@@ -285,7 +272,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{code}/member/remove", method = RequestMethod.DELETE)
 	public void classpageUserRemove(@PathVariable(value = CODE) final String code, @RequestParam final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User apiCaller = (User) request.getAttribute(Constants.USER);
@@ -295,7 +281,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/member" }, method = RequestMethod.GET)
 	public ModelAndView getClassMemberList(@PathVariable(ID) final String code, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
 		    @RequestParam(value = GROUP_BY_STATUS, defaultValue = "false", required = false) final Boolean groupByStatus, @RequestParam(value = FILTER_BY, required = false) final String filterBy,
@@ -305,7 +290,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/my/{type}" }, method = RequestMethod.GET)
 	public ModelAndView getMyTeachAndStudy(@PathVariable(value = TYPE) final String type, final HttpServletRequest request, final HttpServletResponse response,  @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, 
@@ -316,7 +300,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/my", method = RequestMethod.GET)
 	public ModelAndView getMyClasspage(final HttpServletRequest request, @RequestParam(value = DATA_OBJECT, required = false) final String data, @RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = "false") final boolean skipPagination,
 			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = ORDER_BY, required = false, defaultValue = DESC) final String orderBy,
@@ -337,7 +320,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/member/suggest" }, method = RequestMethod.GET)
 	public ModelAndView classMemberSuggest(@RequestParam(value = QUERY) final String queryText, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -345,7 +327,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}/reorder/{sequence}" }, method = RequestMethod.PUT)
 	public ModelAndView reorderCollectionItemSequence(@PathVariable(value = ID) final String collectionItemId, @PathVariable(value = SEQUENCE) final int newSequence, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -361,7 +342,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/item", method = RequestMethod.GET)
 	public ModelAndView getClasspageAssoc(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = CLASSPAGE_ID, required = false) final String classpageId ,
 			@RequestParam(value = COLLECTION_ID, required = false) final String collectionId,@RequestParam(value = TITLE, required = false) final String title,@RequestParam(value = COLLECTION_TITLE, required = false) final String collectionTitle, @RequestParam(value = CLASS_CODE, required = false) final String classCode,@RequestParam(value = COLLECTION_CREATOR, required = false) final String collectionCreator,@RequestParam(value = COLLECTION_ITEM_ID, required = false) final String collectionItemId ){	
@@ -371,7 +351,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	/********************pathway ***********************/
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/pathway", method = RequestMethod.POST)
 	public ModelAndView createPathway(@RequestBody final String data, @PathVariable(value= ID) final String classId , final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -384,7 +363,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/pathway/{pid}", method = RequestMethod.PUT)
 	public ModelAndView updatePathway(@RequestBody final String data, @PathVariable(value= ID) final String classId , @PathVariable(value= "pid") final String pathwayGooruOid , final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -396,7 +374,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/pathway/{pid}" }, method = RequestMethod.DELETE)
 	public void deletePathway(@PathVariable(value= ID) final String classId , @PathVariable(value= "pid") final String pathwayGooruOid, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -404,7 +381,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/pathway/{pid}/item/{itemId}" }, method = RequestMethod.PUT)
 	public ModelAndView updatePathwayItem(@PathVariable(value= ID) final String classId , @PathVariable(value= "itemId") final String collectionItemId,@PathVariable(value= "pid") final String pathwayGooruOid, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -420,7 +396,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/pathway/{pid}/item/{itemId}" }, method = RequestMethod.DELETE)
 	public void deletePathwayItem(@PathVariable(value= ID) final String classId , @PathVariable(value= "itemId") final String collectionItemId,@PathVariable(value= "pid") final String pathwayGooruOid, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -429,7 +404,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/pathway/{pid}", method = RequestMethod.GET)
 	public ModelAndView getPathwayItems(@PathVariable(value = ID) final String classId, @PathVariable(value = "pid") final String pathId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = "false") final Boolean clearCache, @RequestParam(value = ORDER_BY, defaultValue = SEQUENCE, required = false) final String orderBy,
@@ -454,7 +428,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/pathway/{pid}/assign/{cid}", method = RequestMethod.POST)
 	public ModelAndView assignCollectionToPathway(@PathVariable(value = ID) final String classPageId, @PathVariable(value= "pid") final String pathwayId, @RequestParam(value="direction", required=false ) final String direction,@RequestParam(value="planedEndDate", required=false ) final String planedEndDate,@PathVariable(value = CID) final String collectionId,@RequestParam(value="isRequired", required=false ) final Boolean isRequired , final HttpServletRequest request, final HttpServletResponse response, 
 			@RequestParam(value="minimumScore", required=false ) final String minimumScore,@RequestParam(value="estimatedTime", required=false ) final String estimatedTime,@RequestParam(value="showAnswerByQuestions", required=false ) final Boolean showAnswerByQuestions,@RequestParam(value="showHints", required=false ) final Boolean showHints,@RequestParam(value="showAnswerEnd", required=false ) final Boolean showAnswerEnd) throws Exception {
@@ -466,7 +439,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/pathway/{pid}/reorder/{sequence}" }, method = RequestMethod.PUT)
 	public ModelAndView reorderPathwaySequence(@PathVariable(value = ID) final String classId, @PathVariable(value= "pid") final String pathwayId, @PathVariable(value = SEQUENCE) final int newSequence, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -484,7 +456,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/pathway/{pid}/item/{itemId}/move" }, method = RequestMethod.PUT)
 	public ModelAndView pathwayItemMoveWithReorder(@PathVariable(value= ID) final String classId , @PathVariable(value= "itemId") final String collectionItemId,@PathVariable(value= "pid") final String pathwayId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -498,7 +469,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/assignment/{id}" }, method = RequestMethod.GET)
 	public ModelAndView getParentDetails( @PathVariable(value= ID) final String collectionItemId,  final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 

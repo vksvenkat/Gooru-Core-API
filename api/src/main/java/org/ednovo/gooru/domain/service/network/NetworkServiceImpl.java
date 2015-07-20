@@ -32,6 +32,8 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.NetworkRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service("networkService")
 public class NetworkServiceImpl implements NetworkService {
@@ -45,6 +47,7 @@ public class NetworkServiceImpl implements NetworkService {
 	}
 	
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Network createNetwork(User apiCaller, String name, boolean approvedFlag){
 		
 		Network network = new Network();
