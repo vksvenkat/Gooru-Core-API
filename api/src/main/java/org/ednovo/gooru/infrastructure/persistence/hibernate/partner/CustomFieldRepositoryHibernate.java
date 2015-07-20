@@ -31,8 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.CustomField;
-import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
@@ -175,8 +175,8 @@ public class CustomFieldRepositoryHibernate extends BaseRepositoryHibernate impl
 
 	private String getOrganizationPartyUid(String resourceGooruOid) {
 		try {
-			Resource resource = (Resource) getSession().createQuery("SELECT r FROM Resource r WHERE r.gooruOid = '" + resourceGooruOid + "'").list().get(0);
-			return resource.getOrganization().getPartyUid();
+			Content content = (Content) getSession().createQuery("SELECT r FROM Content r WHERE r.gooruOid = '" + resourceGooruOid + "'").list().get(0);
+			return content.getOrganization().getPartyUid();
 		} catch (Exception ex) {
 			throw new NotFoundException("RESOURCE NOT FOUND " + resourceGooruOid);
 		}
