@@ -225,6 +225,7 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 	public AssessmentQuestion copyQuestion(String questionId, User user) {
 		AssessmentQuestion question = this.getQuestion(questionId);
 		rejectIfNull(question, GL0056, 404, QUESTION);
+		reject(!(question.getTypeName().equals(AssessmentQuestion.TYPE.OPEN_ENDED.getName())),GL0007,400, ASSESSMENT_QUESTION);
 		AssessmentQuestion copyQuestion = new AssessmentQuestion();
 		copyQuestion.setGooruOid(UUID.randomUUID().toString());
 		copyQuestion.setDescription(question.getDescription());
