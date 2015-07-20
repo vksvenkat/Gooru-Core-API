@@ -65,8 +65,9 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate
 			int offset) {
 		StringBuilder hql = new StringBuilder(SUBJECTS);
 		if (classificationTypeId != null) {
-			hql.append("and subject.classificationTypeId=:classificationTypeId");
+			hql.append(" and subject.classificationTypeId=:classificationTypeId");
 		}
+		hql.append(" order by displaySequence");
 		Query query = getSession().createQuery(hql.toString());
 		query.setMaxResults(limit != 0 ? (limit > MAX_LIMIT ? MAX_LIMIT : limit)
 				: limit);
