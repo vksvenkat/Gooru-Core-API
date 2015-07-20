@@ -33,6 +33,7 @@ import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.core.api.model.Subdomain;
 import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
@@ -101,7 +102,7 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 
 	@Override
 	public List<Map<String, Object>> getSubdomainStandards(Integer subdomainId) {
-		List<Map<String, Object>> codes = this.getSubdomainRepository().getSubdomainStandards(subdomainId);
+		List<Map<String, Object>> codes = this.getSubdomainRepository().getSubdomainStandards(subdomainId, UserGroupSupport.getTaxonomyPreference());
 		if (codes != null) {
 			for (Map<String, Object> code : codes) {
 				code.put(NODE, getStandards(((Number) code.get(CODE_ID)).intValue()));
@@ -111,9 +112,9 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 	}
 
 	private List<Map<String, Object>> getStandards(Integer codeId) {
-		List<Map<String, Object>> codes = this.getSubdomainRepository().getStandards(codeId);
+		List<Map<String, Object>> codes = this.getSubdomainRepository().getStandards(codeId , UserGroupSupport.getTaxonomyPreference());
 		for (Map<String, Object> code : codes) {
-			code.put(NODE, this.getSubdomainRepository().getStandards(((Number) code.get(CODE_ID)).intValue()));
+			code.put(NODE, this.getSubdomainRepository().getStandards(((Number) code.get(CODE_ID)).intValue(), UserGroupSupport.getTaxonomyPreference()));
 		}
 		return codes;
 	}

@@ -74,19 +74,19 @@ public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implem
 	}
 
 	@Override
-	public List<Map<String, Object>> getSubdomainStandards(Integer subdomainId) {
+	public List<Map<String, Object>> getSubdomainStandards(Integer subdomainId, String taxonomyPreference) {
 		Query query = getSession().createSQLQuery(SUBDOMAIN_STANDARDS);
 		query.setParameter(SUBDOMAIN_ID, subdomainId);
-		query.setParameter(ROOT_NODE_ID, UserGroupSupport.getTaxonomyPreference());
+		query.setParameter(ROOT_NODE_ID, taxonomyPreference);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
 		return list(query);
 	}
 
 	@Override
-	public List<Map<String, Object>> getStandards(Integer codeId) {
+	public List<Map<String, Object>> getStandards(Integer codeId, String taxonomyPreference) {
 		Query query = getSession().createSQLQuery(STANDARDS);
 		query.setParameter(CODE_ID, codeId);
-		query.setParameter(ROOT_NODE_ID, UserGroupSupport.getTaxonomyPreference());
+		query.setParameter(ROOT_NODE_ID, taxonomyPreference);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
 		return list(query);
 	}
