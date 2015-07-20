@@ -58,6 +58,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CollaboratorServiceImpl extends BaseServiceImpl implements CollaboratorService, ParameterProperties, ConstantProperties {
@@ -101,6 +103,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	private final Logger LOGGER = LoggerFactory.getLogger(CollaboratorServiceImpl.class);
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> addCollaborator(final List<String> email, final String gooruOid, final User apiCaller, final boolean sendInvite) throws Exception {
 		Content content = null;
 		if (gooruOid != null) {
@@ -208,12 +211,14 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<String> collaboratorSuggest(final String text, final String gooruUid) {
 
 		return this.getCollaboratorRepository().collaboratorSuggest(text, gooruUid);
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollaborator(final String gooruOid, final List<String> email) {
 		Content content = null;
 		if (gooruOid != null) {
@@ -281,6 +286,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, List<Map<String, Object>>> getCollaboratorsByGroup(final String gooruOid, final String filterBy) {
 		final Map<String, List<Map<String, Object>>> collaboratorList = new HashMap<String, List<Map<String, Object>>>();
 		if (filterBy != null && filterBy.equalsIgnoreCase(ACTIVE)) {
