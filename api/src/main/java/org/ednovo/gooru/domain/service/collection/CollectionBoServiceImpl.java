@@ -296,13 +296,15 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	public CollectionItem addQuestion(String collectionId, String questionId, User user) {
 		Collection collection = getCollectionDao().getCollectionByType(collectionId, COLLECTION_TYPES);
 		rejectIfNull(collection, GL0056, 404, COLLECTION);
-		AssessmentQuestion question = this.getQuestionService().copyQuestion(questionId, user);
+		AssessmentQuestion question = this.getQuestionService().getQuestion(questionId);
 		rejectIfNull(question, GL0056, 404, QUESTION);
+		reject(!(question.getTypeName().equals(AssessmentQuestion.TYPE.OPEN_ENDED.getName())), GL0007, 400, QUESTION);
+		AssessmentQuestion copyQuestion = this.getQuestionService().copyQuestion(question, user);
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setItemType(ADDED);
-		collectionItem = createCollectionItem(collectionItem, collection, question, user);
-		Map<String, Object> metaData = generateQuestionMetaData(question, question, user);
-		createContentMeta(question, metaData);
+		collectionItem = createCollectionItem(collectionItem, collection, copyQuestion, user);
+		Map<String, Object> metaData = generateQuestionMetaData(copyQuestion, copyQuestion, user);
+		createContentMeta(copyQuestion, metaData);
 		return collectionItem;
 	}
 
