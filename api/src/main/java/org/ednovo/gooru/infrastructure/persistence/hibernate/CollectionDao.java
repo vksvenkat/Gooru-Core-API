@@ -43,6 +43,6 @@ public interface CollectionDao extends BaseRepository {
 	
 	List<Collection> getCollections(List<String> collectionIds);
 	
-	void getClassByCourse(Long contentId);
+	void updateClassByCourse(Long contentId);
 
 }

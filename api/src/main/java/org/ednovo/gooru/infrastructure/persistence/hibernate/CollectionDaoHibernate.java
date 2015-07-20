@@ -55,7 +55,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 
 	private static final String COLLECTION_LIST = "FROM Collection where gooruOid in (:collectionId)";
 	
-	private static final String GET_CONTENT_ID = "update class set course_content_id=null where course_content_id=:contentId";
+	private static final String UPDATE_CONTENT_ID = "update class set course_content_id=null where course_content_id=:contentId";
 
 
 	@Override
@@ -101,8 +101,8 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	}
 	
 	@Override
-	public void getClassByCourse(Long contentId) {
-		Query query = getSession().createSQLQuery(GET_CONTENT_ID);
+	public void updateClassByCourse(Long contentId) {
+		Query query = getSession().createSQLQuery(UPDATE_CONTENT_ID);
 		query.setParameter(CONTENT_ID, contentId);
 		query.executeUpdate();
 	}
