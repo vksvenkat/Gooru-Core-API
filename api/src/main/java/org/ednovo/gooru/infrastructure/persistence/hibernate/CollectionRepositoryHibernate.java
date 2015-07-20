@@ -848,7 +848,6 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (publishStatus != null) {
 			query.setParameter(PENDING, publishStatus);
 		}
-		//query.setParameter(TYPE, SCOLLECTION);
 		addOrgAuthParameters(query);
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
