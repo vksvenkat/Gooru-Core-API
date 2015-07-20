@@ -43,9 +43,9 @@ public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implem
 
 	private static final String SUBDOMAIN_BY_IDS = "FROM Subdomain  WHERE subdomainId in (:subdomainId)";
 
-	private static final String SUBDOMAIN_STANDARDS = "select s.code_id as codeId, ifnull(common_core_dot_notation, display_code) as code, label, s.type_id as typeId from subdomain_attribute_mapping  s  inner join  code c on s.code_id = c.code_id where s.subdomain_id=:subdomainId and c.root_node_id in (:rootNodeId) order by s.type_id, c.sequence";
+	private static final String SUBDOMAIN_STANDARDS = "select s.code_id as codeId, ifnull(common_core_dot_notation, display_code) as code, label, s.type_id as typeId from subdomain_attribute_mapping  s  inner join  code c on s.code_id = c.code_id where c.active_flag=1 and s.subdomain_id=:subdomainId and c.root_node_id in (:rootNodeId) order by s.type_id, c.sequence";
 
-	private static final String STANDARDS = "select code_id as codeId, ifnull(common_core_dot_notation, display_code) as code, label  from code where parent_id =:codeId and root_node_id in (:rootNodeId) order by sequence";
+	private static final String STANDARDS = "select code_id as codeId, ifnull(common_core_dot_notation, display_code) as code, label  from code where active_flag=1 and parent_id =:codeId and root_node_id in (:rootNodeId) order by sequence";
 
 	@Override
 	public Map<String, Object> getSubdomain(Integer subdomainId) {
