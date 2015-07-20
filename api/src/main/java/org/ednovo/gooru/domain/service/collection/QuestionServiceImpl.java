@@ -236,6 +236,7 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		copyQuestion.setLabel(question.getLabel());
 		copyQuestion.setTitle(question.getTitle());
 		copyQuestion.setResourceType(question.getResourceType());
+		copyQuestion.setResourceFormat(question.getResourceFormat());
 		copyQuestion.setSharing(question.getSharing());
 		copyQuestion.setTimeToCompleteInSecs(question.getTimeToCompleteInSecs());
 		copyQuestion.setDifficultyLevel(question.getDifficultyLevel());
