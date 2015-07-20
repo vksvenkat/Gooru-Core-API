@@ -52,7 +52,6 @@ import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.application.util.BaseUtil;
-import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
@@ -688,13 +687,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Collection> getCollections(final Integer offset, final Integer limit, final User user, final String publishStatus) {
-
-		final List<Collection> collections = this.getCollectionRepository().getCollectionsList(user, limit, offset, CustomProperties.Table.PUBLISH_STATUS.getTable() + UNDER_SCORE + publishStatus);
+		final List<Collection> collections = this.getCollectionRepository().getCollectionsList(user, limit, offset,Constants.PUBLISH_STATUS.get(publishStatus));
 		final SearchResults<Collection> result = new SearchResults<Collection>();
 		result.setSearchResults(collections);
-		result.setTotalHitCount(this.getCollectionRepository().getCollectionCount(CustomProperties.Table.PUBLISH_STATUS.getTable() + UNDER_SCORE + publishStatus));
+		result.setTotalHitCount(this.getCollectionRepository().getCollectionCount(Constants.PUBLISH_STATUS.get(publishStatus)));
 		return result;
-
 	}
 
 	@Override

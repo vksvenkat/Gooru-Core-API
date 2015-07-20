@@ -74,17 +74,14 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 
 	private List<Tag> tagSet;
 
-	private Boolean isDeleted;
+	private short isDeleted;
 	
-	public void setIsDeleted(Boolean isDeleted) {
-		if(isDeleted == null){
-			isDeleted = false;
-		}
-		this.isDeleted = isDeleted;
+	public short getIsDeleted() {
+		return isDeleted;
 	}
 
-	public Boolean getIsDeleted() {
-		return isDeleted;
+	public void setIsDeleted(short isDeleted) {
+		this.isDeleted = isDeleted;
 	}
 
 	private Map<String, Object> meta;

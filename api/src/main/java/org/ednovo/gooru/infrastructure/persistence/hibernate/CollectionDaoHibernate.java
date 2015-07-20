@@ -6,6 +6,7 @@ import java.util.Map;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserClass;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.hibernate.Criteria;
@@ -53,6 +54,9 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	private static final String COLLECTION_ITEMS = "select r.title, c.gooru_oid as gooruOid,c.content_id as resourceContentId ,c.sharing as sharing, r.type_name as resourceType, r.folder, r.grade as grade, r.thumbnail, r.category as category, ct.value as resourceFormat, ci.collection_item_id as collectionItemId, r.url, ci.item_sequence as itemSequence, r.description, ci.start, ci.stop, ci.narration, ci.narration_type, rs.domain_name as domainName, rs.attribution   from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id  left join resource_source rs on rs.resource_source_id = r.resource_source_id     where rc.gooru_oid =:collectionId";
 
 	private static final String COLLECTION_LIST = "FROM Collection where gooruOid in (:collectionId)";
+	
+	private static final String UPDATE_CONTENT_ID = "update class set course_content_id=null where course_content_id=:contentId";
+
 
 	@Override
 	public Collection getCollection(String collectionId) {
@@ -95,6 +99,13 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 		query.setParameter(COLLECTION_ID, contentId);
 		return (int) list(query).get(0);
 	}
+	
+	@Override
+	public void updateClassByCourse(Long contentId) {
+		Query query = getSession().createSQLQuery(UPDATE_CONTENT_ID);
+		query.setParameter(CONTENT_ID, contentId);
+		query.executeUpdate();
+	}
 
 	@Override
 	public List<Map<String, Object>> getCollections(Map<String, Object> filters, int limit, int offset) {
@@ -125,6 +136,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 			if (filters.get(ITEM_TYPE) != null) {
 				queryAppender(sqlQuery).append(" ci.item_type != :itemType ");
 			}
+			queryAppender(sqlQuery).append(" cr.is_deleted=0 ");
 			sql.append(sqlQuery.toString());
 		}
 		sql.append(" order by ci.item_sequence");

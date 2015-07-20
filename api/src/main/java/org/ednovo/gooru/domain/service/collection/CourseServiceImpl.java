@@ -12,6 +12,9 @@ import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserClass;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,7 +67,8 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getCourse(String courseId) {
 		return this.getCollection(courseId, CollectionType.COURSE.getCollectionType());
-	}
+		}
+	
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -91,8 +95,10 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		rejectIfNull(course, GL0056, COURSE);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(courseUId, user), GL0099, 403, COURSE);
 		Collection parentCollection = getCollectionDao().getCollection(user.getPartyUid(), CollectionType.SHElf.getCollectionType());
+		this.getCollectionDao().updateClassByCourse(course.getContentId());
 		this.resetSequence(parentCollection.getGooruOid(), course.getGooruOid(), user.getPartyUid(), COURSE);
-		this.deleteCollection(courseUId);
+		course.setIsDeleted((short) 1);
+		this.getCollectionDao().save(course);
 	}
 
 	private List<Map<String, Object>> getCourses(Map<String, Object> filters, int limit, int offset) {

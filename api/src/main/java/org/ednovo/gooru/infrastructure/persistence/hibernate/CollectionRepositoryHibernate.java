@@ -838,17 +838,17 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	@Override
-	public List<Collection> getCollectionsList(final User user, final Integer limit, final Integer offset, final String publishStatus) {
-		String hql = " FROM Collection collection   WHERE   collection.collectionType IN ('collection', 'assessment', 'quiz') and " + generateOrgAuthQuery("collection.");
+
+	public List<Collection> getCollectionsList(final User user, final Integer limit, final Integer offset, final Short publishStatus) {
+		String hql = " FROM Collection collection   WHERE " + generateOrgAuthQuery("collection.");
 		if (publishStatus != null) {
-			hql += " and collection.publishStatus IS NOT NULL and  collection.publishStatus.keyValue =:pending order by collection.lastModified desc";
+			hql += " and collection.publishStatusId IS NOT NULL and  collection.collectionType in ('collection', 'assessment', 'quiz') and  collection.publishStatusId =:pending order by collection.lastModified desc";
 		}
 
 		Query query = getSession().createQuery(hql);
 		if (publishStatus != null) {
 			query.setParameter(PENDING, publishStatus);
 		}
-		query.setParameter(TYPE, SCOLLECTION);
 		addOrgAuthParameters(query);
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
@@ -857,9 +857,10 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	@Override
-	public Long getCollectionCount(final String publishStatus) {
-		final String sql = "SELECT count(1) as count from  collection c inner join custom_table_value ct on ct.custom_table_value_id = c.publish_status_id  where c.publish_status_id is not null and ct.key_value = '" + publishStatus + "' and c.collection_type in ('collection', 'quiz', 'assessment')";
+	public Long getCollectionCount(final Short publishStatus) {
+		final String sql = "SELECT count(1) as count from  collection where publish_status_id=:pending and collection_type in ('collection', 'quiz', 'assessment')";
 		final Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
+		query.setParameter(PENDING, publishStatus);
 		return (Long) query.list().get(0);
 	}
 
