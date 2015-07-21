@@ -55,7 +55,6 @@ public class TemplateRestV2Controller extends BaseController implements Constant
 	private TemplateService templateService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TEMPLATE_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "")
 	public ModelAndView createTemplate(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
@@ -67,7 +66,6 @@ public class TemplateRestV2Controller extends BaseController implements Constant
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TEMPLATE_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.PUT }, value = "/{id}")
 	public ModelAndView updateTemplate(@PathVariable(value = ID) String id, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Template template = getTemplateService().updateTemplate(id, this.buildTemplateFromInputParameters(data));
@@ -77,7 +75,6 @@ public class TemplateRestV2Controller extends BaseController implements Constant
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TEMPLATE_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	public ModelAndView getTemplate(@PathVariable(value = ID) String id, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(TEMPLATES_INCLUDES, ERROR_INCLUDE);
@@ -85,7 +82,6 @@ public class TemplateRestV2Controller extends BaseController implements Constant
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TEMPLATE_LIST })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "")
 	public ModelAndView getTemplates(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(TEMPLATES_INCLUDES, ERROR_INCLUDE);

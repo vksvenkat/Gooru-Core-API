@@ -33,6 +33,8 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.TemplateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TemplateServiceImpl extends BaseServiceImpl implements TemplateService, ParameterProperties, ConstantProperties {
@@ -41,6 +43,7 @@ public class TemplateServiceImpl extends BaseServiceImpl implements TemplateServ
 	private TemplateRepository templateRepository;
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Template createTemplate(final Template template, final User user) {
 		rejectIfNull(template.getHtmlContent(), GL0006, TEMPLATE_HTML);
 		rejectIfNull(template.getTextContent(), GL0006, TEMPLATE_TEXT);
@@ -54,6 +57,7 @@ public class TemplateServiceImpl extends BaseServiceImpl implements TemplateServ
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Template updateTemplate(String id, final Template newTemplate) {
 		final Template template = this.getTemplateRepository().getTemplate(id);
 		rejectIfNull(template, GL0006, TEMPLATE);
@@ -76,6 +80,7 @@ public class TemplateServiceImpl extends BaseServiceImpl implements TemplateServ
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Template getTemplate(String id) {
 		return this.getTemplateRepository().getTemplate(id);
 	}
@@ -89,6 +94,7 @@ public class TemplateServiceImpl extends BaseServiceImpl implements TemplateServ
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Template> getTemplates() {
 		return this.getTemplateRepository().getTemplates();
 	}
