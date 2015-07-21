@@ -115,7 +115,8 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 	@Override
 	public List<Map<String, Object>> getSubdomainStandards(Integer subdomainId, User user) {
 		//Need to check it with userGroupService to get rootNodeId
-		String rootNodeId =  getRootNodeId(user);
+		String root =  getRootNodeId(user);
+		String[] rootNodeId = root.split(COMMA);
 		List<Map<String, Object>> codes = this.getSubdomainRepository().getSubdomainStandards(subdomainId, rootNodeId);
 		if (codes != null) {
 			for (Map<String, Object> code : codes) {
@@ -134,7 +135,7 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
  		}
 	}
 
-	private List<Map<String, Object>> getStandards(Integer codeId, String rootNodeId) {
+	private List<Map<String, Object>> getStandards(Integer codeId, String[] rootNodeId) {
 		List<Map<String, Object>> codes = this.getSubdomainRepository().getStandards(codeId , rootNodeId);
 		for (Map<String, Object> code : codes) {
 			code.put(NODE, this.getSubdomainRepository().getStandards(((Number) code.get(CODE_ID)).intValue(), rootNodeId));
