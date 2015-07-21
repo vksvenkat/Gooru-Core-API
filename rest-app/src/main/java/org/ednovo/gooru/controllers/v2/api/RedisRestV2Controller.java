@@ -50,7 +50,6 @@ public class RedisRestV2Controller extends BaseController implements ConstantPro
 	private RedisService redisService;
     
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CACHE_CLEAR })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST })
 	public void addRedisEntry(@RequestParam(value = KEY, required = true) String key,@RequestParam(value = VALUE, required = true) String value, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		getRedisService().putValue(key, value);
@@ -58,14 +57,12 @@ public class RedisRestV2Controller extends BaseController implements ConstantPro
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_READ_REDIS_ENTRY })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = {"/{key}"})
 	public ModelAndView getRedisEntry(@PathVariable(value = KEY) String key, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return toModelAndView(getRedisService().get(key));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CACHE_CLEAR })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.DELETE })
 	public void deleteRedisEntry(@RequestParam(value = KEY, required = true) String key, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		getRedisService().deleteKey(key);

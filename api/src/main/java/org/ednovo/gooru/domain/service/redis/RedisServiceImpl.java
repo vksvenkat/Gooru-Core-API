@@ -50,6 +50,8 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 @Service
@@ -296,6 +298,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 	}
 	
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public String get(String key) {
 		ValueOperations<String, String> valueOperations = getValueOperation();
 		if (valueOperations != null) {
@@ -336,6 +339,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void putValue(String key, String value) {
 		ValueOperations<String, String> valueOperations = getValueOperation();
 		try {
@@ -376,6 +380,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteKey(String key) {
 		try{
 		redisStringTemplate.delete(returnSanitizedKey(key));
