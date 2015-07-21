@@ -73,7 +73,6 @@ public class QuestionRestV2Controller extends BaseController implements Constant
 	private CustomFieldsService customFieldService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_QUESTION_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST)
 	public ModelAndView createQuestion(@RequestBody String data, @RequestParam(value = INDEX_FLAG, required = false, defaultValue = FALSE) Boolean indexFlag, @RequestParam(value = COLLECTION_ID, required = false) String collectionId, HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
@@ -102,7 +101,6 @@ public class QuestionRestV2Controller extends BaseController implements Constant
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_QUESTION_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	public ModelAndView updateQuestion(@RequestBody String data, @PathVariable(ID) String questionId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, ASSESSMENT_UPDATE_QUESTION);
@@ -130,7 +128,6 @@ public class QuestionRestV2Controller extends BaseController implements Constant
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_QUESTION_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
 	public ModelAndView deleteQuestion(@PathVariable(ID) String questionId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, ASSESSMENT_DELETE_QUESTION);
@@ -151,7 +148,6 @@ public class QuestionRestV2Controller extends BaseController implements Constant
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_QUESTION_COPY })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/{id}/copy")
 	public ModelAndView copyQuestion(@PathVariable(ID) String questionId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, ASSESS_QUES_COPY);

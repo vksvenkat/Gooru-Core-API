@@ -84,6 +84,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
@@ -169,6 +171,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<AssessmentQuestion> createQuestion(AssessmentQuestion question, boolean index) throws Exception {
 		Set<Code> taxonomy = question.getTaxonomySet();
 		question = initQuestion(question, null, true);
@@ -197,6 +200,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<AssessmentQuestion> updateQuestion(AssessmentQuestion question, List<Integer> deleteAssets, String gooruOQuestionId, boolean copyToOriginal, boolean index) throws Exception {
 		AssessmentQuestion incomingQuestion = question;
 		question = initQuestion(question, gooruOQuestionId, copyToOriginal);
@@ -638,6 +642,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public AssessmentQuestion copyAssessmentQuestion(User user, String gooruQuestionId) throws Exception {
 		AssessmentQuestion question = getQuestion(gooruQuestionId);
 		AssessmentQuestion copyQuestion = new AssessmentQuestion();
@@ -960,6 +965,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public int deleteQuestion(String gooruOQuestionId, User caller) {
 		AssessmentQuestion question = getQuestion(gooruOQuestionId);
 		if (question != null) {
