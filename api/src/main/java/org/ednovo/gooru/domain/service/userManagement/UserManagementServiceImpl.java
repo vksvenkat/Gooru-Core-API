@@ -114,6 +114,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
@@ -1427,6 +1429,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<UserRole> getRoles(final Integer offset, final Integer limit, final String userUid) {
 		final SearchResults<UserRole> result = new SearchResults<UserRole>();
 		result.setSearchResults(this.getUserRepository().getRoles(offset, limit, userUid));
@@ -1435,6 +1438,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<UserRole> createNewRole(final UserRole role, final User user) throws Exception {
 		UserRole userRole = userRepository.findUserRoleByName(role.getName(), null);
 		final Errors errors = validateCreateRole(role);
@@ -1469,6 +1473,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public UserRole updateRole(final UserRole role, final Integer roleId) throws Exception {
 		rejectIfNull(role, GL0056, ROLE);
 		final UserRole userRole = userRepository.findUserRoleByRoleId(roleId);
@@ -1484,6 +1489,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void removeRole(final Integer roleId) throws Exception {
 
 		final UserRole userRole = userRepository.findUserRoleByRoleId(roleId);
@@ -1497,6 +1503,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<EntityOperation> findAllEntityNames(final Integer offset, final Integer limit) {
 		final SearchResults<EntityOperation> result = new SearchResults<EntityOperation>();
 		result.setSearchResults(this.getUserRepository().findAllEntityNames(offset, limit));
@@ -1533,6 +1540,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public UserRole getRoleByRoleId(final Integer roleId) {
 		final UserRole userRole = userRepository.findUserRoleByRoleId(roleId);
 		rejectIfNull(userRole, GL0056, 404, ROLE);
@@ -1540,6 +1548,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<RoleEntityOperation> getRoleOperationsByRoleId(final Integer roleId) {
 		final UserRole role = this.getUserRepository().findUserRoleByRoleId(roleId);
 		rejectIfNull(role, GL0056, 404, ROLE);

@@ -43,7 +43,6 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	private UserGroupService userGroupService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView getRoles(@RequestParam(value = USER_UID, required = false) final String userUid,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") final Integer limit, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		
@@ -51,7 +50,6 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST)
 	public ModelAndView createRole(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -65,7 +63,6 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{roleId}/operation")
 	public ModelAndView updateRoleOperation(final HttpServletRequest request,@RequestParam(value = OPERATIONS) final String operations,@PathVariable(ROLE_ID) final Integer roleId, final HttpServletResponse response) throws Exception {
 
@@ -73,7 +70,6 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{roleId}/operation")
 	public void removeRoleOperation(final HttpServletRequest request,@RequestParam(value = OPERATIONS) final String operations,@PathVariable(ROLE_ID) final Integer roleId, final HttpServletResponse response) throws Exception {
 		
@@ -83,14 +79,12 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_UPDATE })
 	@RequestMapping(method = RequestMethod.PUT, value = "/{roleId}")
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView updateRole(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response,@PathVariable(ROLE_ID) final Integer roleId) throws Exception {
 
 		return toModelAndViewWithIoFilter(this.getUserManagementService().updateRole(buildRoleFromInputParameters(data), roleId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_ROLE_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{roleId}")
 	public void removeRole(final HttpServletRequest request,@PathVariable(ROLE_ID) final Integer roleId, final HttpServletResponse response) throws Exception {
 
@@ -99,7 +93,6 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/entity")
 	public ModelAndView getEntity(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") final Integer limit, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 
@@ -123,7 +116,6 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{roleId}")
 	public ModelAndView getRoleByRoleId(@PathVariable(ROLE_ID) final Integer roleId, final HttpServletRequest request,	final HttpServletResponse response) throws Exception {
 		
@@ -131,7 +123,6 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{roleId}/operation")
 	public ModelAndView getRoleOperationsByRoleId(@PathVariable(ROLE_ID) final Integer roleId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		
