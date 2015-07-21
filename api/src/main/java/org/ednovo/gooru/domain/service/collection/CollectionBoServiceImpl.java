@@ -506,8 +506,10 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				content.put(HINTS, assessmentQuestion.getHints());
 			} else {
 				String json = getMongoQuestionsService().getQuestionByIdWithJsonAdjustments(gooruOid);
-				content.putAll(JsonDeserializer.deserialize(json, new TypeReference<Map<String, Object>>() {
-				}));
+				if (json != null) {
+					content.putAll(JsonDeserializer.deserialize(json, new TypeReference<Map<String, Object>>() {
+					}));
+				}
 			}
 		}
 		content.put(USER, setUser(content.get(GOORU_UID), content.get(USER_NAME)));
