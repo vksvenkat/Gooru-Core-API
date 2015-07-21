@@ -355,6 +355,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<CollectionItem> createCollectionItems(final List<String> collectionsIds, final String resourceId, final User user) throws Exception {
 		final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(resourceId, null);
 		if (collection == null) {
@@ -603,6 +604,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<CollectionItem> assignCollection(final String classpageId, final String collectionId, final User user, final String direction, final String planedEndDate, final Boolean isRequired, final String minimumScore, final String estimatedTime, final Boolean showAnswerByQuestions,
 			final Boolean showAnswerEnd, final Boolean showHints) throws Exception {
 		final Classpage classpage = this.getCollectionRepository().getClasspageByCode(classpageId);
@@ -614,6 +616,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<CollectionItem> assignCollectionToPathway(final String classpageId, final String pathwayId, final String collectionId, final User user, final String direction, final String planedEndDate, final Boolean isRequired, final String minimumScore, final String estimatedTime,
 			final Boolean showAnswerByQuestions, final Boolean showAnswerEnd, final Boolean showHints) throws Exception {
 		final Classpage classpage = this.getCollectionRepository().getClasspageByCode(classpageId);

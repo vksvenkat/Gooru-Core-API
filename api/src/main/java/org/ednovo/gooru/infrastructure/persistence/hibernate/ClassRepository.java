@@ -23,10 +23,6 @@ public interface ClassRepository extends BaseRepository {
 
 	List<Map<String, Object>> getMember(String classUid, int limit, int offset);
 
-	Map<String, Object> findStudentAndClassId(String classContentId, String gooruUId);
-
-	Long getClassId(String classGooruId);
-
 	List<Map<String, Object>> getClassesByCourse(String courseGooruOid, int limit, int offset);
 
 	Integer getStudyClassesCount(String gooruUid);

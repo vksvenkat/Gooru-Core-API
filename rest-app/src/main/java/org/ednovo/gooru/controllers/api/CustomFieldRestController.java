@@ -31,7 +31,6 @@ public class CustomFieldRestController extends BaseController implements Paramet
 	private OrganizationService organizationService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.NOT_SUPPORTED, noRollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/resource/customfield.{format}")
 	public ModelAndView saveCustomFields(@PathVariable(FORMAT) String format, @RequestParam(value = SESSIONTOKEN, required = false)String sessionToken, @RequestParam(value = CUSTOM_FIELD_ID, required = false) String customFieldId, @RequestParam(value = ACCOUNT_UID) String organizationUid,
 			@RequestParam(value = FIELD_NAME) String fieldName, @RequestParam(value = FIELD_DISP_NAME) String fieldDisplayName, @RequestParam(value = TYPE) String type, @RequestParam(value = LENGTH) double length, @RequestParam(value = DATA_COLUMN_NAME) String dataColumnName,
@@ -69,7 +68,6 @@ public class CustomFieldRestController extends BaseController implements Paramet
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/customField/{customFieldId}/delete")
 	public ModelAndView deleteCustomField(@PathVariable(CUSTOM_FIELD_ID) String customFieldId, @RequestParam(value = SESSIONTOKEN, required = false) String sessionToken, HttpServletRequest request, HttpServletResponse response) {
 		request.setAttribute(PREDICATE, CUSTOM_FIELD_DEL);

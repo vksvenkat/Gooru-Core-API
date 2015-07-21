@@ -27,6 +27,8 @@ import org.ednovo.gooru.core.api.model.CustomSetting;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customsetting.CustomSettingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CustomSettingServiceImpl implements CustomSettingService {
@@ -35,6 +37,7 @@ public class CustomSettingServiceImpl implements CustomSettingService {
 	private CustomSettingRepository customSettingRepository;
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public CustomSetting createCustomSetting(String key, Boolean value) {
 		CustomSetting customSetting = new CustomSetting();
 		if(key != null) {

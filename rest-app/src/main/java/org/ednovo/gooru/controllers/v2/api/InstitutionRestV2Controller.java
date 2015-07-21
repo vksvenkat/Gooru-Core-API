@@ -67,7 +67,6 @@ public class InstitutionRestV2Controller extends BaseController implements Const
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ORGANIZATION_ADD })
 	@RequestMapping(method = RequestMethod.POST)
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView createOrganization(HttpServletRequest request, HttpServletResponse response, @RequestBody String data) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		ActionResponseDTO<Organization> responseDTO = getOrganizationService().saveOrganization(buildOrganizationFromInputParameters(data, request), user, request);
@@ -82,7 +81,6 @@ public class InstitutionRestV2Controller extends BaseController implements Const
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ORGANIZATION_UPDATE })
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView updateOrganization(HttpServletRequest request, HttpServletResponse response, @RequestBody String data, @PathVariable String id) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		ActionResponseDTO<Organization> responseDTO = getOrganizationService().updateOrganization(buildOrganizationFromInputParameters(data, request), id, user);
@@ -97,7 +95,6 @@ public class InstitutionRestV2Controller extends BaseController implements Const
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ORGANIZATION_UPDATE })
 	@RequestMapping(method = RequestMethod.GET, value = "")
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getOrganization(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(INSTITUTION_INCLUDES_ADD, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(this.getOrganizationService().getOrganizations(getInstitutionType(request), null, null, offset, limit), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
@@ -105,7 +102,6 @@ public class InstitutionRestV2Controller extends BaseController implements Const
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ORGANIZATION_UPDATE })
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/{type}")
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getOrganizationByParent(HttpServletRequest request, HttpServletResponse response, @PathVariable String type, @PathVariable String id, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(INSTITUTION_INCLUDES_ADD, ERROR_INCLUDE);
@@ -114,7 +110,6 @@ public class InstitutionRestV2Controller extends BaseController implements Const
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ORGANIZATION_UPDATE })
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/user")
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getUserByOrganization(HttpServletRequest request, HttpServletResponse response, @PathVariable String id, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(INSTITUTION_INCLUDES_ADD, ERROR_INCLUDE);

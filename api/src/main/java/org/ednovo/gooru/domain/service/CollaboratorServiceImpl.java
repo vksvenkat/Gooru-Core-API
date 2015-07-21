@@ -58,13 +58,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CollaboratorServiceImpl extends BaseServiceImpl implements CollaboratorService, ParameterProperties, ConstantProperties {
 
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
 	private CollaboratorEventLog collaboratorEventLog;
 
@@ -88,19 +90,20 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 
 	@Autowired
 	private MailAsyncExecutor mailAsyncExecutor;
-	
+
 	@Autowired
 	private InviteRepository inviteRepository;
-	
+
 	@Autowired
 	private AsyncExecutor asyncExecutor;
-	
+
 	@Autowired
 	private IndexHandler indexHandler;
-	
+
 	private final Logger LOGGER = LoggerFactory.getLogger(CollaboratorServiceImpl.class);
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> addCollaborator(final List<String> email, final String gooruOid, final User apiCaller, final boolean sendInvite) throws Exception {
 		Content content = null;
 		if (gooruOid != null) {
@@ -111,14 +114,14 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		} else {
 			throw new BadRequestException(generateErrorMessage(GL0088), GL0088);
 		}
-		final List<Map<String, Object>> collaborator = new ArrayList<Map<String,Object>>();
+		final List<Map<String, Object>> collaborator = new ArrayList<Map<String, Object>>();
 		if (email != null) {
 			for (final String mailId : email) {
 				final Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
 				collaborator.add(addCollaborator(mailId, gooruOid, apiCaller, sendInvite, content, identity == null ? null : identity.getUser()));
 			}
 			try {
-				indexHandler.setReIndexRequest(content.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);						
+				indexHandler.setReIndexRequest(content.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 			} catch (Exception e) {
 				LOGGER.debug("error" + e.getMessage());
 			}
@@ -143,7 +146,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 				userContentAssoc.setAssociationDate(new Date());
 				this.userRepository.save(userContentAssoc);
 				responseDto = this.getCollectionService().createCollectionItem(content.getGooruOid(), null, new CollectionItem(), user, COLLABORATOR, false);
-				collaborator= setActiveCollaborator(userContentAssoc, ACTIVE);
+				collaborator = setActiveCollaborator(userContentAssoc, ACTIVE);
 				this.getContentService().createContentPermission(content, user);
 				try {
 					this.getCollaboratorEventLog().getEventLogs(user, responseDto.getModel(), gooruOid, true, false);
@@ -181,7 +184,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 
 		return collaborator;
 	}
-	
+
 	private Map<String, Object> setInviteCollaborator(final InviteUser inviteUser, final String status) {
 		final Map<String, Object> listMap = new HashMap<String, Object>();
 		listMap.put(EMAIL_ID, inviteUser.getEmailId());
@@ -200,7 +203,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		activeMap.put(USER_NAME, userContentAssoc.getUser().getUsername());
 		activeMap.put(GOORU_OID, userContentAssoc.getContent().getGooruOid());
 		activeMap.put(ASSOC_DATE, userContentAssoc.getAssociationDate());
-		activeMap.put(PROFILE_IMG_URL , this.getUserManagementService().buildUserProfileImageUrl(userContentAssoc.getUser()));
+		activeMap.put(PROFILE_IMG_URL, this.getUserManagementService().buildUserProfileImageUrl(userContentAssoc.getUser()));
 		if (status != null) {
 			activeMap.put(STATUS, status);
 		}
@@ -208,12 +211,14 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<String> collaboratorSuggest(final String text, final String gooruUid) {
 
 		return this.getCollaboratorRepository().collaboratorSuggest(text, gooruUid);
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollaborator(final String gooruOid, final List<String> email) {
 		Content content = null;
 		if (gooruOid != null) {
@@ -233,11 +238,11 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 					if (userContentAssoc != null) {
 						this.getCollaboratorRepository().remove(userContentAssoc);
 						if (collectionItems != null) {
-						  this.getCollectionRepository().removeAll(collectionItems);
+							this.getCollectionRepository().removeAll(collectionItems);
 						}
 						this.getContentService().deleteContentPermission(content, identity.getUser());
-						final List<CollectionItem> associations = this.getCollectionRepository().getCollectionItemByAssociation(gooruOid, identity.getUser().getGooruUId(),null);
-						
+						final List<CollectionItem> associations = this.getCollectionRepository().getCollectionItemByAssociation(gooruOid, identity.getUser().getGooruUId(), null);
+
 						try {
 							this.getCollaboratorEventLog().getEventLogs(identity.getUser(), associations.size() > 0 ? associations.get(0) : null, gooruOid, false, true);
 						} catch (JSONException e) {
@@ -250,14 +255,14 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + identity.getUser().getPartyUid() + "*");
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + content.getUser().getPartyUid() + "*");
 				} else {
-					final InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, gooruOid,PENDING);
+					final InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, gooruOid, PENDING);
 					if (inviteUser != null) {
 						this.getCollaboratorRepository().remove(inviteUser);
 					}
 				}
 			}
 			try {
-				indexHandler.setReIndexRequest(content.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);						
+				indexHandler.setReIndexRequest(content.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 			} catch (Exception e) {
 				LOGGER.debug(e.getMessage());
 			}
@@ -281,6 +286,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, List<Map<String, Object>>> getCollaboratorsByGroup(final String gooruOid, final String filterBy) {
 		final Map<String, List<Map<String, Object>>> collaboratorList = new HashMap<String, List<Map<String, Object>>>();
 		if (filterBy != null && filterBy.equalsIgnoreCase(ACTIVE)) {
@@ -373,7 +379,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	public InviteRepository getInviteRepository() {
 		return inviteRepository;
 	}
-	
+
 	public CollaboratorEventLog getCollaboratorEventLog() {
 		return collaboratorEventLog;
 	}

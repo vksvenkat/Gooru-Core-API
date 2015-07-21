@@ -9,6 +9,8 @@ import org.ednovo.gooru.core.api.model.City;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
@@ -21,6 +23,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	private CountryRepository countryRepository;
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Country> createCountry(Country country) {
 		final Errors errors = validateCountry(country);
 		if (!errors.hasErrors()) {
@@ -30,6 +33,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Country updateCountry(String countryUid, Country newCountry) {
 		Country country = this.getCountryRepository().getCountry(countryUid);
 		rejectIfNull(country, GL0056, 404, COUNTRY_);
@@ -41,6 +45,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Country getCountry(String countryUid) {
 		Country country = this.getCountryRepository().getCountry(countryUid);
 		rejectIfNull(country, GL0056, 404, COUNTRY_);
@@ -48,6 +53,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Country> getCountries(Integer limit, Integer offset) {
 		SearchResults<Country> result = new SearchResults<Country>();
 		result.setSearchResults(this.getCountryRepository().getCountries(limit, offset));
@@ -62,6 +68,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCountry(String countryUid) {
 		Country country = this.getCountryRepository().getCountry(countryUid);
 		rejectIfNull(country, GL0056, 404, COUNTRY_);
@@ -73,6 +80,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Province> createState(Province province, String countryUid) {
 		final Errors errors = validateProvince(province);
 		if (!errors.hasErrors()) {
@@ -86,6 +94,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Province updateState(String countryUid, String stateUid, Province newState) {
 		Country country = this.getCountryRepository().getCountry(countryUid);
 		rejectIfNull(country, GL0056, 404, COUNTRY_ );
@@ -99,6 +108,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Province getState(String countryUid, String stateUid) {
 		Province province = this.getCountryRepository().getState(countryUid, stateUid);
 		rejectIfNull(province, GL0056, 404,  STATE_ );
@@ -106,6 +116,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 	
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Province getState(String stateUid) {
 		Province province = this.getCountryRepository().getState(stateUid);
 		rejectIfNull(province, GL0056, 404,  STATE_ );
@@ -113,6 +124,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Province> getStates(String countryUid, Integer limit, Integer offset) {
 		SearchResults<Province> result = new SearchResults<Province>();
 		result.setSearchResults(this.getCountryRepository().getStates(countryUid, limit, offset));
@@ -121,6 +133,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteState(String countryUid, String stateUid) {
 		Province province = this.getCountryRepository().getState(countryUid, stateUid);
 		rejectIfNull(province, GL0056, 404,  STATE_ );
@@ -135,6 +148,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<City> createCity(City city, String countryUid, String stateUid) {
 		final Errors errors = validateCity(city);
 		if (!errors.hasErrors()) {
@@ -150,6 +164,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public City updateCity( String countryUid, String stateUid, String cityUid, City newCity) {
 		Country country = this.getCountryRepository().getCountry(countryUid);
 		Province province = this.getCountryRepository().getState(countryUid, stateUid);
@@ -165,6 +180,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public City getCity(String countryUid, String stateUid, String cityUid) {
 		City city = this.getCountryRepository().getCity(countryUid, stateUid, cityUid);
 		rejectIfNull(city, GL0056, 404, CITY_);
@@ -172,6 +188,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<City> getCities(String countryUid, String stateUid, Integer limit, Integer offset) {
 		SearchResults<City> result = new SearchResults<City>();
 		result.setSearchResults(this.getCountryRepository().getCities(countryUid, stateUid, limit, offset));
@@ -180,6 +197,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCity(String countryUid, String stateUid, String cityUid) {
 		City city = this.getCountryRepository().getCity(countryUid, stateUid, cityUid);
 		rejectIfNull(city, GL0056, 404, CITY_);

@@ -53,8 +53,6 @@ import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -79,7 +77,6 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	private FolderService folderService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { " " }, method = RequestMethod.POST)
 	public ModelAndView createFolder(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -96,7 +93,6 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = { RequestMethod.PUT })
 	public ModelAndView updateFolder(@PathVariable(value = ID) final String collectionId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -118,7 +114,6 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.DELETE)
 	public void deleteFolder(@PathVariable(value = ID) final String collectionId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -126,7 +121,6 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_ITEM_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/item" }, method = RequestMethod.POST)
 	public ModelAndView createFolderItem(@PathVariable(value = ID) final String collectionId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -140,7 +134,6 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_ITEM_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}" }, method = RequestMethod.PUT)
 	public ModelAndView updateFolderItem(@PathVariable(value = ID) final String collectionItemId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -163,7 +156,6 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_ITEM_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}" }, method = RequestMethod.DELETE)
 	public void deleteCollectionItem(@PathVariable(value = ID) final String collectionItemId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -171,7 +163,6 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_ITEM_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}/reorder/{sequence}" }, method = RequestMethod.PUT)
 	public ModelAndView reorderCollectionItemSequence(@PathVariable(value = ID) final String collectionItemId, @PathVariable(value = SEQUENCE) final int newSequence, final User user, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().reorderCollectionItem(collectionItemId, newSequence, user);
@@ -184,7 +175,6 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_MOVE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/move" }, method = RequestMethod.PUT)
 	public ModelAndView moveCollectionToFolder(final HttpServletRequest request, @RequestBody final String data, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -260,14 +250,12 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	}
      
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}/next" }, method = RequestMethod.GET)
 	public ModelAndView getNextCollectionItem(@RequestParam(value = EXCLUDE_TYPE, required = false) final String excludeType, @RequestParam(value = SHARING, required = false ,defaultValue = SHARINGS) final String sharing, @PathVariable(value = ID) final String collectionItemId, final HttpServletRequest request, final HttpServletResponse response, @RequestParam(value = EXCLUDE_COLLABORATOR_COLLECTION, required = false, defaultValue = TRUE) boolean excludeCollaboratorCollection) {
 		return toModelAndViewWithIoFilter(getFolderService().getNextCollectionItem(collectionItemId, excludeType, sharing, excludeCollaboratorCollection), RESPONSE_FORMAT_JSON, _NEXT_COLLECTION_EXCLUDES);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/node" }, method = RequestMethod.GET)
 	public ModelAndView getFolderNode(@PathVariable(value = ID) final String collectionId, final HttpServletRequest request, final HttpServletResponse response) {
 		return toModelAndViewWithIoFilter(getFolderService().getFolderNode(collectionId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, RESOURCE_INCLUDE_FIELDS);

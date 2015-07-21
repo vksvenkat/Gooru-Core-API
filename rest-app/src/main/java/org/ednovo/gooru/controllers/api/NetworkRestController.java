@@ -40,7 +40,6 @@ public class NetworkRestController extends BaseController {
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_NETWORK_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST)
 	public ModelAndView createNetwork(@RequestParam(value = SESSIONTOKEN, required = false) String sessionToken, @RequestParam(value = NAME) String name, @RequestParam(value = APPROVED_FLAG, defaultValue = FALSE) boolean approvedFlag, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, NETWORK_CREATE);
