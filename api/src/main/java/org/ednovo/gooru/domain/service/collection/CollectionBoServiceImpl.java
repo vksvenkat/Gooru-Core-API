@@ -318,7 +318,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if (includeItems) {
 			collection.put(COLLECTION_ITEMS, this.getCollectionItems(collectionId, MAX_LIMIT, 0));
 		}
-		final boolean isCollaborator = this.getCollaboratorRepository().findCollaboratorById(collectionId, user.getGooruUId()) != null ? true : false;
+		final boolean isCollaborator = this.getCollaboratorRepository().findCollaboratorById(collectionId, user.getPartyUid()) != null ? true : false;
 		collection.put(PERMISSIONS, getContentService().getContentPermission(collectionId, user));
 		collection.put(IS_COLLABORATOR, isCollaborator);
 		return collection;
