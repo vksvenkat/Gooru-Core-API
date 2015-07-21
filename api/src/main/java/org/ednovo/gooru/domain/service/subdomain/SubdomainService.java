@@ -40,6 +40,6 @@ public interface SubdomainService {
 
 	void deleteSubdomain(Integer subdomainId);
 
-	List<Map<String, Object>> getSubdomainStandards(Integer subdomainId);
+	List<Map<String, Object>> getSubdomainStandards(Integer subdomainId, User user);
 
 }

@@ -23,23 +23,26 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.subdomain;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Domain;
+import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Subdomain;
 import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserGroupSupport;
+import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.DomainRepository;
+import org.ednovo.gooru.domain.service.PartyService;
 import org.ednovo.gooru.domain.service.TaxonomyCourseRepository;
+import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.SubdomainRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -58,6 +61,15 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 
 	@Autowired
 	private DomainRepository domainRepository;
+	
+	@Autowired
+	private PartyService partyService; 
+	
+	@Autowired
+	private SettingService settingService;
+	
+	@Autowired
+	private TaxonomyRespository taxonomyRespository;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -101,20 +113,31 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 	}
 
 	@Override
-	public List<Map<String, Object>> getSubdomainStandards(Integer subdomainId) {
-		List<Map<String, Object>> codes = this.getSubdomainRepository().getSubdomainStandards(subdomainId, UserGroupSupport.getTaxonomyPreference());
+	public List<Map<String, Object>> getSubdomainStandards(Integer subdomainId, User user) {
+		//Need to check it with userGroupService to get rootNodeId
+		String rootNodeId =  getRootNodeId(user);
+		List<Map<String, Object>> codes = this.getSubdomainRepository().getSubdomainStandards(subdomainId, rootNodeId);
 		if (codes != null) {
 			for (Map<String, Object> code : codes) {
-				code.put(NODE, getStandards(((Number) code.get(CODE_ID)).intValue()));
+				code.put(NODE, getStandards(((Number) code.get(CODE_ID)).intValue(), rootNodeId));
 			}
 		}
 		return codes;
 	}
+	
+	private String getRootNodeId(User user){
+		PartyCustomField partyCustomFieldTax = partyService.getPartyCustomeField(user.getPartyUid(), USER_TAXONOMY_ROOT_CODE, null);
+		if (partyCustomFieldTax != null) {
+			return partyCustomFieldTax.getOptionalValue();
+		}  else  {
+			return this.taxonomyRespository.getFindTaxonomyList(settingService.getConfigSetting(ConfigConstants.GOORU_EXCLUDE_TAXONOMY_PREFERENCE,0, user.getOrganization().getPartyUid()));
+ 		}
+	}
 
-	private List<Map<String, Object>> getStandards(Integer codeId) {
-		List<Map<String, Object>> codes = this.getSubdomainRepository().getStandards(codeId , UserGroupSupport.getTaxonomyPreference());
+	private List<Map<String, Object>> getStandards(Integer codeId, String rootNodeId) {
+		List<Map<String, Object>> codes = this.getSubdomainRepository().getStandards(codeId , rootNodeId);
 		for (Map<String, Object> code : codes) {
-			code.put(NODE, this.getSubdomainRepository().getStandards(((Number) code.get(CODE_ID)).intValue(), UserGroupSupport.getTaxonomyPreference()));
+			code.put(NODE, this.getSubdomainRepository().getStandards(((Number) code.get(CODE_ID)).intValue(), rootNodeId));
 		}
 		return codes;
 	}
