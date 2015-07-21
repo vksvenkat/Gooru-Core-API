@@ -104,7 +104,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	private CourseService courseService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "")
 	public ModelAndView createUser(final HttpServletRequest request, @RequestBody final String data, @RequestParam(value = SESSIONTOKEN, required = false) final String sessionToken, @RequestParam(value = SHARED_SECRETKEY, required = false) final String sharedSecretKey,
 			@RequestParam(value = ORG_ADMIN, required = false, defaultValue = "false") final Boolean orgAdmin, @RequestParam(value = ADMIN_ORGANIZATION_UID, required = false) final String adminOrganizationUid, final HttpServletResponse response) throws Exception {
@@ -139,7 +138,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	public ModelAndView updateUser(@RequestBody String data, @PathVariable(value = ID) String gooruUid, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		final User apicaller = (User) request.getAttribute(Constants.USER);
@@ -156,7 +154,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	public ModelAndView getUser(@PathVariable(value = ID) final String userId, @RequestParam(value = USER_META_ACTIVE_FLAG, required = false) final Integer activeFlag, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 
@@ -164,7 +161,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_CONFIRM_MAIL })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/sendmail/{id}")
 	public ModelAndView resendConfirmationMail(@PathVariable(value = ID) final String gooruUid, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User apicaller = (User) request.getAttribute(Constants.USER);
@@ -174,7 +170,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CHECK_IF_USER_EXISTS })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{type}/availability")
 	public ModelAndView getUserAvailability(final HttpServletRequest request, @RequestParam(value = KEYWORD) final String keyword, @RequestParam(value = COLLECTION_ID, required = false) final String collectionId,
 			@RequestParam(value = IS_COLLABORATOR_CHK, defaultValue = FALSE, required = false) final boolean isCollaboratorCheck, @PathVariable(TYPE) final String type, final HttpServletResponse response) throws Exception {
@@ -186,7 +181,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_UPDATE_PASSWORD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/reset-password/request")
 	public ModelAndView forgotPassword(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, USER_FORGET_PASSWORD);
@@ -198,7 +192,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_UPDATE_PASSWORD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/reset-password")
 	public ModelAndView resetCredential(final HttpServletRequest request, @RequestBody final String data, final HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, RESET_CREDENTIAL);
@@ -214,7 +207,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SESSION_CHECK })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/check-reset-token")
 	public ModelAndView checkResetToken(final HttpServletRequest request, @RequestParam final String resetToken, final HttpServletResponse response) throws Exception {
 		ModelAndView jsonmodel = new ModelAndView(REST_MODEL);
@@ -232,7 +224,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}/post", "/{id}/review", "/{id}/response", "/{id}/question-board", "/{id}/note" })
 	public ModelAndView getUserPosts(final HttpServletRequest request, @PathVariable(value = ID) final String gooruUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset,
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") final Integer limit, final HttpServletResponse response) throws Exception {
@@ -241,7 +232,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}/rating/{type}", "/{id}/report/{type}", "/{id}/flag/{type}", "/{id}/reaction/{type}" })
 	public ModelAndView getUserFeedbacks(final HttpServletRequest request, @PathVariable(value = ID) final String assocUserUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset,
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") final Integer limit, @RequestParam(value = CREATOR_UID, required = false) final String creatorUid, @PathVariable(value = TYPE) final String feedbackType, final HttpServletResponse response) throws Exception {
@@ -253,7 +243,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}/rating", "/{id}/report", "/{id}/flag", "/{id}/reaction" })
 	public ModelAndView getUserFeedbackByCategory(final HttpServletRequest request, @PathVariable(value = ID) final String assocUserUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset,
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") final Integer limit, @RequestParam(value = CREATOR_UID, required = false) final String creatorUid, final HttpServletResponse response) throws Exception {
@@ -262,7 +251,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "/{id}/tag/{tid}")
 	public ModelAndView createUserTagAssoc(@PathVariable(value = ID) final String gooruUid, @PathVariable(value = TID) final String tagGooruOid, final HttpServletRequest request, final HttpServletResponse response) {
 		final UserTagAssoc userTagAssoc = this.getTagService().createUserTagAssoc(gooruUid, tagGooruOid);
@@ -274,7 +262,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}/rating/{type}/count", "/{id}/report/{type}/count", "/{id}/flag/{type}/count", "/{id}/reaction/{type}/count" })
 	public ModelAndView getUserFeeback(final HttpServletRequest request, @PathVariable(value = ID) final String assocUserUid, @PathVariable(value = TYPE) final String type, final HttpServletResponse response) throws Exception {
 		final String category = getFeedbackCategory(request);
@@ -289,14 +276,12 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{id}/tag/{tid}")
 	public void deleteUserTagAssoc(@PathVariable(value = ID) final String gooruOid, @PathVariable(value = TID) final String tagGooruOid, final HttpServletRequest request, final HttpServletResponse response) {
 		this.getTagService().deleteUserTagAssoc(gooruOid, tagGooruOid);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{id}/tag")
 	public ModelAndView getContentTagAssoc(@PathVariable(value = ID) final String gooruUid, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") final Integer limit, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset,
 			final HttpServletRequest request, final HttpServletResponse response) {
@@ -306,7 +291,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.PUT }, value = "/{id}/meta")
 	public void updateUserMeta(@PathVariable(value = ID) final String gooruUid, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
 		final User apicaller = (User) request.getAttribute(Constants.USER);
@@ -314,7 +298,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{id}")
 	public void deleteSoftUser(@PathVariable(value = ID) final String gooruUid, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, USER_DELETE_USER);
@@ -324,7 +307,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}/profile/picture")
 	public void updateProfilePicture(@PathVariable(value = ID) final String userId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, USER_DELETE_PROFILE_PICTURE);
@@ -332,14 +314,12 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/token/{userToken}")
 	public ModelAndView getUserByToken(@PathVariable(value = USER_TOKEN) final String userToken, final HttpServletRequest request, final HttpServletResponse response) {
 		return toModelAndView(serialize(this.getUserManagementService().getUserByToken(userToken), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_PROFILE_INCUDES));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/content/{id}/access")
 	public ModelAndView checkContentAccess(final HttpServletRequest request, @PathVariable(value = ID) final String gooruContentId, final HttpServletResponse response) throws Exception {
 
@@ -352,7 +332,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/follow/{id}")
 	public ModelAndView followUser(@PathVariable(value = ID) final String followOnUserId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, USER_FOLLOW);
@@ -362,7 +341,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.DELETE }, value = "/unfollow/{id}")
 	public void unFollowUser(@PathVariable(value = ID) final String unFollowUserId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User apiCaller = (User) request.getAttribute(Constants.USER);
@@ -370,7 +348,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/followers")
 	public ModelAndView getFollowedByUsers(@PathVariable(value = ID) final String gooruUserId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") final Integer limit,
 			final HttpServletRequest request, final HttpServletResponse response) throws Exception {
@@ -381,7 +358,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/following")
 	public ModelAndView getFollowedOnUsers(@PathVariable(value = ID) final String gooruUserId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") final Integer limit,
 			final HttpServletRequest request, final HttpServletResponse response) throws Exception {
@@ -400,7 +376,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_UPDATE }, partyOperations = { GooruOperationConstants.ORG_ADMIN, GooruOperationConstants.GROUP_ADMIN }, partyUId = GOORU_UID)
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.PUT }, value = "/{id}/view-flag")
 	public ModelAndView updateUserViewFlag(@PathVariable(value = ID) final String gooruUId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final JSONObject json = requestData(data);
@@ -408,7 +383,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_EMAIL_RESET })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.PUT }, value = "reset/account")
 	public void resetEmailAddress(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		this.getUserManagementService().resetEmailAddress(JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
@@ -416,7 +390,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/{userUid}/role")
 	public ModelAndView assignRoleByUserUid(final HttpServletRequest request, final HttpServletResponse response, @PathVariable(USER_UID) final String userUid, @RequestBody String data) throws Exception {
 
@@ -424,7 +397,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.DELETE, RequestMethod.PUT }, value = "/{userUid}/role")
 	public void removeAssignedRoleByUserUid(final HttpServletRequest request, final HttpServletResponse response, @PathVariable(USER_UID) final String userUid, @RequestBody final String data) throws Exception {
 
@@ -458,7 +430,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/category")
 	public ModelAndView getUserCategory(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User apiCaller = (User) request.getAttribute(Constants.USER);
@@ -468,7 +439,6 @@ public class UserRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/{type}/import")
 	public void createBulkUser(@PathVariable(value = TYPE) final String type, @RequestParam(value = FILENAME) final String filename, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User apiCaller = (User) request.getAttribute(Constants.USER);

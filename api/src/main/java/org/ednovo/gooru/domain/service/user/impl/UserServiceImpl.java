@@ -1053,6 +1053,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public boolean hasResetTokenValid(String token) {
 		Identity identity = this.getUserRepository().findIdentityByResetToken(token);
 		boolean resetTokenInvalid = false;
@@ -1561,6 +1562,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getUserAvailability(String keyword, String type, boolean isCollaboratorCheck, String resourceId, User apiCaller) {
 		if (keyword == null || keyword.isEmpty()) {
 			throw new BadRequestException("Keyword is mandatory");

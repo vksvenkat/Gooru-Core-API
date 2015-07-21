@@ -288,6 +288,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public UserTagAssoc createUserTagAssoc(String gooruUid, String tagGooruOid) {
 		User user = this.getUserService().findByGooruId(gooruUid);
 		Tag tag = this.tagRepository.findTagByTagId(tagGooruOid);
@@ -308,6 +309,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteUserTagAssoc(String gooruUid, String tagGooruOid) {
 		UserTagAssoc userTagAssoc = this.tagRepository.getUserTagassocById(gooruUid, tagGooruOid);
 		if (userTagAssoc != null) {
@@ -323,6 +325,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<UserTagAssoc> getUserTagAssoc(String gooruUid, Integer limit, Integer offset) {
 		return this.getTagRepository().getContentTagByUser(gooruUid, limit, offset);
 	}

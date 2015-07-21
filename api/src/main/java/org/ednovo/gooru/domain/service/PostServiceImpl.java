@@ -141,6 +141,7 @@ public class PostServiceImpl extends BaseServiceImpl implements PostService, Con
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Post> getUserPosts(final String gooruUid, final Integer limit, final Integer offset, final String type) {
 		rejectIfNull(type, GL0006, TYPE);
 		final CustomTableValue userType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.POST_TYPE.getTable(), type);

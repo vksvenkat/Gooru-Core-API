@@ -195,6 +195,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Map<String, Object>> getFollowedOnUsers(final String gooruUId, Integer offset, Integer limit) {
 		final List<User> users = this.getUserRepository().getFollowedOnUsers(gooruUId, offset, limit);
 		final List<Map<String, Object>> usersObj = new ArrayList<Map<String, Object>>();
@@ -208,6 +209,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Map<String, Object>> getFollowedByUsers(final String gooruUId, Integer offset, Integer limit) {
 		final List<User> users = this.getUserRepository().getFollowedByUsers(gooruUId, offset, limit);
 		final List<Map<String, Object>> usersObj = new ArrayList<Map<String, Object>>();
@@ -230,6 +232,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Profile getUserProfile(final String gooruUid, final Integer activeFlag) {
 		final User user = this.findByGooruId(gooruUid);
 		if (user == null || user.getGooruUId().toLowerCase().contains(ANONYMOUS)) {
@@ -258,6 +261,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Profile updateProfileInfo(final Profile newProfile, final String gooruUid, final User apiCaller, final String activeFlag, final Boolean emailConfirmStatus, final String showProfilePage, final String accountType, final String password) {
 		final User user = this.getUserRepository().findByGooruId(gooruUid);
 		Boolean reindexUserContent = false;
@@ -497,6 +501,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public User createUserWithValidation( User newUser, String password, final String school, Integer confirmStatus, final Boolean useGeneratedPassword, final Boolean sendConfirmationMail, final User apiCaller, final String accountType, final String dateOfBirth, final String userParentId, final String sessionId, final String gender, final String childDOB,
 			final String gooruBaseUrl, final Boolean token, final HttpServletRequest request, final String role, final String mailConfirmationUrl) throws Exception {
 		User user = new User();
@@ -557,6 +562,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public User resendConfirmationMail(final String gooruUid, final User apiCaller, final String sessionId, final String gooruBaseUrl, final String type) throws Exception {
 		final User user = this.getUserRepository().findByGooruId(gooruUid);
 		if (user == null) {
@@ -1021,6 +1027,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public User getUserByToken(final String userToken) {
 		if (userToken == null || userToken.equalsIgnoreCase("")) {
 			throw new BadRequestException(generateErrorMessage("GL0061", "User token"), "GL0061");
@@ -1051,6 +1058,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public User resetPasswordRequest(final String emailId, final String gooruBaseUrl, final User apicaller, final String mailConfirmationUrl) throws Exception {
 		Identity identity = new Identity();
 		if (apicaller != null && !apicaller.getGooruUId().toLowerCase().contains(Constants.ANONYMOUS)) {
@@ -1086,6 +1094,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Identity resetCredential(final String token, final String gooruUid, final String password, final User apiCaller, final String mailConfirmationUrl, final Boolean isPartnerPortal) throws Exception {
 		Identity identity = null;
 		if (token != null) {
@@ -1131,6 +1140,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Set<String> checkContentAccess(final User authenticationUser, final String goorContentId) {
 		final Set<String> permissions = new HashSet<String>();
 		if (authenticationUser != null) {
@@ -1168,6 +1178,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteUserMeta(final String gooruUid, final Profile newProfile, final User apiCaller) {
 		final User user = this.getUserRepository().findByGooruId(gooruUid);
 		if (user != null && newProfile != null) {
@@ -1232,6 +1243,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteUserContent(final String gooruUid, final String isDeleted, final User apiCaller) {
 		final User user = this.getUserRepository().findByGooruId(gooruUid);
 		if ((user != null && isDeleted != null && isDeleted.equalsIgnoreCase(TRUE))) {
@@ -1278,6 +1290,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteUserImageProfile(final String userId) throws Exception {
 		final User user = findByGooruId(userId);
 		if (user != null) {
@@ -1303,6 +1316,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> followUser(final User user, final String followOnUserId) {
 		UserRelationship userRelationship = getUserRepository().getActiveUserRelationship(user.getPartyUid(), followOnUserId);
 		final User followOnUser = getUserRepository().findByGooruId(followOnUserId);
@@ -1332,6 +1346,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void unFollowUser(final User user, final String unFollowUserId) {
 		final UserRelationship userRelationship = getUserRepository().getActiveUserRelationship(user.getPartyUid(), unFollowUserId);
 		if (userRelationship == null) {
@@ -1388,6 +1403,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public User updateUserViewFlagStatus(final String gooruUid, final Integer viewFlag) {
 		return this.getUserService().updateViewFlagStatus(gooruUid, viewFlag);
 	}
@@ -1404,6 +1420,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void resetEmailAddress(final List<String> data) throws Exception {
 		for (final String mailId : data) {
 			final Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
@@ -1517,6 +1534,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public UserRoleAssoc assignRoleByUserUid(final Integer roleId, final String userUid) throws Exception {
 		final User user = userRepository.findUserByPartyUid(userUid);
 		final UserRole role = userRepository.findUserRoleByRoleId(roleId);
@@ -1532,6 +1550,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void removeAssignedRoleByUserUid(final Integer roleId, final String userUid) throws Exception {
 		final UserRoleAssoc userRoleAssoc = userRepository.findUserRoleAssocEntryByRoleIdAndUserUid(roleId, userUid);
 		rejectIfNull(userRoleAssoc, GL0102, 404, USER);
@@ -1556,6 +1575,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<CustomTableValue> getUserCategory(final User apiCaller) {
 		return this.getCustomTableRepository().getCustomValues(USER_CATEGORY);
 	}
