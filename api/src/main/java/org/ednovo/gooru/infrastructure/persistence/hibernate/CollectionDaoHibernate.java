@@ -26,7 +26,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 
 	private static final String GET_COLLECTION_BY_TYPE = "FROM Collection where user.partyUid=:partyUid and collectionType=:collectionType";
 
-	private static final String MAX_COLLECTION_ITEM_SEQ = "select IFNULL(max(item_sequence), 0) as count from collection_item co join content c on c.content_id=co.resource_content_id where collection_content_id=:collectionId and c.is_deleted=0";
+	private static final String MAX_COLLECTION_ITEM_SEQ = "select IFNULL(max(item_sequence), 0) as count from collection_item co join content c on c.content_id=co.resource_content_id where collection_content_id=:contentId and c.is_deleted=0";
 
 	private static final String GET_COLLECTION_BY_USER = "FROM Collection where user.partyUid=:partyUid and gooruOid=:collectionId";
 
@@ -94,7 +94,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	@Override
 	public int getCollectionItemMaxSequence(Long contentId) {
 		Query query = getSession().createSQLQuery(MAX_COLLECTION_ITEM_SEQ).addScalar(COUNT, StandardBasicTypes.INTEGER);
-		query.setParameter(COLLECTION_ID, contentId);
+		query.setParameter(CONTENT_ID, contentId);
 		return (int) list(query).get(0);
 	}
 
