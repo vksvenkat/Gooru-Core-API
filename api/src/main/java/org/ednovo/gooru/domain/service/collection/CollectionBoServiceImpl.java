@@ -293,7 +293,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(collection, GL0056, 404, COLLECTION);
 		Resource resource = getResourceBoService().getResource(resourceId);
 		rejectIfNull(resource, GL0056, 404, RESOURCE);
-		updateCollectionMetaDataSummary(collection.getContentId(), QUESTION, ADD);
+		updateCollectionMetaDataSummary(collection.getContentId(), RESOURCE, ADD);
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setItemType(ADDED);
 		return createCollectionItem(collectionItem, collection, resource, user);
