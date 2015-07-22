@@ -18,7 +18,10 @@ import org.ednovo.gooru.core.api.model.Subdomain;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.service.eventlogs.ClassEventLog;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.SubdomainRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -31,6 +34,11 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 
 	@Autowired
 	private SubdomainRepository subdomainRepository;
+	
+	@Autowired
+    private ClassEventLog classEventLog;
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(UnitServiceImpl.class);
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -98,8 +106,14 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		rejectIfNull(course, GL0056, COURSE);
 		this.resetSequence(courseId, unit.getContent().getGooruOid(), user.getPartyUid(), UNIT);
 		updateContentMetaDataSummary(course.getContentId(), UNIT, DELETE);
+		try {
+			this.getClassEventLog().getEventLogs(courseId, unitId, user);
+		} catch (Exception e) {
+			LOGGER.error(_ERROR, e);
+		}
 		unit.getContent().setIsDeleted((short) 1);
 		this.getCollectionDao().save(unit);		
+
 	}
 
 	private Map<String, Object> generateUnitMetaData(Collection collection, Collection newCollection, User user) {
@@ -152,5 +166,10 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 	public SubdomainRepository getSubdomainRepository() {
 		return subdomainRepository;
 	}
+
+	public ClassEventLog getClassEventLog() {
+		return classEventLog;
+	}
+
 
 }

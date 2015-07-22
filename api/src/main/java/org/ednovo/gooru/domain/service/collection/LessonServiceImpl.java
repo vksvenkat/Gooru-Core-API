@@ -13,6 +13,10 @@ import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.domain.service.eventlogs.ClassEventLog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +25,11 @@ import org.springframework.validation.Errors;
 
 @Service
 public class LessonServiceImpl extends AbstractCollectionServiceImpl implements LessonService {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(LessonServiceImpl.class);
+	
+	@Autowired
+    private ClassEventLog classEventLog;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -75,6 +84,12 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		updateContentMetaDataSummary(unit.getContentId(), LESSON, DELETE);
 		lesson.getContent().setIsDeleted((short) 1);
 		this.getCollectionDao().save(lesson);
+		try {
+			this.getClassEventLog().getEventLogs(courseId, unitId, lessonId, user);
+		} catch (Exception e) {
+			LOGGER.error(_ERROR, e);
+		}
+	
 	}
 	
 	@Override
@@ -112,6 +127,9 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 			rejectIfNullOrEmpty(errors, collection.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 		}
 		return errors;
+	}
+	public ClassEventLog getClassEventLog() {
+		return classEventLog;
 	}
 
 }

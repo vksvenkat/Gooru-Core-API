@@ -7,13 +7,15 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserClass;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
+import org.ednovo.gooru.domain.service.eventlogs.ClassEventLog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -23,6 +25,12 @@ import org.springframework.validation.Errors;
 
 @Service
 public class CourseServiceImpl extends AbstractCollectionServiceImpl implements CourseService {
+	
+	@Autowired
+	private ClassEventLog classEventLog;
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(CourseServiceImpl.class);
+
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -91,14 +99,21 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCourse(String courseUId, User user) {
-		Collection course = getCollectionDao().getCollectionByType(courseUId, COURSE_TYPE);
+		CollectionItem course = getCollectionDao().getCollectionItemById(courseUId, user);
 		rejectIfNull(course, GL0056, COURSE);
+
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(courseUId, user), GL0099, 403, COURSE);
 		Collection parentCollection = getCollectionDao().getCollection(user.getPartyUid(), CollectionType.SHElf.getCollectionType());
-		this.getCollectionDao().updateClassByCourse(course.getContentId());
-		this.resetSequence(parentCollection.getGooruOid(), course.getGooruOid(), user.getPartyUid(), COURSE);
-		course.setIsDeleted((short) 1);
+		try {
+			this.getClassEventLog().getEventLogs(courseUId, user, course.getCollection().getGooruOid());
+		} catch (Exception e) {
+			LOGGER.error(_ERROR, e);
+		}
+		this.getCollectionDao().updateClassByCourse(course.getCollection().getContentId());
+		this.resetSequence(parentCollection.getGooruOid(), course.getContent().getGooruOid(), user.getPartyUid(), COURSE);
+		course.getContent().setIsDeleted((short) 1);
 		this.getCollectionDao().save(course);
+
 	}
 
 	private List<Map<String, Object>> getCourses(Map<String, Object> filters, int limit, int offset) {
@@ -130,5 +145,10 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		}
 		return errors;
 	}
+
+	public ClassEventLog getClassEventLog() {
+		return classEventLog;
+	}
+
 
 }

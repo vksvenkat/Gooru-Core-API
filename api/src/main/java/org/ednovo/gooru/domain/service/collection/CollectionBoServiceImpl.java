@@ -23,12 +23,15 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.service.eventlogs.ClassEventLog;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -63,6 +66,11 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Autowired
 	private CollaboratorRepository collaboratorRepository;
+	
+	@Autowired
+	private ClassEventLog classEventLog;
+		
+	private static final Logger LOGGER = LoggerFactory.getLogger(CollectionBoServiceImpl.class);
 
 	private final static String COLLECTION_IMAGE_DIMENSION = "160x120,75x56,120x90,80x60,800x600";
 
@@ -71,6 +79,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollection(String courseId, String unitId, String lessonId, String collectionId, User user) {
+		
 		CollectionItem collection = this.getCollectionDao().getCollectionItem(lessonId, collectionId, user.getPartyUid());
 		rejectIfNull(collection, GL0056, 404, COLLECTION);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user), GL0099, 403, COLLECTION);
@@ -85,6 +94,11 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		this.updateContentMetaDataSummary(lesson.getContentId(), collection.getContent().getContentType().getName(), DELETE);
 		collection.getContent().setIsDeleted((short) 1);
 		this.getCollectionDao().save(collection);
+		try {
+			this.getClassEventLog().getEventLogs(courseId, unitId, lessonId, collectionId, user, collection.getContent().getContentType().getName());
+		} catch (Exception e) {
+			LOGGER.error(_ERROR, e);
+		}
 	}
 
 	@Override
@@ -420,6 +434,11 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			}
 		}
 		moveCollection(collectionId, targetCollection, user);
+		try {
+			this.getClassEventLog().getEventLogs(folderId, collectionId, user);
+		} catch (Exception e) {
+			LOGGER.error(_ERROR, e);
+		}
 	}
 
 	private String moveCollection(String collectionId, Collection targetCollection, User user) {
@@ -597,20 +616,24 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollectionItem(String collectionId, String collectionItemId, String userUid) {
-		CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(collectionId, collectionItemId, userUid);
+		CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, 404, _COLLECTION_ITEM);
 		Resource resource = this.getResourceBoService().getResource(collectionItem.getContent().getGooruOid());
 		rejectIfNull(resource, GL0056, 404, RESOURCE);
 		String contentType = resource.getContentType().getName();
 		Long collectionContentId = collectionItem.getCollection().getContentId();
 		this.resetSequence(collectionId, collectionItem.getCollectionItemId(), userUid, COLLECTION_ITEM);
+		try {
+			this.getClassEventLog().getEventLogs(collectionId,collectionItem.getContent().getGooruOid(),userUid,contentType);
+		} catch (Exception e) {
+			LOGGER.error(_ERROR, e);
+		}
 		if (contentType.equalsIgnoreCase(QUESTION)) {
 			getCollectionDao().remove(resource);
 		} else {
 			getCollectionDao().remove(collectionItem);
 		}
 		updateCollectionMetaDataSummary(collectionContentId, RESOURCE, contentType);
-		// yet to handle reset sequence
 	}
 
 	private Errors validateResource(final Resource resource) {
@@ -664,6 +687,10 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	public CollaboratorRepository getCollaboratorRepository() {
 		return collaboratorRepository;
+	}
+	
+	public ClassEventLog getClassEventLog() {
+		return classEventLog;
 	}
 
 }
