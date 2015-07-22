@@ -13,9 +13,7 @@ import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.domain.service.eventlogs.ClassEventLog;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.ednovo.gooru.domain.service.eventlogs.CourseEventLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -25,13 +23,10 @@ import org.springframework.validation.Errors;
 
 @Service
 public class CourseServiceImpl extends AbstractCollectionServiceImpl implements CourseService {
-	
+
 	@Autowired
-	private ClassEventLog classEventLog;
+	private CourseEventLog courseEventLog;
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(CourseServiceImpl.class);
-
-
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Collection> createCourse(Collection collection, User user) {
@@ -75,8 +70,7 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getCourse(String courseId) {
 		return this.getCollection(courseId, CollectionType.COURSE.getCollectionType());
-		}
-	
+	}
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -101,19 +95,13 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 	public void deleteCourse(String courseUId, User user) {
 		CollectionItem course = getCollectionDao().getCollectionItemById(courseUId, user);
 		rejectIfNull(course, GL0056, COURSE);
-
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(courseUId, user), GL0099, 403, COURSE);
 		Collection parentCollection = getCollectionDao().getCollection(user.getPartyUid(), CollectionType.SHElf.getCollectionType());
-		try {
-			this.getClassEventLog().getEventLogs(courseUId, user, course.getCollection().getGooruOid());
-		} catch (Exception e) {
-			LOGGER.error(_ERROR, e);
-		}
+		getCourseEventLog().deleteEventLogs(courseUId, user, course.getCollection().getGooruOid());
 		this.getCollectionDao().updateClassByCourse(course.getCollection().getContentId());
 		this.resetSequence(parentCollection.getGooruOid(), course.getContent().getGooruOid(), user.getPartyUid(), COURSE);
 		course.getContent().setIsDeleted((short) 1);
 		this.getCollectionDao().save(course);
-
 	}
 
 	private List<Map<String, Object>> getCourses(Map<String, Object> filters, int limit, int offset) {
@@ -146,9 +134,7 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		return errors;
 	}
 
-	public ClassEventLog getClassEventLog() {
-		return classEventLog;
+	public CourseEventLog getCourseEventLog() {
+		return courseEventLog;
 	}
-
-
 }
