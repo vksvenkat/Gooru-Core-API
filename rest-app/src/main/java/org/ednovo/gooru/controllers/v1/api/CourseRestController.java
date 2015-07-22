@@ -12,7 +12,6 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
-import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.ClassService;
 import org.ednovo.gooru.domain.service.collection.CourseService;
@@ -82,6 +81,7 @@ public class CourseRestController extends BaseController implements ConstantProp
 	public void deleteCourse(@PathVariable(value = ID) final String courseId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		this.getCourseService().deleteCourse(courseId, user);
+		
 	}
 
 	private Collection buildCourse(final String data) {
