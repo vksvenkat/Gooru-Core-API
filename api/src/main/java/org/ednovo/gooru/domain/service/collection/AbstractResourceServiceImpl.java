@@ -43,13 +43,21 @@ public class AbstractResourceServiceImpl extends AbstractCollectionServiceImpl i
 
 	@Autowired
 	private DashboardCassandraService dashboardCassandraService;
-	
+
 	@Autowired
 	private AsyncExecutor asyncExecutor;
 
 	protected static final String HINTS = "hints";
 
 	protected static final String EDUCATIONALUSE = "educationalUse";
+
+	private final static String MEDIAFEATURE = "mediaFeature";
+
+	private final static String ACCESSHAZARD = "accessHazard";
+
+	private final static String ACCESS_HAZARD = "access_hazard";
+
+	private final static String MEDIA_FEATURE = "media_feature";
 
 	@Override
 	public List<String> updateContentProvider(String gooruOid, List<String> providerList, User user, String providerType) {
@@ -155,10 +163,20 @@ public class AbstractResourceServiceImpl extends AbstractCollectionServiceImpl i
 			List<Map<String, Object>> momentsOfLearning = updateContentMetaAssoc(content, user, MOMENTS_OF_LEARNING, newResource.getMomentsOfLearningIds());
 			data.put(MOMENTSOFLEARNING, momentsOfLearning);
 		}
-		
+
 		if (newResource.getEducationalUseIds() != null) {
 			List<Map<String, Object>> educationalUse = updateContentMetaAssoc(content, user, EDUCATIONAL_USE, newResource.getEducationalUseIds());
 			data.put(EDUCATIONALUSE, educationalUse);
+		}
+
+		if (newResource.getMediaFeatureIds() != null) {
+			List<Map<String, Object>> mediaFeature = updateContentMetaAssoc(content, user, MEDIA_FEATURE, newResource.getMediaFeatureIds());
+			data.put(MEDIAFEATURE, mediaFeature);
+		}
+
+		if (newResource.getAccessHazardIds() != null) {
+			List<Map<String, Object>> accessHazard = updateContentMetaAssoc(content, user, ACCESS_HAZARD, newResource.getAccessHazardIds());
+			data.put(ACCESSHAZARD, accessHazard);
 		}
 
 		return data;
