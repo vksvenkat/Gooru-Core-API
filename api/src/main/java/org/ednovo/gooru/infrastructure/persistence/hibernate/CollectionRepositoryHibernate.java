@@ -819,7 +819,6 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	@Override
-
 	public List<Collection> getCollectionsList(final User user, final Integer limit, final Integer offset, final Short publishStatus) {
 		String hql = " FROM Collection collection   WHERE " + generateOrgAuthQuery("collection.");
 		if (publishStatus != null) {
