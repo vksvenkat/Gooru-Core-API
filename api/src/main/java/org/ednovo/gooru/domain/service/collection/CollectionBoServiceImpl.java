@@ -311,6 +311,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setItemType(ADDED);
 		collectionItem = createCollectionItem(collectionItem, collection, copyQuestion, user);
+		updateCollectionMetaDataSummary(collection.getContentId(), QUESTION, ADD);
 		Map<String, Object> metaData = generateQuestionMetaData(copyQuestion, copyQuestion, user);
 		createContentMeta(copyQuestion, metaData);
 		return collectionItem;
