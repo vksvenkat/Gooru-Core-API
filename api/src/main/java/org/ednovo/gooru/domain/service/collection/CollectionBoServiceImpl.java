@@ -517,7 +517,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if (thumbnail != null) {
 			StringBuilder imagePath = new StringBuilder();
 			imagePath.append(content.get(FOLDER)).append(thumbnail);
-			content.put(THUMBNAILS, imagePath.toString());
+			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(imagePath.toString()));
 		}
 		if (typeName.equalsIgnoreCase(ResourceType.Type.ASSESSMENT_QUESTION.getType())) {
 			// To-Do, need fix later, by getting answer and hints details

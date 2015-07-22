@@ -946,7 +946,7 @@ public interface ConstantProperties extends ErrorCodeProperties {
 	
 	final static String INCLUDE_COLLECTION_ITEMS[] = {"*.collectionItems", "*.user", "*.answers", "*.hints", "*.permissions", "*.educationalUse", "*.standards", "*.depthOfKnowledge", "*.skills", "*.momentsOfLearning", "*.audience"};
 	
-	final static String EXCLUDE_COLLECTION_ITEMS[] = {"*.class", "*.answers.question"};
+	final static String EXCLUDE_COLLECTION_ITEMS[] = {"*.class", "*.answers.question", "*.hints.question"};
 		
 	static final String CLASS_CONTENT[] = {"*.gooruOid", "*.title", "*.settings", "*.items"};
 
