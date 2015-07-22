@@ -534,7 +534,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 		Object thumbnail = content.get(THUMBNAIL);
 		if (thumbnail != null) {
-			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
+			StringBuilder imagePath = new StringBuilder();
+			imagePath.append(content.get(FOLDER)).append(thumbnail);
+			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(imagePath.toString()));
 		}
 		if (typeName.equalsIgnoreCase(ResourceType.Type.ASSESSMENT_QUESTION.getType())) {
 			// To-Do, need fix later, by getting answer and hints details
@@ -640,15 +642,6 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		final Errors errors = new BindException(resource, RESOURCE);
 		if (resource != null) {
 			rejectIfNullOrEmpty(errors, resource.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
-		}
-		return errors;
-	}
-
-	private Errors validateQuestion(final AssessmentQuestion quetsion) {
-		final Errors errors = new BindException(quetsion, QUESTION);
-		if (quetsion != null) {
-			rejectIfNullOrEmpty(errors, quetsion.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
-			rejectIfNullOrEmpty(errors, quetsion.getQuestionText(), QUESTION_TEXT, GL0006, generateErrorMessage(GL0006, QUESTION_TEXT));
 		}
 		return errors;
 	}

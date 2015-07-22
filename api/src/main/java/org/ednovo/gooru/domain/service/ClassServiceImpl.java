@@ -409,7 +409,9 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 		Object thumbnail = content.get(THUMBNAIL);
 		if (thumbnail != null) {
-			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
+			StringBuilder imagePath = new StringBuilder();
+			imagePath.append(content.get(FOLDER)).append(thumbnail);
+			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(imagePath.toString()));
 		}
 		content.put(ASSET_URI, ConfigProperties.getBaseRepoUrl());
 		content.remove(THUMBNAIL);
