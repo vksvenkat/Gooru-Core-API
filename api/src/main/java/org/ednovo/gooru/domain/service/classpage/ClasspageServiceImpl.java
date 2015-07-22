@@ -24,27 +24,14 @@
 package org.ednovo.gooru.domain.service.classpage;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
 
 import org.ednovo.gooru.application.util.TaxonomyUtil;
-import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Classpage;
-import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
-import org.ednovo.gooru.core.api.model.CollectionType;
-import org.ednovo.gooru.core.api.model.Content;
-import org.ednovo.gooru.core.api.model.ContentType;
-import org.ednovo.gooru.core.api.model.CustomTableValue;
-import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.InviteUser;
-import org.ednovo.gooru.core.api.model.ResourceType;
-import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
@@ -52,10 +39,8 @@ import org.ednovo.gooru.core.api.model.UserCollectionItemAssoc;
 import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.core.application.util.BaseUtil;
-import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.CollectionService;
@@ -75,15 +60,10 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.UserGroupRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.ednovo.gooru.security.OperationAuthorizer;
-import org.json.JSONException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindException;
-import org.springframework.validation.Errors;
 
 @Service
 public class ClasspageServiceImpl extends ScollectionServiceImpl implements ClasspageService, ParameterProperties {
@@ -134,124 +114,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	@Autowired
 	private CollectionRepository collectionRepository;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ClasspageServiceImpl.class);
-
-	@Override
-	public ActionResponseDTO<Classpage> createClasspage(Classpage classpage, boolean addToUserClasspage, String assignmentId) throws Exception {
-		Errors errors = validateClasspage(classpage);
-		if (!errors.hasErrors()) {
-			this.getCollectionRepository().save(classpage);
-			if (assignmentId != null && !assignmentId.isEmpty()) {
-				CollectionItem collectionItem = new CollectionItem();
-				collectionItem.setItemType(ADDED);
-				collectionItem = this.createClasspageItem(assignmentId, classpage.getGooruOid(), collectionItem, classpage.getUser(), CollectionType.CLASSPAGE.getCollectionType()).getModel();
-				Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
-				collectionItems.add(collectionItem);
-				classpage.setCollectionItems(collectionItems);
-			}
-			if (addToUserClasspage) {
-				CollectionItem collectionItem = new CollectionItem();
-				collectionItem.setItemType(ADDED);
-				this.createClasspageItem(classpage.getGooruOid(), null, collectionItem, classpage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
-			}
-			this.getCollectionRepository().save(classpage);
-		}
-		return new ActionResponseDTO<Classpage>(classpage, errors);
-	}
-
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ActionResponseDTO<Classpage> createClasspage(Classpage newClasspage, CollectionItem newCollectionItem, String gooruOid, User user, boolean addToMy) throws Exception {
-		Errors errors = validateClasspage(newClasspage);
-		if (!errors.hasErrors()) {
-			this.getCollectionRepository().save(newClasspage);
-
-			UserGroup userGroup = this.getUserGroupService().createGroup(newClasspage.getTitle(), newClasspage.getClasspageCode(), SYSTEM, user, null);
-			if (gooruOid != null && !gooruOid.isEmpty() && newCollectionItem != null) {
-				this.createClasspageItem(gooruOid, newClasspage.getGooruOid(), newCollectionItem, newClasspage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
-				this.getCollectionRepository().save(newClasspage);
-			}
-
-			if (addToMy) {
-				CollectionItem collectionItem = new CollectionItem();
-				collectionItem.setItemType(ADDED);
-				this.createClasspageItem(newClasspage.getGooruOid(), null, collectionItem, newClasspage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
-			}
-			try {
-
-				this.getClasspageEventlog().getEventLogs(newClasspage, user, userGroup, true, false);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-		}
-		return new ActionResponseDTO<Classpage>(newClasspage, errors);
-	}
-	
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ActionResponseDTO<Classpage> updateClasspage(Classpage newClasspage, String updateClasspageId, Boolean hasUnrestrictedContentAccess, final String data) throws Exception {
-		Classpage classpage = this.getClasspage(updateClasspageId, null, null);
-		rejectIfNull(classpage, GL0056, "classpage");
-		Errors errors = validateUpdateClasspage(classpage, newClasspage);
-		if (!errors.hasErrors()) {
-			if (newClasspage.getTitle() != null) {
-				classpage.setTitle(newClasspage.getTitle());
-				UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode());
-				userGroup.setName(newClasspage.getTitle());
-				this.getUserRepository().save(userGroup);
-			}
-			if (newClasspage.getDescription() != null) {
-				classpage.setDescription(newClasspage.getDescription());
-			}
-			if (newClasspage.getNarrationLink() != null) {
-				classpage.setNarrationLink(newClasspage.getNarrationLink());
-			}
-			if (newClasspage.getEstimatedTime() != null) {
-				classpage.setEstimatedTime(newClasspage.getEstimatedTime());
-			}
-			if (newClasspage.getNotes() != null) {
-				classpage.setNotes(newClasspage.getNotes());
-			}
-			if (newClasspage.getLanguage() != null) {
-				classpage.setLanguage(newClasspage.getLanguage());
-			}
-			if (newClasspage.getGrade() != null) {
-				classpage.setGrade(newClasspage.getGrade());
-			}
-			if (newClasspage.getSharing() != null) {
-				if (newClasspage.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newClasspage.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newClasspage.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
-					classpage.setSharing(newClasspage.getSharing());
-				}
-			}
-			if (newClasspage.getLastUpdatedUserUid() != null) {
-				classpage.setLastUpdatedUserUid(newClasspage.getLastUpdatedUserUid());
-			}
-
-			if (hasUnrestrictedContentAccess) {
-				if (newClasspage.getCreator() != null && newClasspage.getCreator().getPartyUid() != null) {
-					User user = userService.findByGooruId(newClasspage.getCreator().getPartyUid());
-					classpage.setCreator(user);
-				}
-
-				if (newClasspage.getUser() != null && newClasspage.getUser().getPartyUid() != null) {
-					User user = userService.findByGooruId(newClasspage.getUser().getPartyUid());
-					classpage.setUser(user);
-				}
-			}
-
-			this.getCollectionRepository().save(classpage);
-			try {
-				this.getScollectionEventlog().getEventLogs(classpage, classpage.getUser(), false, true, data);
-				getAsyncExecutor().deleteFromCache("v2-class-data-" + classpage.getGooruOid() + "*");
-			} catch (Exception e) {
-				LOGGER.error(_ERROR, e);
-			}
-
-		}
-		return new ActionResponseDTO<Classpage>(classpage, errors);
-	}
-
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Classpage getClasspage(String classpageCode, User user) throws Exception {
@@ -261,33 +123,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 		}
 		return getClasspage(classpage.getGooruOid(), user, PERMISSIONS);
-	}
-
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void deleteClasspage(String classpageId, User user) {
-		Classpage classpage = this.getClasspage(classpageId, null, null);
-		if (classpage != null) {
-			if (this.getOperationAuthorizer().hasUnrestrictedContentAccess(classpageId, user)) {
-				UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode());
-				if (userGroup != null) {
-					this.getUserRepository().remove(userGroup);
-				}
-				try {
-
-					this.getClasspageEventlog().getEventLogs(classpage, classpage.getUser(), userGroup, false, true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				this.getCollectionRepository().remove(Classpage.class, classpage.getContentId());
-			} else {
-				throw new UnauthorizedException(generateErrorMessage("GL0085"), "GL0085");
-
-			}
-		} else {
-			throw new NotFoundException(generateErrorMessage(GL0056, CLASSPAGE), GL0056);
-
-		}
 	}
 
 	@Override
@@ -343,91 +178,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ActionResponseDTO<CollectionItem> createClasspageItem(String assignmentGooruOid, String classpageGooruOid, CollectionItem collectionItem, User user, String type) throws Exception {
-		Classpage classpage = null;
-		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(assignmentGooruOid, null);
-		Errors errors = validateClasspageItem(collection, collectionItem);
-
-
-		if (collection != null) {
-			if (type != null && type.equalsIgnoreCase(CollectionType.USER_CLASSPAGE.getCollectionType())) {
-				if (classpageGooruOid != null) {
-					classpage = this.getClasspage(classpageGooruOid, null, null);
-				} else {
-					classpage = this.getCollectionRepository().getUserShelfByClasspageGooruUid(user.getGooruUId(), CollectionType.USER_CLASSPAGE.getCollectionType());
-				}
-				if (classpage == null && type != null && type.equalsIgnoreCase(CollectionType.USER_CLASSPAGE.getCollectionType())) {
-					classpage = new Classpage();
-					classpage.setTitle(MY_CLASSPAGE);
-					classpage.setCollectionType(CollectionType.USER_CLASSPAGE.getCollectionType());
-					classpage.setClasspageCode(BaseUtil.generateBase48Encode(7));
-					classpage.setGooruOid(UUID.randomUUID().toString());
-					ContentType contentType = (ContentType) this.getCollectionRepository().get(ContentType.class, ContentType.RESOURCE);
-					classpage.setContentType(contentType);
-					classpage.setLastModified(new Date(System.currentTimeMillis()));
-					classpage.setCreatedOn(new Date(System.currentTimeMillis()));
-					classpage.setSharing(Sharing.PRIVATE.getSharing());
-					classpage.setUser(user);
-					classpage.setOrganization(user.getPrimaryOrganization());
-					classpage.setCreator(user);
-					this.getCollectionRepository().save(classpage);
-				}
-				collectionItem.setItemType(SUBSCRIBED);
-			} else {
-				classpage = this.getClasspage(classpageGooruOid, null, null);
-				collectionItem.setItemType(ADDED);
-			}
-
-			if (!errors.hasErrors()) {
-				collectionItem.setCollection(classpage);
-				collectionItem.setContent(collection);
-				int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
-				collectionItem.setItemSequence(sequence);
-				collectionItem.getCollection().setItemCount(sequence);
-				this.getCollectionRepository().save(collectionItem);
-			}
-			try {
-
-				this.getClasspageEventlog().getEventLogs(collectionItem, true, user, collectionItem.getCollection().getCollectionType());
-				getAsyncExecutor().deleteFromCache("v2-class-data-" + classpage.getGooruOid() + "*");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		} else {
-			throw new NotFoundException(generateErrorMessage("GL0087", assignmentGooruOid), "GL0087");
-
-		}
-
-		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
-	}
-
-	@Override
-	public ActionResponseDTO<Classpage> createClasspage(Classpage newclasspage, User user, boolean addToUserClasspage, String assignmentId) throws Exception {
-		Errors errors = validateClasspage(newclasspage);
-		if (!errors.hasErrors()) {
-			this.getCollectionRepository().save(newclasspage);
-			this.getResourceService().saveOrUpdateResourceTaxonomy(newclasspage, newclasspage.getTaxonomySet());
-			if (assignmentId != null && !assignmentId.isEmpty()) {
-				CollectionItem collectionItem = new CollectionItem();
-				collectionItem.setItemType(ADDED);
-				collectionItem = this.createClasspageItem(assignmentId, newclasspage.getGooruOid(), collectionItem, newclasspage.getUser(), CollectionType.CLASSPAGE.getCollectionType()).getModel();
-				Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
-				collectionItems.add(collectionItem);
-				newclasspage.setCollectionItems(collectionItems);
-			}
-			if (addToUserClasspage) {
-				CollectionItem collectionItem = new CollectionItem();
-				collectionItem.setItemType(ADDED);
-				this.createClasspageItem(newclasspage.getGooruOid(), null, collectionItem, newclasspage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
-			}
-			this.getCollectionRepository().save(newclasspage);
-		}
-		return new ActionResponseDTO<Classpage>(newclasspage, errors);
-
-	}
-
-	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, boolean skipPagination, String orderBy) {
 		return this.getCollectionRepository().getMyClasspage(offset, limit, user, skipPagination, orderBy);
@@ -436,102 +186,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	@Override
 	public Long getMyClasspageCount(String gooruUid) {
 		return this.getCollectionRepository().getMyClasspageCount(gooruUid);
-	}
-
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ActionResponseDTO<Classpage> createClasspage(Classpage classpage, String collectionId, boolean addToMy) throws Exception {
-
-		return this.createClasspage(classpage, classpage.getCollectionItem(), collectionId, classpage.getUser(), addToMy);
-	}
-
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public List<Map<String, Object>> classpageUserJoin(String code, List<String> mailIds, User apiCaller) throws Exception {
-		List<Map<String, Object>> classpageMember = new ArrayList<Map<String, Object>>();
-		UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(code);
-		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
-		InviteUser inviteUser = new InviteUser();
-		if (userGroup != null && classpage != null) {
-			if (mailIds.size() == 0) {
-				if (apiCaller.getIdentities() != null && apiCaller.getIdentities().size() > 0) {
-					mailIds.add(apiCaller.getIdentities().iterator().next().getExternalId());
-				}
-			}
-			for (String mailId : mailIds) {
-				Identity identity = null;
-				if (mailId.trim().length() != 0) {
-					identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
-				} else {
-					identity = this.getUserRepository().findUserByGooruId(apiCaller.getPartyUid());
-				}
-				if (identity != null) {
-					inviteUser = this.getInviteRepository().findInviteUserById(mailId, classpage.getGooruOid(), null);
-					if (inviteUser != null) {
-						inviteUser.setStatus(this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, ACTIVE));
-						inviteUser.setJoinedDate(new Date(System.currentTimeMillis()));
-						this.getInviteRepository().save(inviteUser);
-					}
-					if (this.getUserRepository().getUserGroupMemebrByGroupUid(userGroup.getPartyUid(), identity.getUser().getPartyUid()) == null) {
-						UserGroupAssociation groupAssociation = new UserGroupAssociation();
-						groupAssociation.setIsGroupOwner(0);
-						groupAssociation.setUser(identity.getUser());
-						groupAssociation.setAssociationDate(new Date(System.currentTimeMillis()));
-						groupAssociation.setUserGroup(userGroup);
-						classpage.setLastModified(new Date(System.currentTimeMillis()));
-						this.getCollectionRepository().save(classpage);
-						this.getUserRepository().save(groupAssociation);
-						classpageMember.add(setMemberResponse(groupAssociation, ACTIVE));
-					}
-				}
-				try {
-
-					this.getClasspageEventlog().getEventLogs(classpage, apiCaller, userGroup, inviteUser);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		} else {
-			throw new NotFoundException(generateErrorMessage("GL0056", "class"), "GL0056");
-		}
-		return classpageMember;
-	}
-
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void classpageUserRemove(String code, List<String> mailIds, User apiCaller) throws Exception {
-		UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(code);
-		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
-		if (userGroup != null && classpage != null) {
-			for (String mailId : mailIds) {
-				Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
-				if (identity != null) {
-					UserGroupAssociation userGroupAssociation = this.getUserRepository().getUserGroupMemebrByGroupUid(userGroup.getPartyUid(), identity.getUser().getPartyUid());
-					if (userGroupAssociation != null) {
-						classpage.setLastModified(new Date(System.currentTimeMillis()));
-						this.getCollectionRepository().save(classpage);
-						this.getUserGroupRepository().remove(userGroupAssociation);
-					}
-					try {
-
-						this.getClasspageEventlog().getEventLogs(classpage, userGroupAssociation, null);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-
-				}
-				InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, classpage.getGooruOid(), null);
-				if (inviteUser != null) {
-					this.getInviteRepository().remove(inviteUser);
-					try {
-
-						this.getClasspageEventlog().getEventLogs(classpage, null, inviteUser);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
 	}
 
 	@Override
@@ -653,32 +307,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return searchResult;
 	}
 
-	private Errors validateClasspage(final Classpage classpage) throws Exception {
-		final Errors errors = new BindException(classpage, CLASSPAGE);
-		if (classpage != null) {
-			rejectIfNullOrEmpty(errors, classpage.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
-		}
-		return errors;
-	}
-
-	private Errors validateUpdateClasspage(Collection collection, final Collection newCollection) throws Exception {
-		final Errors errors = new BindException(collection, COLLECTION);
-		rejectIfNull(errors, collection, COLLECTION_ALL, GL0006, generateErrorMessage(GL0006, COLLECTION));
-		return errors;
-	}
-
-	private Errors validateClasspageItem(final Content resource, final CollectionItem collectionItem) throws Exception {
-		final Map<Object, String> itemType = new HashMap<Object, String>();
-		itemType.put(ADDED, COLLECTION_ITEM_TYPE);
-		itemType.put(SUBSCRIBED, COLLECTION_ITEM_TYPE);
-		final Errors errors = new BindException(collectionItem, COLLECTION_ITEM);
-		if (collectionItem != null) {
-			rejectIfNull(errors, resource, CONTENT, GL0056, generateErrorMessage(GL0056, CONTENT));
-			rejectIfInvalidType(errors, collectionItem.getItemType(), ITEM_TYPE, GL0007, generateErrorMessage(GL0007, ITEM_TYPE), itemType);
-		}
-		return errors;
-	}
-
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<String> classMemberSuggest(String queryText, String gooruUid) {
@@ -731,36 +359,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			listMap.add(result);
 		}
 		return listMap;
-	}
-
-	@Override
-	public CollectionItem updateAssignment(String collectionItemId, String status, String minimumScore, String assignmentCompleted, String timeStudying, User user) {
-		final CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
-		rejectIfNull(collectionItem, GL0056, generateErrorMessage(GL0056, COLLECTION_ITEM));
-
-		UserCollectionItemAssoc userCollectionItemAssoc = this.getCollectionRepository().getUserCollectionItemAssoc(collectionItem.getCollectionItemId(), user.getPartyUid());
-		if (userCollectionItemAssoc == null) {
-			userCollectionItemAssoc = new UserCollectionItemAssoc();
-			userCollectionItemAssoc.setCollectionItem(collectionItem);
-			userCollectionItemAssoc.setUser(user);
-		}
-		userCollectionItemAssoc.setLastModifiedOn(new Date());
-		if (minimumScore != null) {
-			userCollectionItemAssoc.setMinimumScore(minimumScore);
-		}
-		if (assignmentCompleted != null) {
-			userCollectionItemAssoc.setAssignmentCompleted(assignmentCompleted);
-		}
-		if (timeStudying != null) {
-			userCollectionItemAssoc.setTimeStudying(timeStudying);
-		}
-		if (status != null) {
-			final CustomTableValue statusType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.ASSIGNMENT_STATUS_TYPE.getTable(), status);
-			userCollectionItemAssoc.setStatus(statusType);
-		}
-		this.getCollectionRepository().save(userCollectionItemAssoc);
-		userCollectionItemAssoc.getCollectionItem().setStatus(userCollectionItemAssoc.getStatus() != null ? userCollectionItemAssoc.getStatus().getValue() : null);
-		return userCollectionItemAssoc.getCollectionItem();
 	}
 
 	@Override
@@ -850,68 +448,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return resultCount;
 	}
 
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Collection createPathway(String classId, Collection pathway, String collectionId, Boolean isRequired, User user) throws Exception {
-		final Classpage classpage = this.getCollectionRepository().getClasspageByGooruOid(classId, null);
-		if (classpage == null) {
-			throw new BadRequestException(generateErrorMessage(GL0056, COLLECTION), GL0056);
-		}
-		this.getCollectionRepository().save(pathway);
-		final CollectionItem collectionItem = new CollectionItem();
-		this.getCollectionService().createCollectionItem(pathway.getGooruOid(), classpage.getGooruOid(), collectionItem, pathway.getUser(), ADDED, false);
-		if (collectionId != null && this.getCollectionRepository().getCollectionByGooruOid(collectionId, null) != null) {
-			this.getCollectionService().createCollectionItem(collectionId, pathway.getGooruOid(), pathway.getCollectionItem() == null ? new CollectionItem() : pathway.getCollectionItem(), pathway.getUser(), ADDED, false);
-		}
-		getAsyncExecutor().deleteFromCache("v2-class-data-" + classId + "*");
-
-		this.getClasspageEventlog().getEventLogs(classId, pathway.getGooruOid(), user, true, false, null);
-		return pathway;
-	}
-
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Collection updatePathway(final String classId, final String pathwayGooruOid, final Collection newPathway, final User user, final String data) throws Exception {
-		final Collection pathwayCollection = this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, ResourceType.Type.PATHWAY.getType());
-		rejectIfNull(pathwayCollection, GL0056, PATHWAY);
-
-		if (newPathway.getTitle() != null) {
-			pathwayCollection.setTitle(newPathway.getTitle());
-		}
-		if (newPathway.getDescription() != null) {
-			pathwayCollection.setDescription(newPathway.getDescription());
-		}
-		this.getCollectionRepository().save(pathwayCollection);
-		getAsyncExecutor().deleteFromCache("v2-class-data-" + classId + "*");
-
-		this.getClasspageEventlog().getEventLogs(classId, pathwayGooruOid, user, false, true, data);
-		return pathwayCollection;
-	}
-
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void deletePathway(String classId, String pathwayGooruOid, User user) {
-		final List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByParentId(pathwayGooruOid, null, null);
-		for (final CollectionItem item : collectionItems) {
-			this.deleteCollectionItem(item.getCollectionItemId(), user, false);
-		}
-		this.getCollectionService().deleteCollection(pathwayGooruOid, user);
-		getAsyncExecutor().deleteFromCache("v2-class-data-" + classId + "*");
-	}
-
-	@Override
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public List<CollectionItem> getPathwayItems(String classId, String pathwayId, Integer offset, Integer limit, String orderBy, User user) {
-		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayId, PATHWAY) == null) {
-			throw new BadRequestException("pathway not found");
-		}
-		if (this.getCollectionRepository().getCollectionByIdWithType(classId, CLASSPAGE) == null) {
-			throw new BadRequestException("class not found");
-		}
-
-		return getPathawyItemWithOutValidation(pathwayId, offset, limit, orderBy, user);
-	}
-
 	private List<CollectionItem> getPathawyItemWithOutValidation(final String pathwayId, final Integer offset, final Integer limit, final String orderBy, final User user) {
 		final List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItems(pathwayId, offset, limit, orderBy, CLASSPAGE);
 		for (final CollectionItem collectionItem : collectionItems) {
@@ -923,126 +459,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			}
 		}
 		return collectionItems;
-	}
-
-	@Override
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public SearchResults<CollectionItem> getPathwayItemsSearchResults(final String classId, final String pathwayId, final Integer offset, final Integer limit, final String orderBy, final User user) {
-		final Collection pathway = this.getCollectionRepository().getCollectionByIdWithType(pathwayId, PATHWAY);
-		final List<CollectionItem> collectionItems = getPathwayItems(classId, pathwayId, offset, limit, orderBy, user);
-		final SearchResults<CollectionItem> searchResults = new SearchResults<CollectionItem>();
-		searchResults.setSearchResults(getCollectionService().setCollectionItemMetaInfo(collectionItems, null, false));
-		searchResults.setTotalHitCount(this.getCollectionRepository().getCollectionItemsCount(pathwayId, orderBy, CLASSPAGE));
-		searchResults.setTitle(pathway.getTitle());
-		return searchResults;
-	}
-
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ActionResponseDTO<CollectionItem> reorderPathwaySequence(String classId, String pathwayGooruOid, int newSequence, User user) throws Exception {
-		final Classpage classpage = this.getCollectionRepository().getClasspageByGooruOid(classId, null);
-		if (classpage == null) {
-			throw new BadRequestException(generateErrorMessage(GL0056, COLLECTION), GL0056);
-
-		}
-		getAsyncExecutor().deleteFromCache("v2-class-data-" + classId + "*");
-		final ActionResponseDTO<CollectionItem> collectionItem = this.getCollectionService().reorderCollectionItem(pathwayGooruOid, newSequence, user);
-		try {
-
-			this.getClasspageEventlog().getEventLogs(collectionItem.getModel(), collectionItem.getModel().getResource().getGooruOid(), user, collectionItem.getModel(), collectionItem.getModel().getCollection().getCollectionType());
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		return collectionItem;
-
-	}
-
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public CollectionItem pathwayItemMoveWithReorder(String classId, String pathwayGooruOid, String sourceId, String taregetId, Integer newSequence, User user) throws Exception {
-		CollectionItem targetItem = null;
-		final CollectionItem sourceItem = this.getCollectionRepository().getCollectionItemById(sourceId);
-		rejectIfNull(sourceItem, GL0056, "item");
-		final Collection targetPathway = this.getCollectionRepository().getCollectionByIdWithType(taregetId, PATHWAY);
-		final CollectionItem collectionItem = new CollectionItem();
-		if (targetPathway != null) {
-			collectionItem.setItemType(sourceItem.getItemType());
-			collectionItem.setNarration(sourceItem.getNarration());
-			collectionItem.setEstimatedTime(sourceItem.getEstimatedTime());
-			collectionItem.setShowAnswerByQuestions(sourceItem.getShowAnswerByQuestions());
-			collectionItem.setShowAnswerEnd(sourceItem.getShowAnswerEnd());
-			collectionItem.setShowHints(sourceItem.getShowHints());
-			targetItem = this.getCollectionService().createCollectionItem(sourceItem.getResource().getGooruOid(), targetPathway.getGooruOid(), collectionItem, user, ADDED, false).getModel();
-			final Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>(targetPathway.getCollectionItems());
-			collectionItems.add(collectionItem);
-			targetPathway.setCollectionItems(collectionItems);
-			this.getCollectionRepository().save(targetPathway);
-			deleteCollectionItem(sourceItem.getCollectionItemId(), user, true);
-		}
-		if (newSequence != null) {
-			targetItem = this.getCollectionService().reorderCollectionItem(targetItem != null ? targetItem.getCollectionItemId() : sourceId, newSequence, user).getModel();
-		}
-		getAsyncExecutor().deleteFromCache("v2-class-data-" + classId + "*");
-		try {
-
-			this.getClasspageEventlog().getEventLogs(sourceItem.getResource().getGooruOid(), targetItem != null ? targetItem : collectionItem, pathwayGooruOid, user, sourceItem, targetItem);
-		} catch (JSONException e) {
-			LOGGER.error(_ERROR, e);
-		}
-		return targetItem != null ? targetItem : sourceItem;
-	}
-
-	public ActionResponseDTO<CollectionItem> moveCollectionToPathway(CollectionItem sourceIdItem, CollectionItem pathwayItem, ActionResponseDTO<CollectionItem> responseDTO, final User user) throws Exception {
-		final CollectionItem collectionItem = new CollectionItem();
-		if (sourceIdItem != null && sourceIdItem.getCollection() != null) {
-			collectionItem.setCollection(sourceIdItem.getCollection());
-		}
-		if (sourceIdItem != null && sourceIdItem.getItemType() != null) {
-			collectionItem.setItemType(sourceIdItem.getItemType());
-		}
-		if (pathwayItem != null && pathwayItem.getResource() != null) {
-			responseDTO = this.getCollectionService().createCollectionItem(sourceIdItem.getResource().getGooruOid(), pathwayItem.getResource().getGooruOid(), collectionItem, user, ADDED, false);
-		}
-		if (sourceIdItem != null) {
-			deleteCollectionItem(sourceIdItem.getCollectionItemId(), user, true);
-		}
-		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
-		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
-		try {
-
-			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true, false, user, responseDTO.getModel().getCollection().getCollectionType());
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		return responseDTO;
-	}
-
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void deletePathwayItem(final String classId, final String pathwayGooruOid, final String collectionItemId, final User user) {
-		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, PATHWAY) == null) {
-			throw new BadRequestException(generateErrorMessage(GL0056, PATHWAY), GL0056);
-
-		}
-		if (this.getCollectionRepository().getCollectionByIdWithType(classId, CLASSPAGE) == null) {
-			throw new BadRequestException(generateErrorMessage(GL0056, CLASS), GL0056);
-		}
-		getCollectionService().deleteCollectionItem(collectionItemId, user, true);
-		getAsyncExecutor().deleteFromCache("v2-class-data-" + classId + "*");
-	}
-
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ActionResponseDTO<CollectionItem> updatePathwayItem(final String classId, final String pathwayGooruOid, final String collectionItemId, final CollectionItem newcollectionItem, final User user, final String data) throws Exception {
-		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, PATHWAY) == null) {
-			throw new BadRequestException(generateErrorMessage(GL0056, PATHWAY), GL0056);
-
-		}
-		if (this.getCollectionRepository().getCollectionByIdWithType(classId, CLASSPAGE) == null) {
-			throw new BadRequestException(generateErrorMessage(GL0056, CLASS), GL0056);
-		}
-		getAsyncExecutor().deleteFromCache("v2-class-data-" + classId + "*");
-		return updateCollectionItem(newcollectionItem, collectionItemId, user, data);
 	}
 
 	@Override

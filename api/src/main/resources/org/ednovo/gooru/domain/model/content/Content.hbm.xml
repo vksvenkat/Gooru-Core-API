@@ -168,8 +168,6 @@
 				not-null="false" />
 			<property name="copiedCollectionId" column="copied_collection_id"
 				not-null="false" />
-			<property name="lastAccessedTime" column="last_accessed_time"
-				not-null="false" />
 			<property name="distinguish" column="distinguish" not-null="false" />
 			<set name="collectionItems" inverse="true" cascade="none" lazy="true"
 				sort="org.ednovo.gooru.core.api.model.CollectionItemComparator">
