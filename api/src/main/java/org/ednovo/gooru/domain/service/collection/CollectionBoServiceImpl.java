@@ -66,6 +66,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	private final static String COLLECTION_IMAGE_DIMENSION = "160x120,75x56,120x90,80x60,800x600";
 
+	private final static String LAST_USER_MODIFIED = "lastUserModified";
+
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollection(String courseId, String unitId, String lessonId, String collectionId, User user) {
@@ -129,6 +131,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				}
 			}
 			createCollection(user, collection, targetCollection);
+			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
@@ -310,7 +313,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Map<String, Object> getCollection(String collectionId, String collectionType, User user, boolean includeItems) {
+	public Map<String, Object> getCollection(String collectionId, String collectionType, User user, boolean includeItems, boolean includeLastModifiedUser) {
 		Map<String, Object> collection = super.getCollection(collectionId, collectionType);
 		StringBuilder key = new StringBuilder(ALL_);
 		key.append(collection.get(GOORU_OID));
@@ -318,10 +321,28 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if (includeItems) {
 			collection.put(COLLECTION_ITEMS, this.getCollectionItems(collectionId, MAX_LIMIT, 0));
 		}
-		final boolean isCollaborator = this.getCollaboratorRepository().findCollaboratorById(collectionId, user.getGooruUId()) != null ? true : false;
+		if (includeLastModifiedUser) {
+			Object lastModifiedUserUid = collection.get(LAST_MODIFIED_USER_UID);
+			if (lastModifiedUserUid != null) {
+				collection.put(LAST_USER_MODIFIED, getLastCollectionModifyUser(String.valueOf(lastModifiedUserUid)));
+			}
+		}
+		collection.remove(LAST_MODIFIED_USER_UID);
+		final boolean isCollaborator = this.getCollaboratorRepository().findCollaboratorById(collectionId, user.getPartyUid()) != null ? true : false;
 		collection.put(PERMISSIONS, getContentService().getContentPermission(collectionId, user));
 		collection.put(IS_COLLABORATOR, isCollaborator);
 		return collection;
+	}
+
+	private Map<String, Object> getLastCollectionModifyUser(String userUid) {
+		Map<String, Object> lastUserModifiedMap = null;
+		final User lastUserModified = this.getUserService().findByGooruId(userUid);
+		if (lastUserModified != null) {
+			lastUserModifiedMap = new HashMap<String, Object>();
+			lastUserModifiedMap.put(USER_NAME, lastUserModified.getUsername());
+			lastUserModifiedMap.put(GOORU_UID, lastUserModified.getGooruUId());
+		}
+		return lastUserModifiedMap;
 	}
 
 	@Override
@@ -506,8 +527,10 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				content.put(HINTS, assessmentQuestion.getHints());
 			} else {
 				String json = getMongoQuestionsService().getQuestionByIdWithJsonAdjustments(gooruOid);
-				content.putAll(JsonDeserializer.deserialize(json, new TypeReference<Map<String, Object>>() {
-				}));
+				if (json != null) {
+					content.putAll(JsonDeserializer.deserialize(json, new TypeReference<Map<String, Object>>() {
+					}));
+				}
 			}
 		}
 		content.put(USER, setUser(content.get(GOORU_UID), content.get(USER_NAME)));

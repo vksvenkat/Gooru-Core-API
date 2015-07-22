@@ -284,7 +284,7 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 				getQuestionRepository().save(copyQuestionAssetAssoc);
 			}
 			getQuestionRepository().save(copyQuestion);
-			if (copyQuestion.isQuestionNewGen()) {
+			if (question.isQuestionNewGen()) {
 				getMongoQuestionsService().copyQuestion(question.getGooruOid(), copyQuestion.getGooruOid());
 			}
 			copyQuestion.setAssets(questionAssets);

@@ -87,8 +87,6 @@ public class Collection extends Content implements Versionable {
 
 	private String imagePath;
 
-	private String lastAccessedTime;
-
 	private List<Integer> taxonomyCourseIds;
 
 	private List<Integer> subdomainIds;
@@ -365,14 +363,6 @@ public class Collection extends Content implements Versionable {
 
 	public void setImagePath(String imagePath) {
 		this.imagePath = imagePath;
-	}
-
-	public String getLastAccessedTime() {
-		return lastAccessedTime;
-	}
-
-	public void setLastAccessedTime(String lastAccessedTime) {
-		this.lastAccessedTime = lastAccessedTime;
 	}
 
 	public Map<String, String> getThumbnails() {
