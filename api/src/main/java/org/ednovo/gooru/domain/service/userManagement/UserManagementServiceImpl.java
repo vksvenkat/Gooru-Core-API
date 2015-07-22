@@ -1027,7 +1027,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public User getUserByToken(final String userToken) {
 		if (userToken == null || userToken.equalsIgnoreCase("")) {
 			throw new BadRequestException(generateErrorMessage("GL0061", "User token"), "GL0061");
@@ -1140,7 +1140,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Set<String> checkContentAccess(final User authenticationUser, final String goorContentId) {
 		final Set<String> permissions = new HashSet<String>();
 		if (authenticationUser != null) {
