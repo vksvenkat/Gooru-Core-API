@@ -8,7 +8,6 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
-import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;

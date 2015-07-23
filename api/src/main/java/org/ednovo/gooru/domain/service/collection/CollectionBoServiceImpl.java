@@ -293,6 +293,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(collection, GL0056, 404, COLLECTION);
 		Resource resource = getResourceBoService().getResource(resourceId);
 		rejectIfNull(resource, GL0056, 404, RESOURCE);
+		reject(!resource.getContentType().getName().equalsIgnoreCase(QUESTION), GL0056, 404, RESOURCE);
 		updateCollectionMetaDataSummary(collection.getContentId(), RESOURCE, ADD);
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setItemType(ADDED);
@@ -311,6 +312,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setItemType(ADDED);
 		collectionItem = createCollectionItem(collectionItem, collection, copyQuestion, user);
+		updateCollectionMetaDataSummary(collection.getContentId(), QUESTION, ADD);
 		Map<String, Object> metaData = generateQuestionMetaData(copyQuestion, copyQuestion, user);
 		createContentMeta(copyQuestion, metaData);
 		return collectionItem;
