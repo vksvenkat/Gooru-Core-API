@@ -43,7 +43,6 @@ import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.domain.service.eventlogs.ClasspageEventLog;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.mail.MailHandler;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
@@ -74,9 +73,6 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 
 	@Autowired
 	private MailHandler mailHandler;
-
-	@Autowired
-	private ClasspageEventLog classpageEventLog;
 
 	@Autowired
 	private SettingService settingService;

@@ -284,10 +284,10 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 				getQuestionRepository().save(copyQuestionAssetAssoc);
 			}
 			getQuestionRepository().save(copyQuestion);
-			if (copyQuestion.isQuestionNewGen()) {
-				getMongoQuestionsService().copyQuestion(question.getGooruOid(), copyQuestion.getGooruOid());
-			}
 			copyQuestion.setAssets(questionAssets);
+		}
+		if (question.isQuestionNewGen()) {
+			getMongoQuestionsService().copyQuestion(question.getGooruOid(), copyQuestion.getGooruOid());
 		}
 		StringBuilder sourceFilepath = new StringBuilder(question.getOrganization().getNfsStorageArea().getInternalPath());
 		sourceFilepath.append(question.getFolder()).append(File.separator);

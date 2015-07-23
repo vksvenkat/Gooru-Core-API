@@ -25,7 +25,8 @@ public class Resource extends Content implements Serializable {
 	private static final String INDEX_TYPE = "resource";
 
 	public static enum RecordSource {
-		QUOTED("userquoted"), CRAWLED("goorucrawled"), COLLECTION("useradded"), GAT("adminadded"), DEFAULT("notadded");
+		QUOTED("userquoted"), CRAWLED("goorucrawled"), COLLECTION("useradded"), GAT(
+				"adminadded"), DEFAULT("notadded");
 
 		String source;
 
@@ -154,11 +155,11 @@ public class Resource extends Content implements Serializable {
 	private CustomTableValue instructional;
 
 	private Map<String, Object> ratings;
-	
+
 	private List<Integer> momentsOfLearningIds;
 
 	private List<Integer> educationalUseIds;
-	
+
 	private ResourceMetaInfo metaInfo;
 
 	public static final String COLLECTION_THUMBNAIL_SIZES = "160x120,75x56,120x90,80x60,50x40,310x258,800x600";
@@ -174,16 +175,19 @@ public class Resource extends Content implements Serializable {
 	private List<String> host;
 
 	private List<String> depthOfKnowledges;
-	
+
 	private List<String> educationalUse;
-	
+
 	private List<String> momentsOfLearning;
-	
 
 	private List<Map<String, Object>> resourceTags;
 	private String clusterUid;
 	private Integer isRepresentative;
 	private List<String> libraryNames;
+
+	private List<Integer> mediaFeatureIds;
+
+	private List<Integer> accessHazardIds;
 
 	public Resource() {
 		recordSource = RecordSource.DEFAULT.getRecordSource();
@@ -281,24 +285,31 @@ public class Resource extends Content implements Serializable {
 
 	public String getAssetURI() {
 		if (getOrganization() != null) {
-			if (getS3UploadFlag() != null && getS3UploadFlag() == 1 && getOrganization().getS3StorageArea() != null) {
+			if (getS3UploadFlag() != null && getS3UploadFlag() == 1
+					&& getOrganization().getS3StorageArea() != null) {
 				assetURI = getOrganization().getS3StorageArea().getS3Path();
-			} else if ((getS3UploadFlag() == null || getS3UploadFlag() == 0) && getOrganization().getNfsStorageArea() != null) {
+			} else if ((getS3UploadFlag() == null || getS3UploadFlag() == 0)
+					&& getOrganization().getNfsStorageArea() != null) {
 				if (getOrganization().getNfsStorageArea().getCdnDirectPath() != null) {
-					assetURI = getOrganization().getNfsStorageArea().getCdnDirectPath().split(",")[0];
+					assetURI = getOrganization().getNfsStorageArea()
+							.getCdnDirectPath().split(",")[0];
 				} else {
-					assetURI = getOrganization().getNfsStorageArea().getAreaPath();
+					assetURI = getOrganization().getNfsStorageArea()
+							.getAreaPath();
 				}
 			} else if (getOrganization().getS3StorageArea() != null) {
 				if (getOrganization().getS3StorageArea().getCdnDirectPath() != null) {
-					assetURI = getOrganization().getS3StorageArea().getCdnDirectPath().split(",")[0];
+					assetURI = getOrganization().getS3StorageArea()
+							.getCdnDirectPath().split(",")[0];
 				} else {
-					assetURI = getOrganization().getS3StorageArea().getAreaPath();
+					assetURI = getOrganization().getS3StorageArea()
+							.getAreaPath();
 				}
 			}
 		}
 
-		if (UserGroupSupport.getUserOrganizationCdnDirectPath() != null && (getS3UploadFlag() == null || getS3UploadFlag() == 0)) {
+		if (UserGroupSupport.getUserOrganizationCdnDirectPath() != null
+				&& (getS3UploadFlag() == null || getS3UploadFlag() == 0)) {
 			assetURI = UserGroupSupport.getUserOrganizationCdnDirectPath();
 		}
 		assetURI = BaseUtil.changeHttpsProtocol(assetURI);
@@ -481,7 +492,8 @@ public class Resource extends Content implements Serializable {
 	}
 
 	public Thumbnail getThumbnails() {
-		return new Thumbnail(this.getResourceType(), getUrl(), getThumbnail(), getAssetURI(), getFolder());
+		return new Thumbnail(this.getResourceType(), getUrl(), getThumbnail(),
+				getAssetURI(), getFolder());
 	}
 
 	public void setCustomFields(Map<String, String> customFields) {
@@ -800,7 +812,7 @@ public class Resource extends Content implements Serializable {
 	public void setEducationalUseIds(List<Integer> educationalUseIds) {
 		this.educationalUseIds = educationalUseIds;
 	}
-	
+
 	public List<String> getDepthOfKnowledges() {
 		return depthOfKnowledges;
 	}
@@ -808,11 +820,11 @@ public class Resource extends Content implements Serializable {
 	public void setDepthOfKnowledges(List<String> depthOfKnowledges) {
 		this.depthOfKnowledges = depthOfKnowledges;
 	}
-	
+
 	public List<String> getEducationalUse() {
 		return educationalUse;
 	}
-	
+
 	public void setEducationalUse(List<String> educationalUse) {
 		this.educationalUse = educationalUse;
 	}
@@ -825,5 +837,20 @@ public class Resource extends Content implements Serializable {
 		this.momentsOfLearning = momentsOfLearning;
 	}
 
+	public List<Integer> getMediaFeatureIds() {
+		return mediaFeatureIds;
+	}
+
+	public void setMediaFeatureIds(List<Integer> mediaFeatureIds) {
+		this.mediaFeatureIds = mediaFeatureIds;
+	}
+
+	public List<Integer> getAccessHazardIds() {
+		return accessHazardIds;
+	}
+
+	public void setAccessHazardIds(List<Integer> accessHazardIds) {
+		this.accessHazardIds = accessHazardIds;
+	}
 
 }

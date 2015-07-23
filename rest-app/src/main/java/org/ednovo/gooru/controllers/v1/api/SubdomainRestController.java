@@ -91,7 +91,8 @@ public class SubdomainRestController extends BaseController implements ConstantP
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBDOMAIN_READ })
 	@RequestMapping(value = RequestMappingUri.SUBDOMAIN_STANDARDS, method = RequestMethod.GET)
 	public ModelAndView getSubdomainStandards(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) Integer subdomainId)   {
-		return toModelAndViewWithIoFilter(this.getSubdomainService().getSubdomainStandards(subdomainId), FORMAT_JSON, EXCLUDE, true, "*");
+		User user = (User) request.getAttribute(Constants.USER);
+		return toModelAndViewWithIoFilter(this.getSubdomainService().getSubdomainStandards(subdomainId, user), FORMAT_JSON, EXCLUDE, true, "*");
 	}
 
 	private Subdomain buildSubdomainFromInputParameters(String data) {

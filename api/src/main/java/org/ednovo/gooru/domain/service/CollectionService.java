@@ -37,7 +37,6 @@ import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 
-
 /**
  * @author Search Team
  * 
@@ -45,40 +44,36 @@ import org.ednovo.gooru.domain.service.search.SearchResults;
 public interface CollectionService extends ScollectionService {
 
 	ActionResponseDTO<CollectionItem> createQuestionWithCollectionItem(String collectionId, String data, User user, String questionImgSrc, String sourceReference) throws Exception;
-	
+
 	ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(String collectionItemId, String data, List<Integer> deleteAssets, User user, String questionImgSrc) throws Exception;
-	
+
 	ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(String gooruOid, String questionGooruOid, String data, List<Integer> deleteAssets, User user, String mediaFileName) throws Exception;
 
-    void deleteQuestionWithCollectionItem(String collectionId,String resourceId);
-	 
+	void deleteQuestionWithCollectionItem(String collectionId, String resourceId);
+
 	ActionResponseDTO<CollectionItem> moveCollectionToFolder(String sourceId, String taregetId, User user) throws Exception;
 
 	ActionResponseDTO<CollectionItem> createQuestionWithCollectionItem(String collectionId, AssessmentQuestion assessmentQuestion, User user, String questionImgSrc) throws Exception;
 
 	Boolean resourceCopiedFrom(String gooruOid, String gooruUid);
-	
+
 	List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem, String topLevelCollectionType, String orderBy, String excludeType);
-	
+
 	List<Map<String, Object>> getCollectionItem(String gooruOid, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem, String orderBy, String excludeType);
-	
+
 	List<Map<String, Object>> getFolderItem(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, String sortOrder, String excludeType);
-	
-	SearchResults<Code> getCollectionStandards(Integer codeId,String query, Integer limit, Integer offset, User user);
-	
-	Map<String, Object> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String username );
-	
+
+	SearchResults<Code> getCollectionStandards(Integer codeId, String query, Integer limit, Integer offset, User user);
+
+	Map<String, Object> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String username);
+
 	List<CollectionItem> createCollectionItems(List<String> collectionsIds, String resourceId, User user) throws Exception;
-	
-	List<CollectionItem> assignCollection(String classpageId, String collectionId, User user, String direction, String planedEndDate, Boolean isRequired, String minimumScore,String estimatedTime,Boolean showAnswerByQuestions,Boolean showAnswerEnd,Boolean showHints) throws Exception;
-	
-	List<CollectionItem> assignCollectionToPathway(String classpageId, String pathwayId,String collectionId, User user, String direction, String planedEndDate, Boolean isRequired,String minimumScore,String estimatedTime,Boolean showAnswerByQuestions,Boolean showAnswerEnd,Boolean showHints) throws Exception;
-	
-	List<Collection> updateCollectionForPublish(List<Map<String,String>> collection,User user) throws Exception;
-	
-	List<Collection> updateCollectionForReject(List<Map<String,String>> collection,User user) throws Exception;
-	
+
+	List<Collection> updateCollectionForPublish(List<Map<String, String>> collection, User user) throws Exception;
+
+	List<Collection> updateCollectionForReject(List<Map<String, String>> collection, User user) throws Exception;
+
 	SearchResults<Collection> getCollections(Integer offset, Integer limit, User user, String publishStatus);
-	
-	String getFolderItemsWithCache(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, boolean clearCache,User user, String excludeType);	
+
+	String getFolderItemsWithCache(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, boolean clearCache, User user, String excludeType);
 }

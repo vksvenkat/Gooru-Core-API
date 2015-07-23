@@ -23,6 +23,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.service.eventlogs.CollectionEventLog;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
@@ -64,7 +65,12 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	@Autowired
 	private CollaboratorRepository collaboratorRepository;
 
+	@Autowired
+	private CollectionEventLog collectionEventLog;
+
 	private final static String COLLECTION_IMAGE_DIMENSION = "160x120,75x56,120x90,80x60,800x600";
+
+	private final static String LAST_USER_MODIFIED = "lastUserModified";
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -83,6 +89,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		this.updateContentMetaDataSummary(lesson.getContentId(), collection.getContent().getContentType().getName(), DELETE);
 		collection.getContent().setIsDeleted((short) 1);
 		this.getCollectionDao().save(collection);
+		getCollectionEventLog().deleteCollectionEventLog(courseId, unitId, lessonId, collectionId, user, collection.getContent().getContentType().getName());
 	}
 
 	@Override
@@ -129,6 +136,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				}
 			}
 			createCollection(user, collection, targetCollection);
+			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
@@ -285,7 +293,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(collection, GL0056, 404, COLLECTION);
 		Resource resource = getResourceBoService().getResource(resourceId);
 		rejectIfNull(resource, GL0056, 404, RESOURCE);
-		updateCollectionMetaDataSummary(collection.getContentId(), QUESTION, ADD);
+		updateCollectionMetaDataSummary(collection.getContentId(), RESOURCE, ADD);
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setItemType(ADDED);
 		return createCollectionItem(collectionItem, collection, resource, user);
@@ -310,7 +318,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Map<String, Object> getCollection(String collectionId, String collectionType, User user, boolean includeItems) {
+	public Map<String, Object> getCollection(String collectionId, String collectionType, User user, boolean includeItems, boolean includeLastModifiedUser) {
 		Map<String, Object> collection = super.getCollection(collectionId, collectionType);
 		StringBuilder key = new StringBuilder(ALL_);
 		key.append(collection.get(GOORU_OID));
@@ -318,10 +326,28 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if (includeItems) {
 			collection.put(COLLECTION_ITEMS, this.getCollectionItems(collectionId, MAX_LIMIT, 0));
 		}
-		final boolean isCollaborator = this.getCollaboratorRepository().findCollaboratorById(collectionId, user.getGooruUId()) != null ? true : false;
+		if (includeLastModifiedUser) {
+			Object lastModifiedUserUid = collection.get(LAST_MODIFIED_USER_UID);
+			if (lastModifiedUserUid != null) {
+				collection.put(LAST_USER_MODIFIED, getLastCollectionModifyUser(String.valueOf(lastModifiedUserUid)));
+			}
+		}
+		collection.remove(LAST_MODIFIED_USER_UID);
+		final boolean isCollaborator = this.getCollaboratorRepository().findCollaboratorById(collectionId, user.getPartyUid()) != null ? true : false;
 		collection.put(PERMISSIONS, getContentService().getContentPermission(collectionId, user));
 		collection.put(IS_COLLABORATOR, isCollaborator);
 		return collection;
+	}
+
+	private Map<String, Object> getLastCollectionModifyUser(String userUid) {
+		Map<String, Object> lastUserModifiedMap = null;
+		final User lastUserModified = this.getUserService().findByGooruId(userUid);
+		if (lastUserModified != null) {
+			lastUserModifiedMap = new HashMap<String, Object>();
+			lastUserModifiedMap.put(USER_NAME, lastUserModified.getUsername());
+			lastUserModifiedMap.put(GOORU_UID, lastUserModified.getGooruUId());
+		}
+		return lastUserModifiedMap;
 	}
 
 	@Override
@@ -494,7 +520,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 		Object thumbnail = content.get(THUMBNAIL);
 		if (thumbnail != null) {
-			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
+			StringBuilder imagePath = new StringBuilder();
+			imagePath.append(content.get(FOLDER)).append(thumbnail);
+			content.put(THUMBNAILS, GooruImageUtil.getThumbnails(imagePath.toString()));
 		}
 		if (typeName.equalsIgnoreCase(ResourceType.Type.ASSESSMENT_QUESTION.getType())) {
 			// To-Do, need fix later, by getting answer and hints details
@@ -506,8 +534,10 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 				content.put(HINTS, assessmentQuestion.getHints());
 			} else {
 				String json = getMongoQuestionsService().getQuestionByIdWithJsonAdjustments(gooruOid);
-				content.putAll(JsonDeserializer.deserialize(json, new TypeReference<Map<String, Object>>() {
-				}));
+				if (json != null) {
+					content.putAll(JsonDeserializer.deserialize(json, new TypeReference<Map<String, Object>>() {
+					}));
+				}
 			}
 		}
 		content.put(USER, setUser(content.get(GOORU_UID), content.get(USER_NAME)));
@@ -574,35 +604,26 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollectionItem(String collectionId, String collectionItemId, String userUid) {
-		CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(collectionId, collectionItemId, userUid);
+		CollectionItem collectionItem = this.getCollectionDao().getCollectionItem(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, 404, _COLLECTION_ITEM);
 		Resource resource = this.getResourceBoService().getResource(collectionItem.getContent().getGooruOid());
 		rejectIfNull(resource, GL0056, 404, RESOURCE);
 		String contentType = resource.getContentType().getName();
 		Long collectionContentId = collectionItem.getCollection().getContentId();
 		this.resetSequence(collectionId, collectionItem.getCollectionItemId(), userUid, COLLECTION_ITEM);
+		getCollectionEventLog().deleteCollectionItemEventLog(collectionId, collectionItem.getContent().getGooruOid(), userUid, contentType);
 		if (contentType.equalsIgnoreCase(QUESTION)) {
 			getCollectionDao().remove(resource);
 		} else {
 			getCollectionDao().remove(collectionItem);
 		}
 		updateCollectionMetaDataSummary(collectionContentId, RESOURCE, contentType);
-		// yet to handle reset sequence
 	}
 
 	private Errors validateResource(final Resource resource) {
 		final Errors errors = new BindException(resource, RESOURCE);
 		if (resource != null) {
 			rejectIfNullOrEmpty(errors, resource.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
-		}
-		return errors;
-	}
-
-	private Errors validateQuestion(final AssessmentQuestion quetsion) {
-		final Errors errors = new BindException(quetsion, QUESTION);
-		if (quetsion != null) {
-			rejectIfNullOrEmpty(errors, quetsion.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
-			rejectIfNullOrEmpty(errors, quetsion.getQuestionText(), QUESTION_TEXT, GL0006, generateErrorMessage(GL0006, QUESTION_TEXT));
 		}
 		return errors;
 	}
@@ -641,6 +662,10 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	public CollaboratorRepository getCollaboratorRepository() {
 		return collaboratorRepository;
+	}
+
+	public CollectionEventLog getCollectionEventLog() {
+		return collectionEventLog;
 	}
 
 }

@@ -118,8 +118,6 @@ public interface CollectionRepository extends BaseRepository {
 
 	Long getCollectionCount(Short publishstatusId);
 
-	Collection getCollectionByIdWithType(String gooruOid, String type);
-
 	List<Object[]> getClasspageAssoc(Integer offset, Integer limit, String classpageId, String collectionId, String gooruUid, String title, String collectionTitle, String classCode, String collectionItemId);
 
 	BigInteger getClasspageAssocCount(String classpageId, String collectionId, String gooruUid, String title, String collectionTitle, String classCode, String collectionItemId);
