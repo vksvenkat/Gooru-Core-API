@@ -108,6 +108,10 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 			List<Map<String, Object>> standards = updateContentCode(collection, newCollection.getStandardIds(), MetaConstants.CONTENT_CLASSIFICATION_STANDARD_TYPE_ID);
 			data.put(STANDARDS, standards);
 		}
+		if (newCollection.getTaxonomyCourseIds() != null) {
+			List<Map<String, Object>> taxonomyCourse = updateTaxonomyCourse(collection, newCollection.getTaxonomyCourseIds());
+			data.put(TAXONOMY_COURSE, taxonomyCourse);
+		}
 		return data;
 	}
 
