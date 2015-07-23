@@ -32,9 +32,6 @@ public class LessonRestController extends BaseController implements ConstantProp
 
 	@Autowired
 	private LessonService lessonService;
-	
-	@Autowired
-	private LessonEventLog lessonEventLog;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@RequestMapping(method = RequestMethod.POST)
@@ -75,7 +72,6 @@ public class LessonRestController extends BaseController implements ConstantProp
 	public void deleteLesson(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @PathVariable(value = ID) final String lessonId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		this.getLessonService().deleteLesson(courseId, unitId, lessonId, user);
-		getLessonEventLog().deleteEventLogs(courseId, unitId, lessonId, user);
 	}
 
 	private Collection buildLesson(final String data) {
@@ -86,7 +82,4 @@ public class LessonRestController extends BaseController implements ConstantProp
 		return lessonService;
 	}
 
-	public LessonEventLog getLessonEventLog() {
-		return lessonEventLog;
-	}
 }

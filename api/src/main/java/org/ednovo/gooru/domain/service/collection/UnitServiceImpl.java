@@ -18,6 +18,7 @@ import org.ednovo.gooru.core.api.model.Subdomain;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.service.eventlogs.UnitEventLog;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.SubdomainRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,9 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 
 	@Autowired
 	private SubdomainRepository subdomainRepository;
+	
+	@Autowired
+	public UnitEventLog unitEventLog;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -38,10 +42,11 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		final Errors errors = validateUnit(collection);
 		if (!errors.hasErrors()) {
 			Collection parentCollection = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
-			rejectIfNull(collection, GL0056, COURSE);
+			rejectIfNull(parentCollection, GL0056, COURSE);
 			collection.setSharing(Sharing.PRIVATE.getSharing());
 			collection.setCollectionType(CollectionType.UNIT.getCollectionType());
-			createCollection(collection, parentCollection, user);
+			Collection unit = createCollection(collection, parentCollection, user);
+			getUnitEventLog().unitEventLogs(courseId, unit.getGooruOid(), user, collection, ADD);
 			Map<String, Object> data = generateUnitMetaData(collection, collection, user);
 			data.put(SUMMARY, MetaConstants.UNIT_SUMMARY);
 			createContentMeta(collection, data);
@@ -96,6 +101,7 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(unitId, user), GL0099, 403, UNIT);
 		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(course, GL0056, COURSE);
+		getUnitEventLog().unitEventLogs(courseId, unitId, user, null, DELETE);
 		this.resetSequence(courseId, unit.getContent().getGooruOid(), user.getPartyUid(), UNIT);
 		updateContentMetaDataSummary(course.getContentId(), UNIT, DELETE);
 		unit.getContent().setIsDeleted((short) 1);
@@ -151,5 +157,9 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 
 	public SubdomainRepository getSubdomainRepository() {
 		return subdomainRepository;
+	}
+	
+	public UnitEventLog getUnitEventLog() {
+		return unitEventLog;
 	}
 }
