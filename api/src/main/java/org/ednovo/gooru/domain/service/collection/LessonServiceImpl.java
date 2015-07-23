@@ -91,6 +91,12 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		rejectIfNull(unit, GL0056, UNIT);
         return this.getCollection(lessonId, CollectionType.LESSON.getCollectionType());
 	}
+	
+	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public Map<String, Object> getLesson(String lessonId) {
+		return this.getCollection(lessonId, CollectionType.LESSON.getCollectionType());
+	}
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)

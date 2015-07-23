@@ -320,13 +320,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Map<String, Object> getCollection(String courseId,String unitId,String lessonId,String collectionId,String collectionType, User user, boolean includeItems, boolean includeLastModifiedUser) {
-		Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
-		rejectIfNull(course,GL0056,404, COURSE);
-		Collection unit = this.getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
-		rejectIfNull(unit,GL0056,404, UNIT);
-		Collection lesson = this.getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
-		rejectIfNull(lesson,GL0056,404, LESSON);
+	public Map<String, Object> getCollection(String collectionId,String collectionType, User user, boolean includeItems, boolean includeLastModifiedUser) {
 		Map<String, Object> collection = super.getCollection(collectionId, collectionType);
 		StringBuilder key = new StringBuilder(ALL_);
 		key.append(collection.get(GOORU_OID));
@@ -345,6 +339,17 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		collection.put(PERMISSIONS, getContentService().getContentPermission(collectionId, user));
 		collection.put(IS_COLLABORATOR, isCollaborator);
 		return collection;
+	}
+	
+    @Override
+	public Map<String, Object> getCollection(String courseId, String unitId, String lessonId, String collectionId, String collectionType, User user, boolean includeItems, boolean includeLastModifiedUser) {
+		Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
+		rejectIfNull(course,GL0056,404, COURSE);
+		Collection unit = this.getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
+		rejectIfNull(unit,GL0056,404, UNIT);
+		Collection lesson = this.getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
+		rejectIfNull(lesson,GL0056,404, LESSON);
+		return	this.getCollection(collectionId, collectionType, user, includeItems, includeLastModifiedUser);
 	}
 
 	private Map<String, Object> getLastCollectionModifyUser(String userUid) {

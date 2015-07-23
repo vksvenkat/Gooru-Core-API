@@ -20,6 +20,8 @@ public interface CollectionBoService extends AbstractCollectionService {
 
 	Map<String, Object> getCollection(String courseId,String unitId,String lessonId,String collectionId, String collectionType, User user, boolean includeItems, boolean includeLastModifiedUser);
 
+	Map<String, Object> getCollection(String collectionId, String collectionType, User user, boolean includeItems, boolean includeLastModifiedUser);
+	
 	List<Map<String, Object>> getCollections(String lessonId, String collectionType, int limit, int offset);
 
 	void deleteCollection(String courseUId, String unitUId, String lessonUId, String collectionId, User user);
