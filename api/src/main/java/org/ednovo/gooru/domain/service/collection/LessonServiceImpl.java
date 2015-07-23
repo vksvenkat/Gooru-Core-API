@@ -84,8 +84,12 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 	
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Map<String, Object> getLesson(String lessonId) {
-		return this.getCollection(lessonId, CollectionType.UNIT.getCollectionType());
+	public Map<String, Object> getLesson(String courseId,String unitId,String lessonId) {
+		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
+		rejectIfNull(course, GL0056,404, COURSE);
+		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
+		rejectIfNull(unit, GL0056, UNIT);
+        return this.getCollection(lessonId, CollectionType.LESSON.getCollectionType());
 	}
 
 	@Override

@@ -62,7 +62,7 @@ public class UnitRestController extends BaseController implements ConstantProper
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.GET)
 	public ModelAndView getUnit(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = ID) final String unitId, final HttpServletRequest request, final HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(getUnitService().getUnit(unitId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
+		return toModelAndViewWithIoFilter(getUnitService().getUnit(courseId,unitId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })

@@ -22,7 +22,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 
 	private static final String GET_COLLECTION = "FROM Collection where gooruOid=:collectionId and isDeleted = 0";
 
-	private static final String COLLECTION_BY_TYPE = "FROM Collection where gooruOid=:collectionId and collectionType in (:collectionType)";
+	private static final String COLLECTION_BY_TYPE = "FROM Collection where gooruOid=:collectionId and isDeleted = 0 and collectionType in (:collectionType)";
 
 	private static final String GET_COLLECTION_BY_TYPE = "FROM Collection where user.partyUid=:partyUid and collectionType=:collectionType and isDeleted = 0";
 
@@ -134,7 +134,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 			if (filters.get(ITEM_TYPE) != null) {
 				queryAppender(sqlQuery).append(" ci.item_type != :itemType ");
 			}
-			queryAppender(sqlQuery).append(" cr.is_deleted=0 and cc.is_deleted=0  ");
+			queryAppender(sqlQuery).append(" cr.is_deleted=0");
 			sql.append(sqlQuery.toString());
 		}
 		sql.append(" order by ci.item_sequence");

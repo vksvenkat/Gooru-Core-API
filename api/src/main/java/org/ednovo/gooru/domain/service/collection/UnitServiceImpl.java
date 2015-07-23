@@ -38,7 +38,7 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		final Errors errors = validateUnit(collection);
 		if (!errors.hasErrors()) {
 			Collection parentCollection = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
-			rejectIfNull(collection, GL0056, COURSE);
+			rejectIfNull(parentCollection, GL0056, COURSE);
 			collection.setSharing(Sharing.PRIVATE.getSharing());
 			collection.setCollectionType(CollectionType.UNIT.getCollectionType());
 			createCollection(collection, parentCollection, user);
@@ -70,7 +70,9 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Map<String, Object> getUnit(String unitId) {
+	public Map<String, Object> getUnit(String courseId,String unitId) {
+		Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
+		rejectIfNull(course, GL0056, COURSE);
 		return this.getCollection(unitId, CollectionType.UNIT.getCollectionType());
 	}
 

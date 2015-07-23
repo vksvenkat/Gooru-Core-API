@@ -12,7 +12,7 @@ public interface LessonService extends AbstractCollectionService {
 
 	void updateLesson(String unitId, String lessonId, Collection newCollection, User user);
 
-	Map<String, Object> getLesson(String lessonId);
+	Map<String, Object> getLesson(String courseId,String unitId,String lessonId);
 
 	List<Map<String, Object>> getLessons(String unitId, int limit, int offset);
 	

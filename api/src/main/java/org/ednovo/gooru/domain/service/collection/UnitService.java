@@ -13,7 +13,7 @@ public interface UnitService extends AbstractCollectionService {
 	
 	void updateUnit(String courseId, String unitId, Collection newCollection, User user);
 	
-	Map<String, Object> getUnit(String unitId);
+	Map<String, Object> getUnit(String courseId,String unitId);
 	
 	List<Map<String, Object>> getUnits(String courseId, int limit, int offset);
 	

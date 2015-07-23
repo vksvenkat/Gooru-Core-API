@@ -363,7 +363,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Override
 	public Map<String, Object> getClassCollections(String lessonId, int limit, int offset) {
-		Map<String, Object> lesson = this.getLessonService().getLesson(lessonId);
+		Map<String, Object> lesson = this.getLessonService().getLesson( null ,null,lessonId);
 		Object gooruOid = lesson.get(GOORU_OID);
 		if (gooruOid != null) {
 			List<Map<String, Object>> collections = this.getClassRepository().getCollections(lessonId, limit, offset);
