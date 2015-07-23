@@ -28,7 +28,6 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.ContentProvider;
-import org.ednovo.gooru.core.api.model.CsvCrawler;
 import org.ednovo.gooru.core.api.model.License;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceInfo;
@@ -40,7 +39,6 @@ import org.ednovo.gooru.core.cassandra.model.ResourceMetadataCo;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface ResourceRepository extends BaseRepository {
-	
 	Resource findWebResource(String url);
 
 	Resource findResourceByContentGooruId(String gooruContentId);
@@ -49,13 +47,9 @@ public interface ResourceRepository extends BaseRepository {
 
 	List<Resource> findAllResourceBySourceId(Integer resourceSourceId);
 
-	int findViews(String contentGooruId);
-
 	List<Resource> findWebResourcesForBlacklisting();
 
 	void updateWebResource(Long contentId, Integer status);
-
-	List<Resource> listResources(Map<String, String> filters);
 
 	Textbook findTextbookByContentGooruId(String gooruContentId);
 
@@ -75,41 +69,15 @@ public interface ResourceRepository extends BaseRepository {
 
 	Map<String, Object> findAllResourcesSource(Map<String, String> filters);
 
-	List<Resource> findByContentIds(List<Long> contentIds);
-
-	List<String> getUnorderedInstanceSegments();
-
 	ResourceInfo findResourceInfo(String resourceGooruOid);
-
-	void insertResourceUrlStatus();
 
 	void deleteResourceBulk(String contentIds);
 
-	String getContentIdsByGooruOIds(String resourceGooruOIds);
-
 	List<Resource> findAllResourcesByGooruOId(String resourceGooruOIds);
-
-	ResourceUrlStatus findResourceUrlStatusByGooruOId(String resourceGooruOId);
 
 	Resource findResourceByUrl(String resourceUrl, String sharing, String userUid);
 
-	List<Resource> getResourceListByUrl(String resourceUrl, String sharing, String userUid);
-
-	List<Resource> listAllResourceWithoutGroups(Map<String, String> filters);
-
-	Resource getResourceByResourceInstanceId(String resourceInstanceId);
-
-	List<String> findAllPublicResourceGooruOIds(Map<String, String> filters);
-
 	ResourceInfo getResourcePageCount(String resourceId);
-
-	String getResourceInstanceNarration(String resourceInstanceId);
-
-	CsvCrawler getCsvCrawler(String url, String type);
-
-	void saveCsvCrawler(CsvCrawler csvCrawler);
-
-	boolean findIdIsValid(Class<?> modelClass, String ids);
 
 	String shortenedUrlResourceCheck(String domainName, String domainType);
 
@@ -119,42 +87,33 @@ public interface ResourceRepository extends BaseRepository {
 
 	List getResourceFlatten(List<Long> contentIds);
 
-	List getResourceRatingSubscription(long contentId);
-
 	List<Long> findResources(Map<String, String> filters);
 
 	List getResourceFieldValueById(String field, String contentIds);
 
 	List<Resource> listResourcesUsedInCollections(Integer limit, Integer offset);
 
-	Map<String, Object> getResourceCollectionInfo(long contentId);
-
 	Map<String, Object> getContentSubscription(long contentId);
 
 	List<Map<String, Object>> getPartyPermissions(long contentId);
 
-	List<Long> findValidContentIds(Class<?> modelClass, String ids);
-
 	void saveTextBook(Long contentId, String documentId, String documentKey);
 
 	Textbook findTextbookByContentGooruIdWithNewSession(String gooruOid);
-	
+
 	License getLicenseByLicenseName(String licenseName);
-	
+
 	Resource findResourceByContent(String gooruContentId);
-	
+
 	Resource findLtiResourceByContentGooruId(String gooruContentId);
 
 	List<ContentProvider> getResourceContentProvierList();
-	
+
 	ResourceSummary getResourceSummaryById(String gooruOid);
-	
-	Integer getSubscriptionCountForGooruOid(String contentGooruOid);
-	
+
 	List<Collection> getCollectionsByResourceId(String resourceId, String sharing, Integer limit, Integer offset);
 
 	Long getContentId(String contentGooruOid);
 
 	List<Object[]> getContentIds(String gooruOids);
-
 }
