@@ -57,8 +57,8 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		rejectIfNull(collection, GL0056, UNIT);
 		Collection parentCollection = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(collection, GL0056, COURSE);
-		if(newCollection.getPosition() != null){
-			this.resetSequence(parentCollection, collection.getGooruOid() , newCollection.getPosition(), user.getPartyUid(), UNIT);
+		if (newCollection.getPosition() != null) {
+			this.resetSequence(parentCollection, collection.getGooruOid(), newCollection.getPosition(), user.getPartyUid(), UNIT);
 		}
 		this.updateCollection(collection, newCollection, user);
 		Map<String, Object> data = generateUnitMetaData(collection, newCollection, user);
@@ -99,7 +99,7 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		this.resetSequence(courseId, unit.getContent().getGooruOid(), user.getPartyUid(), UNIT);
 		updateContentMetaDataSummary(course.getContentId(), UNIT, DELETE);
 		unit.getContent().setIsDeleted((short) 1);
-		this.getCollectionDao().save(unit);		
+		this.getCollectionDao().save(unit);
 	}
 
 	private Map<String, Object> generateUnitMetaData(Collection collection, Collection newCollection, User user) {
@@ -152,5 +152,4 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 	public SubdomainRepository getSubdomainRepository() {
 		return subdomainRepository;
 	}
-
 }

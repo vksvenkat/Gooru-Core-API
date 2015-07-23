@@ -2880,7 +2880,7 @@ public interface ParameterProperties {
 	
 	String UNIT_GOORU_ID = "unitGooruId";
 	
-	String LESSON_GOORU_ID = "lesonGooruId";
+	String LESSON_GOORU_ID = "lessonGooruId";
 	
 	String SCORE_IN_PERCENTAGE = "scoreInPerCentage";
 

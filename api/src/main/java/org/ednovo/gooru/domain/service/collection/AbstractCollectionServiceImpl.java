@@ -31,6 +31,7 @@ import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.TaxonomyCourseRepository;
+import org.ednovo.gooru.domain.service.eventlogs.CollectionEventLog;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
@@ -67,6 +68,9 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	@Autowired
 	private SettingService settingService;
+	
+	@Autowired
+	private CollectionEventLog collectionEventLog;
 
 	protected final static String TAXONOMY_COURSE = "taxonomyCourse";
 
@@ -451,6 +455,10 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 	
 	public AsyncExecutor getAsyncExecutor() {
 		return asyncExecutor;
+	}
+
+	public CollectionEventLog getCollectionEventLog() {
+		return collectionEventLog;
 	}
 
 }

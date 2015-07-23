@@ -66,7 +66,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepo
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.ednovo.gooru.mongodb.assessments.questions.services.MongoQuestionsService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
-import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -173,13 +172,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				mongoQuestionsService.createQuestion(question.getGooruOid(), data);
 			}
 		}
-		try {
-			this.getCollectionEventLog().getEventLogs(response.getModel(), false, true, user, response.getModel().getCollection().getCollectionType());
-		} catch (Exception e) {
-			if (LOGGER.isErrorEnabled()) {
-				LOGGER.error(e.getMessage());
-			}
-		}
 		return response;
 
 	}
@@ -225,7 +217,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, QUESTION), GL0056);
 		}
-		this.getCollectionEventLog().getEventLogs(collectionItem, false, false, user, false, true, data);
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 
 	}
@@ -309,13 +300,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 
-		try {
-			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true, false, user, responseDTO.getModel().getCollection().getCollectionType(), sourceCollectionItem);
-		} catch (JSONException e) {
-			if (LOGGER.isErrorEnabled()) {
-				LOGGER.error(e.getMessage());
-			}
-		}
 		return responseDTO;
 	}
 
