@@ -84,16 +84,6 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 	
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Map<String, Object> getLesson(String courseId,String unitId,String lessonId) {
-		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
-		rejectIfNull(course, GL0056,404, COURSE);
-		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
-		rejectIfNull(unit, GL0056, UNIT);
-        return this.getCollection(lessonId, CollectionType.LESSON.getCollectionType());
-	}
-	
-	@Override
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getLesson(String lessonId) {
 		return this.getCollection(lessonId, CollectionType.LESSON.getCollectionType());
 	}
@@ -101,10 +91,12 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getLessons(String unitId, int limit, int offset) {
+		Collection unit = this.getCollectionDao().getCollectionByType(unitId, COURSE_TYPE);
+		rejectIfNull(unit,GL0056,UNIT);
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put(COLLECTION_TYPE, LESSON_TYPE);
 		filters.put(PARENT_GOORU_OID, unitId);
-		List<Map<String, Object>> results = this.getCollections(filters, limit, offset);
+		List<Map<String, Object>> results = this.getCollections(filters,limit, offset);
 		List<Map<String, Object>> lessons = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> lesson : results) {
 			lessons.add(mergeMetaData(lesson));

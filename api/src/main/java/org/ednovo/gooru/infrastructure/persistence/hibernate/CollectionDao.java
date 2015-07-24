@@ -17,7 +17,7 @@ public interface CollectionDao extends BaseRepository {
 
 	Collection getCollectionByUser(String collectionId, String userUid);
 
-	List<Map<String, Object>> getCollections(Map<String, Object> filters, int limit, int offset);
+	List<Map<String, Object>> getCollections(Map<String, Object> filters,int limit, int offset);
 
 	List<Map<String, Object>> getCollectionItem(Map<String, Object> filters, int limit, int offset);
 

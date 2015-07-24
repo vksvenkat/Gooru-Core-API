@@ -340,17 +340,6 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		collection.put(IS_COLLABORATOR, isCollaborator);
 		return collection;
 	}
-	
-    @Override
-	public Map<String, Object> getCollection(String courseId, String unitId, String lessonId, String collectionId, String collectionType, User user, boolean includeItems, boolean includeLastModifiedUser) {
-		Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
-		rejectIfNull(course,GL0056,404, COURSE);
-		Collection unit = this.getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
-		rejectIfNull(unit,GL0056,404, UNIT);
-		Collection lesson = this.getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
-		rejectIfNull(lesson,GL0056,404, LESSON);
-		return	this.getCollection(collectionId, collectionType, user, includeItems, includeLastModifiedUser);
-	}
 
 	private Map<String, Object> getLastCollectionModifyUser(String userUid) {
 		Map<String, Object> lastUserModifiedMap = null;
@@ -366,11 +355,13 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getCollections(String lessonId, String collectionType, int limit, int offset) {
+		Collection lesson = this.getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
+		rejectIfNull(lesson, GL0056, LESSON);
 		Map<String, Object> filters = new HashMap<String, Object>();
 		String[] collectionTypes = collectionType.split(COMMA);
 		filters.put(COLLECTION_TYPE, collectionTypes);
 		filters.put(PARENT_GOORU_OID, lessonId);
-		List<Map<String, Object>> results = this.getCollections(filters, limit, offset);
+		List<Map<String, Object>> results = this.getCollections(filters,limit, offset);
 		List<Map<String, Object>> collections = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> collection : results) {
 			collections.add(mergeMetaData(collection));
