@@ -11,7 +11,7 @@ import org.ednovo.gooru.core.api.model.User;
 
 public interface AbstractCollectionService {
 
-	Collection createCollection(Collection collection, Collection parentCollection, User user);
+	CollectionItem createCollection(Collection collection, Collection parentCollection, User user);
 
 	Collection updateCollection(Collection collection, Collection newCollection, User user);
 

@@ -2912,4 +2912,6 @@ public interface ParameterProperties {
     
     String FOLDER_ID = "folderId";
     
+    String PARENT_SHARING = "parentSharing";
+    
 }
