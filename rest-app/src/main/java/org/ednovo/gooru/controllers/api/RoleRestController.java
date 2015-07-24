@@ -54,7 +54,6 @@ public class RoleRestController extends BaseController {
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST)
 	public ModelAndView createRole(HttpServletRequest request, @RequestParam(value = NAME) String name, @RequestParam(value = DESCRIPTION) String description, @RequestParam(value = SESSIONTOKEN, required = false) String sessionToken, @RequestParam(value = FORMAT, defaultValue = FORMAT_JSON) String format,
 			HttpServletResponse response) throws Exception {
@@ -65,7 +64,6 @@ public class RoleRestController extends BaseController {
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{roleId}/operation")
 	public ModelAndView updateRoleOperation(HttpServletRequest request, @RequestParam(value = OPERATIONS) String operations, @PathVariable(ROLE_ID) Integer roleId, @RequestParam(value = SESSIONTOKEN, required = false) String sessionToken,
 			@RequestParam(value = FORMAT, defaultValue = FORMAT_JSON) String format, HttpServletResponse response) throws Exception {
@@ -76,7 +74,6 @@ public class RoleRestController extends BaseController {
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{roleId}/operation")
 	public void  removeRoleOperation(HttpServletRequest request, @RequestParam(value = OPERATIONS) String operations, @PathVariable(ROLE_ID) Integer roleId, @RequestParam(value = SESSIONTOKEN, required = false) String sessionToken,
 			@RequestParam(value = FORMAT, defaultValue = FORMAT_JSON) String format, HttpServletResponse response) throws Exception {

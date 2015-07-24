@@ -58,7 +58,6 @@ public class CollaboratorRestV2Controller extends BaseController implements Para
 	private CollaboratorService collaboratorService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/content/{id}" }, method = RequestMethod.POST)
 	public ModelAndView addCollaborator(@PathVariable(ID) final String gooruOid, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -67,7 +66,6 @@ public class CollaboratorRestV2Controller extends BaseController implements Para
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/suggest" }, method = RequestMethod.GET)
 	public ModelAndView collaboratorSuggest(@RequestParam(value = QUERY) final String query, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -75,7 +73,6 @@ public class CollaboratorRestV2Controller extends BaseController implements Para
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/content/{id}" }, method = RequestMethod.GET)
 	public ModelAndView getCollaborators(@PathVariable(ID) final String gooruOid, @RequestParam(value = GROUP_BY_STATUS, defaultValue = "false", required = false) final Boolean groupByStatus, @RequestParam(value = FILTER_BY, required = false) final String filterBy, final HttpServletRequest request,
 			final HttpServletResponse response) throws Exception {
@@ -83,7 +80,6 @@ public class CollaboratorRestV2Controller extends BaseController implements Para
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/content/{id}" }, method = RequestMethod.DELETE)
 	public void deleteCollaborator(@PathVariable(ID) final String gooruOid, @RequestParam final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		this.getCollaboratorService().deleteCollaborator(gooruOid, JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {

@@ -245,9 +245,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 					content.setStatusType(statusType);
 				}
 			}
-			if (newContent.getIsDeleted() != null) {
-				content.setIsDeleted(newContent.getIsDeleted());
-			}
+		
 			if (newContent.getSharing() != null && (newContent.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newContent.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newContent.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 				content.setSharing(newContent.getSharing());
 			}

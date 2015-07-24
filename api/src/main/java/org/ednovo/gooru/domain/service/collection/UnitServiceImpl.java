@@ -38,7 +38,7 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		final Errors errors = validateUnit(collection);
 		if (!errors.hasErrors()) {
 			Collection parentCollection = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
-			rejectIfNull(collection, GL0056, COURSE);
+			rejectIfNull(parentCollection, GL0056, COURSE);
 			collection.setSharing(Sharing.PRIVATE.getSharing());
 			collection.setCollectionType(CollectionType.UNIT.getCollectionType());
 			createCollection(collection, parentCollection, user);
@@ -57,8 +57,8 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		rejectIfNull(collection, GL0056, UNIT);
 		Collection parentCollection = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(collection, GL0056, COURSE);
-		if(newCollection.getPosition() != null){
-			this.resetSequence(parentCollection, collection.getGooruOid() , newCollection.getPosition(), user.getPartyUid(), UNIT);
+		if (newCollection.getPosition() != null) {
+			this.resetSequence(parentCollection, collection.getGooruOid(), newCollection.getPosition(), user.getPartyUid(), UNIT);
 		}
 		this.updateCollection(collection, newCollection, user);
 		Map<String, Object> data = generateUnitMetaData(collection, newCollection, user);
@@ -80,7 +80,7 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put(PARENT_GOORU_OID, courseId);
 		filters.put(COLLECTION_TYPE, UNIT_TYPE);
-		List<Map<String, Object>> results = this.getCollections(filters, limit, offset);
+		List<Map<String, Object>> results = this.getCollections(filters,limit, offset);
 		List<Map<String, Object>> units = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> unit : results) {
 			units.add(mergeMetaData(unit));
@@ -97,8 +97,9 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(course, GL0056, COURSE);
 		this.resetSequence(courseId, unit.getContent().getGooruOid(), user.getPartyUid(), UNIT);
-		this.deleteCollection(unitId);
 		updateContentMetaDataSummary(course.getContentId(), UNIT, DELETE);
+		unit.getContent().setIsDeleted((short) 1);
+		this.getCollectionDao().save(unit);
 	}
 
 	private Map<String, Object> generateUnitMetaData(Collection collection, Collection newCollection, User user) {
@@ -151,5 +152,4 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 	public SubdomainRepository getSubdomainRepository() {
 		return subdomainRepository;
 	}
-
 }

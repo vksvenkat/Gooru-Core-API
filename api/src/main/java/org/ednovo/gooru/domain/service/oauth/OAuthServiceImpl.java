@@ -52,6 +52,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomT
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.OrganizationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
@@ -131,6 +133,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<OAuthClient> updateOAuthClient(OAuthClient oAuthClient, String id) {
 		rejectIfNull(oAuthClient, GL0056, "oAuthClient");
 		OAuthClient exsitsOAuthClient = (OAuthClient) oAuthRepository.findOAuthClientByOAuthKey(id);
@@ -171,6 +174,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<OAuthClient> listOAuthClientByOrganization(String organizationUId, Integer offset, Integer limit, String grantType) throws Exception {
 
 		List<OAuthClient> oAuthClient = this.getOAuthRepository().listOAuthClientByOrganization(organizationUId, offset, limit, grantType);
@@ -205,6 +209,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<OAuthClient> getOAuthClientByApiKey(String apiKey) throws Exception {
 		List<OAuthClient> oAuthClientList = oAuthRepository.findOAuthClientByApplicationKey(apiKey);
 		if(oAuthClientList.size() == 0){

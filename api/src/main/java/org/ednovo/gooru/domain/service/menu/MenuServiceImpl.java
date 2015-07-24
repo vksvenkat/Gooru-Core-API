@@ -21,6 +21,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.menu.MenuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 import org.ednovo.gooru.core.exception.BadRequestException;
@@ -35,6 +37,7 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 	private UserRepository userRepository;
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Menu> getMenus(User user, Boolean flag) {
 		List<MenuItem> menuItems = this.getMenuRepository().getMenuItems(getRoles(user), null, null);
 		List<Menu> menu = new ArrayList<Menu>();
@@ -50,6 +53,7 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Menu> createMenu(Menu menu, User user) {
 		final Errors errors = validateCreateMenu(menu);
 		if (!errors.hasErrors()) {
@@ -68,6 +72,7 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Menu updateMenu(Menu newMenu, User user, String menuUid) {
 		Menu menu = this.getMenuRepository().findMenuById(menuUid);
 		rejectIfNull(menu, GL0056, 404, MENU);
@@ -92,22 +97,26 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Menu getMenuById(String menuUid) {
 		return this.getMenuRepository().findMenuById(menuUid);
 
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<MenuItem> getMenuItems(String menuUid) {
 		return this.getMenuRepository().getMenuItemsByMenuId(menuUid);
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public MenuItem getMenuItemById(String menuItemUid) {
 		return this.getMenuRepository().findMenuItemById(menuItemUid);
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public MenuItem updateMenuItem(String menuUid, String menuItemUid, User user) {
 		MenuItem menuItem = this.getMenuRepository().findMenuItemById(menuItemUid);
 		rejectIfNull(menuItem, GL0056,404, MENU_ITEM);
@@ -150,6 +159,7 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public MenuRoleAssoc assignRoleByMenuUid(Integer roleId, String menuUid) throws Exception{
 
 		Menu menu = menuRepository.findMenuById(menuUid);
@@ -164,6 +174,7 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 	}
 	
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void removeAssignedRoleByMenuUid(Integer roleId, String menuUid)throws Exception {
 		MenuRoleAssoc menuRoleAssoc = menuRepository.findMenuRoleAssocEntry(roleId, menuUid);
 		rejectIfNull(menuRoleAssoc, GL0102, 404, MENU);
@@ -171,6 +182,7 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 	}
 	
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteMenu(String id,String type) throws Exception {
 		MenuItem menuItem = new MenuItem(); 
 		int mainMenuSequence = 0;

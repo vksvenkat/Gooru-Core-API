@@ -10,7 +10,6 @@ import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.core.api.model.AssessmentAnswer;
 import org.ednovo.gooru.core.api.model.AssessmentHint;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
@@ -45,7 +44,6 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 
 	@Autowired
 	private AssetManager assetManager;
-
 
 	@Override
 	public AssessmentQuestion createQuestion(String data, User user) {
@@ -222,9 +220,7 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 	}
 
 	@Override
-	public AssessmentQuestion copyQuestion(String questionId, User user) {
-		AssessmentQuestion question = this.getQuestion(questionId);
-		rejectIfNull(question, GL0056, 404, QUESTION);
+	public AssessmentQuestion copyQuestion(AssessmentQuestion question, User user) {
 		AssessmentQuestion copyQuestion = new AssessmentQuestion();
 		copyQuestion.setGooruOid(UUID.randomUUID().toString());
 		copyQuestion.setDescription(question.getDescription());
@@ -235,6 +231,7 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		copyQuestion.setLabel(question.getLabel());
 		copyQuestion.setTitle(question.getTitle());
 		copyQuestion.setResourceType(question.getResourceType());
+		copyQuestion.setResourceFormat(question.getResourceFormat());
 		copyQuestion.setSharing(question.getSharing());
 		copyQuestion.setTimeToCompleteInSecs(question.getTimeToCompleteInSecs());
 		copyQuestion.setDifficultyLevel(question.getDifficultyLevel());
@@ -287,10 +284,10 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 				getQuestionRepository().save(copyQuestionAssetAssoc);
 			}
 			getQuestionRepository().save(copyQuestion);
-			if (copyQuestion.isQuestionNewGen()) {
-				getMongoQuestionsService().copyQuestion(questionId, copyQuestion.getGooruOid());
-			}
 			copyQuestion.setAssets(questionAssets);
+		}
+		if (question.isQuestionNewGen()) {
+			getMongoQuestionsService().copyQuestion(question.getGooruOid(), copyQuestion.getGooruOid());
 		}
 		StringBuilder sourceFilepath = new StringBuilder(question.getOrganization().getNfsStorageArea().getInternalPath());
 		sourceFilepath.append(question.getFolder()).append(File.separator);
@@ -298,6 +295,14 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		targetFilepath.append(copyQuestion.getFolder()).append(File.separator);
 		this.getAsyncExecutor().copyResourceFolder(sourceFilepath.toString(), targetFilepath.toString());
 		return copyQuestion;
+
+	}
+
+	@Override
+	public AssessmentQuestion copyQuestion(String questionId, User user) {
+		AssessmentQuestion question = this.getQuestion(questionId);
+		rejectIfNull(question, GL0056, 404, QUESTION);
+		return copyQuestion(question, user);
 	}
 
 	public AssessmentQuestion updateQuestionAssest(String questionId, String fileNames) throws Exception {
@@ -412,8 +417,8 @@ public class QuestionServiceImpl extends AbstractResourceServiceImpl implements 
 		return questionRepository;
 	}
 
-
 	public AssetManager getAssetManager() {
 		return assetManager;
 	}
+
 }

@@ -228,7 +228,7 @@ public class Constants implements ParameterProperties {
 
 	public static final Map<Object, String> BUILD_TYPE;
 
-	public static final Map<Object, String> PUBLISH_STATUS;
+	public static final Map<String, Short> PUBLISH_STATUS;
 
 	public static final Short PUBLISH_PENDING_STATUS_ID = 244;
 	
@@ -274,9 +274,9 @@ public class Constants implements ParameterProperties {
 	}
 
 	static {
-		Map<Object, String> publishStatus = new HashMap<Object, String>();
-		publishStatus.put((short) 244, "pending");
-		publishStatus.put((short) 245, "reviewed");
+		Map<String, Short> publishStatus = new HashMap<String, Short>();
+		publishStatus.put("pending",(short)244);
+		publishStatus.put("reviewed",(short)245);
 		PUBLISH_STATUS = Collections.unmodifiableMap(publishStatus);
 	}
 

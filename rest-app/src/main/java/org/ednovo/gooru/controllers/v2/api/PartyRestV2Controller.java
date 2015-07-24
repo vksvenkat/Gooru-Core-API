@@ -60,7 +60,6 @@ public class PartyRestV2Controller extends BaseController implements ParameterPr
 	private PartyService partyservice;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_PARTY_CUSTOM_FIELD_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/{id}/custom-field")
 	public ModelAndView createPartyCustomField(@RequestBody String data, @PathVariable(value = ID) String partyId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
@@ -77,7 +76,6 @@ public class PartyRestV2Controller extends BaseController implements ParameterPr
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_PARTY_CUSTOM_FIELD_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/default/{id}/custom-field")
 	public ModelAndView createDefaultPartyCustomField(@RequestParam(value = TYPE, required = true, defaultValue = USER_TYPE) String type, @PathVariable(value = ID) String partyId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
@@ -90,7 +88,6 @@ public class PartyRestV2Controller extends BaseController implements ParameterPr
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_PARTY_CUSTOM_FIELD_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}/custom-field")
 	public ModelAndView updatePartyCustomField(@RequestBody String data, @PathVariable(value = ID) String partyId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
@@ -102,7 +99,6 @@ public class PartyRestV2Controller extends BaseController implements ParameterPr
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_PARTY_CUSTOM_FIELD_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/custom-field/{optionalkey}")
 	public ModelAndView getPartyCustomField(@PathVariable(value = ID) String partyId, @PathVariable(value = OPTIONAL_KEY) String optionalKey, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
@@ -110,7 +106,6 @@ public class PartyRestV2Controller extends BaseController implements ParameterPr
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_PARTY_CUSTOM_FIELD_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/custom-field")
 	public ModelAndView getPartyCustomFields(@RequestParam(value = DATA_OBJECT, required = false) String data, @PathVariable(value = ID) String partyId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
@@ -122,7 +117,6 @@ public class PartyRestV2Controller extends BaseController implements ParameterPr
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_PARTY_CUSTOM_FIELD_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}/custom-field")
 	public void deletePartyCustomField(@RequestBody String data, @PathVariable(value = ID) String partyId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);

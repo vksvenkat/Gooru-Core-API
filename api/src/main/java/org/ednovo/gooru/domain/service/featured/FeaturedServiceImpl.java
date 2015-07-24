@@ -60,6 +60,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepo
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedService, ParameterProperties, ConstantProperties {
@@ -104,6 +106,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	@Override
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getLibraryItem(String type, String libraryName) {
 		List<CodeOrganizationAssoc> codes = this.getTaxonomyRespository().findCodeByParentCodeId(type.equalsIgnoreCase(STANDARD) ? null : type, null, null, null, LIBRARY, getOrganizationCode(libraryName), null, type.equalsIgnoreCase(STANDARD) ? "0" : null);
 		List<Map<String, Object>> codeMap = new ArrayList<Map<String, Object>>();
@@ -243,6 +246,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 		return unitMap;
 	}
 	@Override
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<Object, Object> getLibrary(String type, String libraryName) {
 		this.lessonLimit = 3;
 		List<Object[]> results = this.getFeaturedRepository().getLibrary(null, true, libraryName);
@@ -280,6 +284,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	
 
 	@Override
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getLibraryTopic(String topicId, Integer limit, Integer offset, String type, String libraryName, String rootNodeId) {
 		List<Object[]> results = this.getFeaturedRepository().getLibrary(type, false, libraryName);
 		String featuredId = null;
@@ -471,6 +476,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	@Override
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<Object, Object>> getLibraryContributor(String libraryName) {
 		List<User> users = this.getTaxonomyRespository().getFeaturedUser(getOrganizationCode(libraryName));
 		List<Map<Object, Object>> contributors = new ArrayList<Map<Object, Object>>();
@@ -491,6 +497,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	@Override
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getLibraryUnit(String unitId, String type, Integer offset, Integer limit, String libraryName, String rootNodeId) {
 
 		int collectionCount = 0;
@@ -602,6 +609,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	@Override
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getLibraryCollection(Integer id, String type, Integer offset, Integer limit, String libraryName) {
 		List<Object[]> results = this.getFeaturedRepository().getLibrary(type, false, libraryName);
 		String featuredId = null;
@@ -675,6 +683,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	@Override
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Map<String, Object>> getLibraryCollections(Integer limit, Integer offset, String themeCode, String themeType, String subjectId, String courseId, String unitId, String lessonId, String topicId, String gooruOid, String codeId) {
 		List<Map<String, Object>> libraryCollection = getAllLibraryCollections(limit, offset, themeCode, themeType, subjectId, courseId, unitId, lessonId, topicId, gooruOid, codeId);
 		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
@@ -744,6 +753,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	@Override
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getPopularLibrary(String courseId, Integer offset, Integer limit, String libraryName) {
 		List<Object[]> results = this.getFeaturedRepository().getLibrary(courseId, false, libraryName);
 		String featuredId = null;
@@ -766,6 +776,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	@Override
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Map<String, Object>> getLibraryResource(String type, Integer offset, Integer limit, String libraryName) {
 		List<Map<String, Object>> libraryResource = getCommunityLibraryResource(type, offset, limit, libraryName);
 		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
@@ -816,6 +827,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	@Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> assocaiateCollectionLibrary(String featuredId, String codeId, String gooruOid) {
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
 		rejectIfNull(collection, GL0056, _COLLECTION);
@@ -844,6 +856,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	@Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteLibraryCollectionAssoc(String featuredSetId, String codeId, String gooruOid) {
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
 		rejectIfNull(collection, GL0056, _COLLECTION);
@@ -856,6 +869,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	@Override
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getLibrary(String libraryName) {
 		libraryName = (libraryName != null && libraryName.equalsIgnoreCase(GOORU)) ? LIBRARY : libraryName;
 		List<Object[]> libraryObjectList = this.getFeaturedRepository().getLibrary(libraryName);
@@ -878,6 +892,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	@Override
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getLibraryItems(String itemType, String type, String codeId, String libraryName, String rootNodeId, Integer limit, Integer offset) {
 		List<Object[]> results = this.getFeaturedRepository().getLibrary(type, false, libraryName);
 		List<Map<String, Object>> items = null;

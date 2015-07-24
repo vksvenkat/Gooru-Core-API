@@ -12,4 +12,6 @@ public interface QuestionService extends AbstractResourceService {
 	AssessmentQuestion getQuestion(String questionId);
 
 	AssessmentQuestion copyQuestion(String questionId, User user);
+	
+	AssessmentQuestion copyQuestion(AssessmentQuestion question, User user);
 }

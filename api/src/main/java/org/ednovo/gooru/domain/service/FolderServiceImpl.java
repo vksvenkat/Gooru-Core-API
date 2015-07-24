@@ -43,6 +43,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -168,6 +170,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, String>> getFolderNode(final String collectionId) {
 		final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 		rejectIfNull(collection, GL0056, 404, COLLECTION);
@@ -175,6 +178,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getNextCollectionItem(final String collectionItemId, final String excludeType, final String sharing, boolean excludeCollaboratorCollection) {
 		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, 404, COLLECTION_ITEM);

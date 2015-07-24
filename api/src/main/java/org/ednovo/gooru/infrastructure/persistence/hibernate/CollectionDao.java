@@ -6,6 +6,7 @@ import java.util.Map;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserClass;
 
 public interface CollectionDao extends BaseRepository {
 	Collection getCollection(String collectionId);
@@ -16,7 +17,7 @@ public interface CollectionDao extends BaseRepository {
 
 	Collection getCollectionByUser(String collectionId, String userUid);
 
-	List<Map<String, Object>> getCollections(Map<String, Object> filters, int limit, int offset);
+	List<Map<String, Object>> getCollections(Map<String, Object> filters,int limit, int offset);
 
 	List<Map<String, Object>> getCollectionItem(Map<String, Object> filters, int limit, int offset);
 
@@ -41,4 +42,7 @@ public interface CollectionDao extends BaseRepository {
 	List<Map<String, Object>> getCollectionItemById(String collectionId);
 	
 	List<Collection> getCollections(List<String> collectionIds);
+	
+	void updateClassByCourse(Long contentId);
+
 }

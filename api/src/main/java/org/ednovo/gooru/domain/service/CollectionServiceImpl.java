@@ -36,12 +36,10 @@ import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.application.util.SerializerUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
-import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
-import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
@@ -52,7 +50,6 @@ import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.application.util.BaseUtil;
-import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
@@ -69,7 +66,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepo
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.ednovo.gooru.mongodb.assessments.questions.services.MongoQuestionsService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
-import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -176,13 +172,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				mongoQuestionsService.createQuestion(question.getGooruOid(), data);
 			}
 		}
-		try {
-			this.getCollectionEventLog().getEventLogs(response.getModel(), false, true, user, response.getModel().getCollection().getCollectionType());
-		} catch (Exception e) {
-			if (LOGGER.isErrorEnabled()) {
-				LOGGER.error(e.getMessage());
-			}
-		}
 		return response;
 
 	}
@@ -228,7 +217,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, QUESTION), GL0056);
 		}
-		this.getCollectionEventLog().getEventLogs(collectionItem, false, false, user, false, true, data);
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 
 	}
@@ -312,13 +300,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 
-		try {
-			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true, false, user, responseDTO.getModel().getCollection().getCollectionType(), sourceCollectionItem);
-		} catch (JSONException e) {
-			if (LOGGER.isErrorEnabled()) {
-				LOGGER.error(e.getMessage());
-			}
-		}
 		return responseDTO;
 	}
 
@@ -356,6 +337,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<CollectionItem> createCollectionItems(final List<String> collectionsIds, final String resourceId, final User user) throws Exception {
 		final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(resourceId, null);
 		if (collection == null) {
@@ -604,97 +586,13 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
-	public List<CollectionItem> assignCollection(final String classpageId, final String collectionId, final User user, final String direction, final String planedEndDate, final Boolean isRequired, final String minimumScore, final String estimatedTime, final Boolean showAnswerByQuestions,
-			final Boolean showAnswerEnd, final Boolean showHints) throws Exception {
-		final Classpage classpage = this.getCollectionRepository().getClasspageByCode(classpageId);
-		rejectIfNull(classpage, GL0056, 404, generateErrorMessage(GL0056, CLASSPAGE));
-		final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
-		rejectIfNull(collection, GL0056, 404, generateErrorMessage(GL0056, COLLECTION));
-
-		return classAssign(classpage, collection, user, direction, planedEndDate, isRequired, minimumScore, estimatedTime, showAnswerByQuestions, showAnswerEnd, showHints);
-	}
-
-	@Override
-	public List<CollectionItem> assignCollectionToPathway(final String classpageId, final String pathwayId, final String collectionId, final User user, final String direction, final String planedEndDate, final Boolean isRequired, final String minimumScore, final String estimatedTime,
-			final Boolean showAnswerByQuestions, final Boolean showAnswerEnd, final Boolean showHints) throws Exception {
-		final Classpage classpage = this.getCollectionRepository().getClasspageByCode(classpageId);
-		rejectIfNull(classpage, GL0056, 404, generateErrorMessage(GL0056, CLASSPAGE));
-		final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
-		rejectIfNull(collection, GL0056, 404, generateErrorMessage(GL0056, COLLECTION));
-		final Collection pathway = this.getCollectionRepository().getCollectionByIdWithType(pathwayId, PATHWAY);
-		rejectIfNull(pathway, GL0056, 404, generateErrorMessage(GL0056, PATHWAY));
-		getAsyncExecutor().deleteFromCache("v2-class-data-" + classpage.getGooruOid() + "*");
-		return classAssign(pathway, collection, user, direction, planedEndDate, isRequired, minimumScore, estimatedTime, showAnswerByQuestions, showAnswerEnd, showHints);
-	}
-
-	public List<CollectionItem> classAssign(final Collection classpage, final Collection collection, final User user, final String direction, final String planedEndDate, final Boolean isRequired, final String minimumScore, final String estimatedTime, final Boolean showAnswerByQuestions,
-			final Boolean showAnswerEnd, final Boolean showHints) {
-
-		final List<CollectionItem> collectionItems = new ArrayList<CollectionItem>();
-		int sequence = classpage.getCollectionItems() != null ? classpage.getCollectionItems().size() + 1 : 1;
-		if (collection.getCollectionType().equalsIgnoreCase(FOLDER)) {
-			final Map<String, String> filters = new HashMap<String, String>();
-			filters.put(SHARING, "public,anyonewithlink");
-			filters.put(TYPE, COLLECTION);
-			final List<CollectionItem> folderCollectionItems = this.getCollectionRepository().getCollectionItems(collection.getGooruOid(), filters);
-			for (CollectionItem collectionItem : folderCollectionItems) {
-				collectionItems.add(createClasspageItem(classpage, collectionItem.getContent(), user, sequence++, direction, planedEndDate, isRequired, minimumScore, estimatedTime, showAnswerByQuestions, showAnswerEnd, showHints));
-			}
-		}
-		getAsyncExecutor().deleteFromCache("v2-class-data-" + classpage.getGooruOid() + "*");
-
-		return collectionItems;
-	}
-
-	private CollectionItem createClasspageItem(final Collection classPage, final Content collection, final User user, final int sequence, final String direction, final String planedEndDate, final Boolean isRequired, final String minimumScore, final String estimatedTime,
-			final Boolean showAnswerByQuestions, final Boolean showAnswerEnd, final Boolean showHints) {
-		final CollectionItem collectionItem = new CollectionItem();
-		collectionItem.setCollection(classPage);
-		collectionItem.setContent(collection);
-		collectionItem.setItemType(ADDED);
-		collectionItem.setAssociatedUser(user);
-		collectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
-		collectionItem.setItemSequence(sequence);
-		if (direction != null) {
-			collectionItem.setNarration(direction);
-		}
-
-		if (estimatedTime != null) {
-			collectionItem.setEstimatedTime(estimatedTime);
-		}
-		if (showAnswerByQuestions != null) {
-			collectionItem.setShowAnswerByQuestions(showAnswerByQuestions);
-		}
-		if (showAnswerEnd == null) {
-			collectionItem.setShowAnswerEnd(showAnswerEnd);
-		}
-		if (showHints != null) {
-			collectionItem.setShowHints(showHints);
-		}
-
-		classPage.setItemCount(sequence);
-		this.getResourceRepository().save(classPage);
-		this.getResourceRepository().save(collectionItem);
-		try {
-			this.getCollectionEventLog().getEventLogs(collectionItem, false, false, user, collectionItem.getCollection().getCollectionType());
-		} catch (Exception e) {
-			if (LOGGER.isErrorEnabled()) {
-				LOGGER.error(e.getMessage());
-			}
-		}
-		return collectionItem;
-	}
-
-	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public SearchResults<Collection> getCollections(final Integer offset, final Integer limit, final User user, final String publishStatus) {
-
-		final List<Collection> collections = this.getCollectionRepository().getCollectionsList(user, limit, offset, CustomProperties.Table.PUBLISH_STATUS.getTable() + UNDER_SCORE + publishStatus);
+		final List<Collection> collections = this.getCollectionRepository().getCollectionsList(user, limit, offset,Constants.PUBLISH_STATUS.get(publishStatus));
 		final SearchResults<Collection> result = new SearchResults<Collection>();
 		result.setSearchResults(collections);
-		result.setTotalHitCount(this.getCollectionRepository().getCollectionCount(CustomProperties.Table.PUBLISH_STATUS.getTable() + UNDER_SCORE + publishStatus));
+		result.setTotalHitCount(this.getCollectionRepository().getCollectionCount(Constants.PUBLISH_STATUS.get(publishStatus)));
 		return result;
-
 	}
 
 	@Override

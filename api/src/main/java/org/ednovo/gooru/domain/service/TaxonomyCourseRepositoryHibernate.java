@@ -41,7 +41,7 @@ public class TaxonomyCourseRepositoryHibernate extends BaseRepositoryHibernate i
 
 	private static final String GET_COURSE_CODE = "FROM TaxonomyCourse c  WHERE c.courseCode=:courseCode";
 
-	private static final String GET_COURSES = "FROM TaxonomyCourse";
+	private static final String GET_COURSES = "FROM TaxonomyCourse order by displaySequence";
 
 	private static final String GET_MAX = "SELECT COALESCE(MAX(displaySequence),0) FROM TaxonomyCourse";
 

@@ -13,6 +13,8 @@ import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.domain.service.eventlogs.CollectionEventLog;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,9 @@ import org.springframework.validation.Errors;
 
 @Service
 public class LessonServiceImpl extends AbstractCollectionServiceImpl implements LessonService {
+		
+	@Autowired
+    private CollectionEventLog classEventLog;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -72,14 +77,15 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
 		rejectIfNull(unit, GL0056,404, UNIT);
 		this.resetSequence(unitId, lesson.getContent().getGooruOid(), user.getPartyUid(), LESSON);
-		this.deleteCollection(lessonId);
 		updateContentMetaDataSummary(unit.getContentId(), LESSON, DELETE);
+		lesson.getContent().setIsDeleted((short) 1);
+		this.getCollectionDao().save(lesson);
 	}
 	
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getLesson(String lessonId) {
-		return this.getCollection(lessonId, CollectionType.UNIT.getCollectionType());
+		return this.getCollection(lessonId, CollectionType.LESSON.getCollectionType());
 	}
 
 	@Override
@@ -88,7 +94,7 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put(COLLECTION_TYPE, LESSON_TYPE);
 		filters.put(PARENT_GOORU_OID, unitId);
-		List<Map<String, Object>> results = this.getCollections(filters, limit, offset);
+		List<Map<String, Object>> results = this.getCollections(filters,limit, offset);
 		List<Map<String, Object>> lessons = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> lesson : results) {
 			lessons.add(mergeMetaData(lesson));
@@ -111,6 +117,9 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 			rejectIfNullOrEmpty(errors, collection.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 		}
 		return errors;
+	}
+	public CollectionEventLog getClassEventLog() {
+		return classEventLog;
 	}
 
 }

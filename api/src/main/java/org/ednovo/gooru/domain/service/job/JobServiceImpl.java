@@ -34,6 +34,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.JobRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.JobRepositoryHibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service("jobService")
 public class JobServiceImpl extends BaseServiceImpl implements JobService, ParameterProperties, ConstantProperties {
@@ -66,6 +68,7 @@ public class JobServiceImpl extends BaseServiceImpl implements JobService, Param
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Job getJob(String jobUid) {
 		Job job = this.getJobRepository().getJob(jobUid);
 		rejectIfNull(job, GL0056, 404, "Job");
@@ -73,6 +76,7 @@ public class JobServiceImpl extends BaseServiceImpl implements JobService, Param
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Job updateJob(String jobUid,Job newJob) {
 		Job job = this.getJobRepository().getJob(jobUid);
 		rejectIfNull(newJob, GL0056, 404, "Job");

@@ -56,7 +56,6 @@ public class PartnerRestV2Controller extends BaseController implements Parameter
 	private RedisService redisService;
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_PARTNER_LIST })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "")
 	public ModelAndView getPartnerList(@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		final String cacheKey = V2_PARTNER_LIST;

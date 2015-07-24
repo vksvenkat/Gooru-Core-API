@@ -32,7 +32,6 @@ public class ResponseFieldSetRestController extends BaseController implements Pa
 	private ResponseFieldSetService responseFieldSetService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESPONSE_FIELD_SET_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST)
 	public ModelAndView createResponseFieldSet(HttpServletRequest request, @RequestParam(value = FIELD_SET) String fieldSet, @RequestParam(value = SESSIONTOKEN, required = false) String sessionToken, @RequestParam(value = FORMAT, defaultValue = FORMAT_JSON) String format, HttpServletResponse response)
 			throws Exception {
@@ -42,7 +41,6 @@ public class ResponseFieldSetRestController extends BaseController implements Pa
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESPONSE_FIELD_SET_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{fieldSetId}")
 	public ModelAndView updateResponseFieldSet(HttpServletRequest request, @PathVariable(FIELD_SET_ID ) String fieldSetId, @RequestParam(value = FIELD_SET) String fieldSet, @RequestParam(value = SESSIONTOKEN, required = false) String sessionToken,
 			@RequestParam(value = FORMAT, defaultValue = FORMAT_JSON) String format, HttpServletResponse response) throws Exception {
@@ -52,7 +50,6 @@ public class ResponseFieldSetRestController extends BaseController implements Pa
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESPONSE_FIELD_SET_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{fieldSetId}")
 	public ModelAndView deleteResponseFieldSet(HttpServletRequest request, @PathVariable(FIELD_SET_ID) String fieldSetId, @RequestParam(value = SESSIONTOKEN, required= false) String sessionToken, @RequestParam(value = FORMAT, defaultValue = FORMAT_JSON) String format, HttpServletResponse response)
 			throws Exception {
@@ -62,7 +59,6 @@ public class ResponseFieldSetRestController extends BaseController implements Pa
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESPONSE_FIELD_SET_LIST })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{fieldSetId}")
 	public ModelAndView getResponseFieldSet(HttpServletRequest request, @PathVariable(FIELD_SET_ID) String fieldSetId, @RequestParam(value = SESSIONTOKEN, required = false) String sessionToken, @RequestParam(value = FORMAT, defaultValue = FORMAT_JSON) String format, HttpServletResponse response) throws Exception {
 		User apiCaller = (User) request.getAttribute(Constants.USER);
@@ -71,7 +67,6 @@ public class ResponseFieldSetRestController extends BaseController implements Pa
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESPONSE_FIELD_SET_LIST })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET })
 	public ModelAndView getResponseFieldsSet(HttpServletRequest request, @RequestParam(value = SESSIONTOKEN, required = false) String sessionToken, @RequestParam(value = FORMAT, defaultValue = FORMAT_JSON) String format, HttpServletResponse response) throws Exception {
 		List<ResponseFieldSet> responseFieldSet = responseFieldSetService.getResponseFieldSet();

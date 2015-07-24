@@ -72,12 +72,14 @@ public class CustomValueServiceImpl extends BaseServiceImpl implements CustomVal
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<CustomTableValue> getCustomValues(final String type) {
 		
 	   return  this.getCustomTableRepository().getCustomTableValues(type);
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateSearchSettings() {
 		
 		profileName = configSettingRepository.getConfigSetting(SEARCH_PROFILE, UserGroupSupport.getUserOrganizationUid());
