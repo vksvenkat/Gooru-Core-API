@@ -337,29 +337,23 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		
 		boolean isValidReferrer = false;
 		
-		String host = null;
+		String requestDomain = null;
 		String registeredRefererDomains = null;
 		
 		if (request.getHeader(HOST) != null){
-			host = request.getHeader(HOST);
+			requestDomain = request.getHeader(HOST);
 		}else if (request.getHeader(REFERER) != null){
-			host = request.getHeader(REFERER);
+			requestDomain = request.getHeader(REFERER);
 		}
 
-		if (host != null){			
-			String hostElements [] = host.split(REGX_DOT);
-			StringBuffer domainName = new StringBuffer();
-			if(hostElements.length >= 2){
-				domainName.append(hostElements[0]).append(DOT).append(hostElements[1]);
-				domainName.append(hostElements[hostElements.length - 2]).append(DOT).append(hostElements[hostElements.length - 1]);
-			}
-			
+		if (requestDomain != null){			
+
 			registeredRefererDomains = application.getRefererDomains();
 			
 			if(registeredRefererDomains != null ){				
 				String whiteListedDomains [] = registeredRefererDomains.split(COMMA);
-				for (String refererDomain : whiteListedDomains) {
-					if(refererDomain.equalsIgnoreCase(domainName.toString())){
+				for (String whitelistedDomain : whiteListedDomains) {
+					if(requestDomain.endsWith(whitelistedDomain)){
 						isValidReferrer = true;
 						break;						
 					}

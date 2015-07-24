@@ -41,7 +41,8 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 			}
 			collection.setSharing(Sharing.PRIVATE.getSharing());
 			collection.setCollectionType(CollectionType.COURSE.getCollectionType());
-			createCollection(collection, parentCollection, user);
+			CollectionItem course = createCollection(collection, parentCollection, user);
+			getCourseEventLog().courseEventLogs(parentCollection.getGooruOid(), course, user, collection, ADD );
 			Map<String, Object> data = generateCourseMetaData(collection, collection, user);
 			data.put(SUMMARY, MetaConstants.COURSE_SUMMARY);
 			createContentMeta(collection, data);
@@ -97,7 +98,7 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		rejectIfNull(course, GL0056, COURSE);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(courseUId, user), GL0099, 403, COURSE);
 		Collection parentCollection = getCollectionDao().getCollection(user.getPartyUid(), CollectionType.SHElf.getCollectionType());
-		getCourseEventLog().deleteEventLogs(courseUId, user, course.getCollection().getGooruOid());
+		getCourseEventLog().courseEventLogs(course.getCollection().getGooruOid(), course, user, null, DELETE );
 		this.getCollectionDao().updateClassByCourse(course.getCollection().getContentId());
 		this.resetSequence(parentCollection.getGooruOid(), course.getContent().getGooruOid(), user.getPartyUid(), COURSE);
 		course.getContent().setIsDeleted((short) 1);
