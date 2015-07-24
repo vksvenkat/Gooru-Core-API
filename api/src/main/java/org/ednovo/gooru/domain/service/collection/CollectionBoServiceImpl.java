@@ -355,8 +355,6 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getCollections(String lessonId, String collectionType, int limit, int offset) {
-		Collection lesson = this.getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
-		rejectIfNull(lesson, GL0056, LESSON);
 		Map<String, Object> filters = new HashMap<String, Object>();
 		String[] collectionTypes = collectionType.split(COMMA);
 		filters.put(COLLECTION_TYPE, collectionTypes);

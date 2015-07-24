@@ -77,8 +77,6 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getUnits(String courseId, int limit, int offset) {
-		Collection course = this.getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
-		rejectIfNull(course,GL0056,COURSE);
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put(PARENT_GOORU_OID, courseId);
 		filters.put(COLLECTION_TYPE, UNIT_TYPE);

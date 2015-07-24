@@ -91,8 +91,6 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getLessons(String unitId, int limit, int offset) {
-		Collection unit = this.getCollectionDao().getCollectionByType(unitId, COURSE_TYPE);
-		rejectIfNull(unit,GL0056,UNIT);
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put(COLLECTION_TYPE, LESSON_TYPE);
 		filters.put(PARENT_GOORU_OID, unitId);
