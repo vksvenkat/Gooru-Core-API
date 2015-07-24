@@ -176,13 +176,8 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
 		
 		if (!errors.hasErrors()) {
-			if (username == null) {
-				throw new BadRequestException(generateErrorMessage(GL0061, "Username"), GL0061);
-			}
-			if (password == null) {
-				throw new BadRequestException(generateErrorMessage(GL0061, "Password"), GL0061);
-			}
-			
+			rejectIfNull(username, GL0061, 400, USER_NAME);
+			rejectIfNull(password, GL0061, 400, PASSWORD);
 			String apiKey = request.getHeader(Constants.GOORU_API_KEY) != null ? request.getHeader(Constants.GOORU_API_KEY) : request.getParameter(API_KEY);
 			String sessionToken = null;
 			Application application = null;
@@ -268,15 +263,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			}
 			userToken.setFirstLogin(firstLogin);
 			userToken.getUser().setMeta(this.getUserManagementService().userMeta(user));
-
-			final Profile profile = getPartyService().getUserDateOfBirth(user.getPartyUid(), user);
-
-			if (profile.getUserType() != null) {
-				userToken.setUserRole(profile.getUserType());
-			}
-			if (profile != null && profile.getDateOfBirth() != null) {
-				userToken.setDateOfBirth(profile.getDateOfBirth().toString());
-			}
 
 			identity.setLastLogin(new Date(System.currentTimeMillis()));
 			this.getUserRepository().save(identity);
