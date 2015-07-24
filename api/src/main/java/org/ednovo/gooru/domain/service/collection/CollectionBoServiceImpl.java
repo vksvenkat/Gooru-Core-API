@@ -320,7 +320,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Map<String, Object> getCollection(String collectionId, String collectionType, User user, boolean includeItems, boolean includeLastModifiedUser) {
+	public Map<String, Object> getCollection(String collectionId,String collectionType, User user, boolean includeItems, boolean includeLastModifiedUser) {
 		Map<String, Object> collection = super.getCollection(collectionId, collectionType);
 		StringBuilder key = new StringBuilder(ALL_);
 		key.append(collection.get(GOORU_OID));
@@ -359,7 +359,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		String[] collectionTypes = collectionType.split(COMMA);
 		filters.put(COLLECTION_TYPE, collectionTypes);
 		filters.put(PARENT_GOORU_OID, lessonId);
-		List<Map<String, Object>> results = this.getCollections(filters, limit, offset);
+		List<Map<String, Object>> results = this.getCollections(filters,limit, offset);
 		List<Map<String, Object>> collections = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> collection : results) {
 			collections.add(mergeMetaData(collection));

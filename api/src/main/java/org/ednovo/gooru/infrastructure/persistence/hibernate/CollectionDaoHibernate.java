@@ -20,15 +20,15 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 
 	private static final String PARAMETER_TWO = "parameterTwo";
 
-	private static final String GET_COLLECTION = "FROM Collection where gooruOid=:collectionId";
+	private static final String GET_COLLECTION = "FROM Collection where gooruOid=:collectionId and isDeleted = 0";
 
-	private static final String COLLECTION_BY_TYPE = "FROM Collection where gooruOid=:collectionId and collectionType in (:collectionType)";
+	private static final String COLLECTION_BY_TYPE = "FROM Collection where gooruOid=:collectionId and isDeleted = 0 and collectionType in (:collectionType)";
 
-	private static final String GET_COLLECTION_BY_TYPE = "FROM Collection where user.partyUid=:partyUid and collectionType=:collectionType";
+	private static final String GET_COLLECTION_BY_TYPE = "FROM Collection where user.partyUid=:partyUid and collectionType=:collectionType and isDeleted = 0";
 
 	private static final String MAX_COLLECTION_ITEM_SEQ = "select IFNULL(max(item_sequence), 0) as count from collection_item co join content c on c.content_id=co.resource_content_id where collection_content_id=:contentId and c.is_deleted=0";
 
-	private static final String GET_COLLECTION_BY_USER = "FROM Collection where user.partyUid=:partyUid and gooruOid=:collectionId";
+	private static final String GET_COLLECTION_BY_USER = "FROM Collection where user.partyUid=:partyUid and gooruOid=:collectionId and isDeleted = 0";
 
 	private static final String GET_COLLECTIONS = "select re.title, cr.gooru_oid as gooruOid, re.language_objective as languageObjective, re.collection_type as type, re.image_path as imagePath, cr.sharing, ci.collection_item_id as collectionItemId, co.goals, co.ideas, co.questions,co.performance_tasks as performanceTasks, co.collection_type as collectionType, ci.item_sequence as itemSequence, cc.gooru_oid as parentGooruOid, re.description, re.url, cs.data, cm.meta_data as metaData, re.publish_status_id as publishStatus, re.build_type_id as buildType, cr.user_uid as gooruUId, u.username, cr.last_modified as lastModified, cr.last_updated_user_uid as lastModifiedUserUid  from  collection c  inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join collection re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id left join content_settings cs on cs.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  left join collection co on co.content_id = re.content_id left join content_meta cm  on  cm.content_id = re.content_id left join user u on u.gooru_uid = cr.user_uid ";
 
@@ -38,7 +38,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 
 	private static final String GET_COLLECTION_SEQUENCE = "FROM CollectionItem ci where ci.collection.gooruOid=:gooruOid and ci.itemSequence between :parameterOne and :parameterTwo ";
 
-	private static final String GET_COLLECTIONITEM_BY_GOORUOID = "FROM CollectionItem where content.gooruOid=:gooruOid and collection.gooruOid=:parentGooruOid and associatedUser.partyUid=:userUid";
+	private static final String GET_COLLECTIONITEM_BY_GOORUOID = "FROM CollectionItem where content.gooruOid=:gooruOid and collection.gooruOid=:parentGooruOid and associatedUser.partyUid=:userUid and content.isDeleted = 0";
 
 	private final static String GET_COLLECTIONITEM_BY_SEQUENCE = "FROM CollectionItem where collection.gooruOid=:parentId and itemSequence>:sequence ";
 
@@ -134,7 +134,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 			if (filters.get(ITEM_TYPE) != null) {
 				queryAppender(sqlQuery).append(" ci.item_type != :itemType ");
 			}
-			queryAppender(sqlQuery).append(" cr.is_deleted=0 ");
+			queryAppender(sqlQuery).append(" cr.is_deleted = 0 and cc.is_deleted = 0");
 			sql.append(sqlQuery.toString());
 		}
 		sql.append(" order by ci.item_sequence");
@@ -160,7 +160,7 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 		if (filters.get(COLLECTION_ITEM_ID) != null) {
 			sql.append(" and ci.collection_item_id =:").append(COLLECTION_ITEM_ID);
 		}
-		sql.append(" order by ci.item_sequence");
+		sql.append("cr.is_deleted=0 order by ci.item_sequence");
 		Query query = getSession().createSQLQuery(sql.toString());
 		query.setParameter(COLLECTION_ID, filters.get(COLLECTION_ID));
 		setQueryParamter(filters, query);

@@ -85,7 +85,7 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getLesson(String lessonId) {
-		return this.getCollection(lessonId, CollectionType.UNIT.getCollectionType());
+		return this.getCollection(lessonId, CollectionType.LESSON.getCollectionType());
 	}
 
 	@Override
@@ -94,7 +94,7 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put(COLLECTION_TYPE, LESSON_TYPE);
 		filters.put(PARENT_GOORU_OID, unitId);
-		List<Map<String, Object>> results = this.getCollections(filters, limit, offset);
+		List<Map<String, Object>> results = this.getCollections(filters,limit, offset);
 		List<Map<String, Object>> lessons = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> lesson : results) {
 			lessons.add(mergeMetaData(lesson));
