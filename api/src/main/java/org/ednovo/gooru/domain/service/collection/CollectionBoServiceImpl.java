@@ -236,7 +236,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			resource = getResourceBoService().createResource(resource, user);
 			collectionItem.setItemType(ADDED);
 			collectionItem = createCollectionItem(collectionItem, collection, resource, user);
-			getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem.getContent().getGooruOid(), user.getPartyUid(), RESOURCE, collectionItem, ADD);
+			getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, user.getPartyUid(), RESOURCE, collectionItem, ADD);
 			updateCollectionMetaDataSummary(collection.getContentId(), RESOURCE, ADD);
 			Map<String, Object> data = generateResourceMetaData(resource, collectionItem.getResource(), user);
 			createContentMeta(resource, data);
@@ -267,7 +267,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setItemType(ADDED);
 		collectionItem = createCollectionItem(collectionItem, collection, question, user);
-		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem.getContent().getGooruOid(), user.getPartyUid(), QUESTION, data, ADD);
+		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, user.getPartyUid(), QUESTION, data, ADD);
 		collectionItem.setQuestion(question);
 		collectionItem.setTitle(question.getTitle());
 		updateCollectionMetaDataSummary(collection.getContentId(), QUESTION, ADD);
@@ -298,7 +298,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(resource, GL0056, 404, RESOURCE);
 		updateCollectionMetaDataSummary(collection.getContentId(), RESOURCE, ADD);
 		CollectionItem collectionItem = new CollectionItem();
-		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem.getContent().getGooruOid(), user.getPartyUid(), RESOURCE, null, ADD);
+		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, user.getPartyUid(), RESOURCE, null, ADD);
 		collectionItem.setItemType(ADDED);
 		return createCollectionItem(collectionItem, collection, resource, user);
 	}
@@ -313,7 +313,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		reject(!(question.getTypeName().equals(AssessmentQuestion.TYPE.OPEN_ENDED.getName())), GL0007, 400, QUESTION);
 		AssessmentQuestion copyQuestion = this.getQuestionService().copyQuestion(question, user);
 		CollectionItem collectionItem = new CollectionItem();
-		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem.getContent().getGooruOid(), user.getPartyUid(), QUESTION, null, ADD);
+		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, user.getPartyUid(), QUESTION, null, ADD);
 		collectionItem.setItemType(ADDED);
 		collectionItem = createCollectionItem(collectionItem, collection, copyQuestion, user);
 		Map<String, Object> metaData = generateQuestionMetaData(copyQuestion, copyQuestion, user);
@@ -616,7 +616,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		String contentType = resource.getContentType().getName();
 		Long collectionContentId = collectionItem.getCollection().getContentId();
 		this.resetSequence(collectionId, collectionItem.getCollectionItemId(), userUid, COLLECTION_ITEM);
-		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem.getContent().getGooruOid(), userUid, contentType, null, DELETE);
+		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, userUid, contentType, null, DELETE);
 		if (contentType.equalsIgnoreCase(QUESTION)) {
 			getCollectionDao().remove(resource);
 		} else {

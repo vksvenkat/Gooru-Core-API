@@ -29,7 +29,6 @@ public class CollectionEventLog extends EventLog {
 			context.put(PARENT_GOORU_ID, lessonId);
 			SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 			JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
-			
 			payLoadObject.put(COURSE_GOORU_ID, courseId);
 			payLoadObject.put(UNIT_GOORU_ID, unitId);
 			payLoadObject.put(LESSON_GOORU_ID, lessonId);
@@ -73,25 +72,32 @@ public class CollectionEventLog extends EventLog {
 		}
 	}
 
-	public void collectionItemEventLog(String collectionId, String resourceId, String userUid, String contentType, Object data, String action) {
+	public void collectionItemEventLog(String collectionId, CollectionItem resource, String userUid, String contentType, Object data, String action) {
 		try {
 			JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
-			context.put(CONTENT_GOORU_ID, resourceId);
+			context.put(CONTENT_GOORU_ID, resource.getContent().getGooruOid());
 			context.put(PARENT_GOORU_ID, collectionId);
 			SessionContextSupport.putLogParameter(CONTEXT, context.toString());
-			SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_DELETE);
 			JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
-			payLoadObject.put(MODE, DELETE);
 			if (contentType.equalsIgnoreCase(QUESTION)) {
 				payLoadObject.put(TYPE, QUESTION);
-			} else {
-				payLoadObject.put(TYPE, RESOURCE);
-			}
-			if (contentType.equalsIgnoreCase(QUESTION)) {
 				payLoadObject.put(ITEM_TYPE, SHELF_COURSE_QUESTION);
 			} else {
+				payLoadObject.put(TYPE, RESOURCE);
 				payLoadObject.put(ITEM_TYPE, SHELF_COURSE_RESOURCE);
 			}
+			if(action.equalsIgnoreCase(ADD)){
+				payLoadObject.put(MODE, ADD);
+				payLoadObject.put(DATA, data);
+				SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
+			}
+			else{
+				SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_DELETE);
+				payLoadObject.put(MODE, DELETE);
+			}
+			payLoadObject.put(PARENT_SHARING,resource.getCollection().getSharing());
+			payLoadObject.put(ITEM_SEQUENCE,resource.getItemSequence());
+			payLoadObject.put(ITEM_ID,resource.getCollectionItemId());
 			SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 			JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 			session.put(ORGANIZATION_UID, userUid != null);
