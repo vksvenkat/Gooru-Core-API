@@ -45,10 +45,7 @@ import org.springframework.validation.Errors;
 
 public interface ResourceService extends BaseService {
 
-
 	Resource saveResource(Resource resource, Errors errors, boolean findByURL);
-
-	List<Resource> listResources(Map<String, String> filters);
 
 	Resource findResourceByContentGooruId(String gooruContentId);
 
@@ -65,8 +62,6 @@ public interface ResourceService extends BaseService {
 	Resource handleNewResource(Resource resource, String resourceTypeForPdf, String thumbnail);
 
 	void saveNewResource(Resource resource, boolean downloadResource) throws IOException;
-
-	void updateResourceSource(String resourceTypeString);
 
 	String updateResourceImage(String gooruContentId, String fileName) throws IOException;
 
@@ -110,7 +105,6 @@ public interface ResourceService extends BaseService {
 
 	Resource updateResourceThumbnail(String gooruContentId, String fileName, Map<String, Object> formField) throws FileNotFoundException, IOException;
 
-	Resource getResourceByResourceInstanceId(String resourceInstanceId);
 
 	ResourceInfo getResourcePageCount(String resourceId);
 

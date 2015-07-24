@@ -13,6 +13,8 @@ import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.domain.service.eventlogs.CollectionEventLog;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,9 @@ import org.springframework.validation.Errors;
 
 @Service
 public class LessonServiceImpl extends AbstractCollectionServiceImpl implements LessonService {
+		
+	@Autowired
+    private CollectionEventLog classEventLog;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -112,6 +117,9 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 			rejectIfNullOrEmpty(errors, collection.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 		}
 		return errors;
+	}
+	public CollectionEventLog getClassEventLog() {
+		return classEventLog;
 	}
 
 }

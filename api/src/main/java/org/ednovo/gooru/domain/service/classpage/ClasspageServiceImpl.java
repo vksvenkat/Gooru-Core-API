@@ -46,7 +46,6 @@ import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.InviteService;
 import org.ednovo.gooru.domain.service.ScollectionServiceImpl;
-import org.ednovo.gooru.domain.service.eventlogs.ClasspageEventLog;
 import org.ednovo.gooru.domain.service.eventlogs.CollectionEventLog;
 import org.ednovo.gooru.domain.service.group.UserGroupService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
@@ -75,8 +74,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	@Autowired
 	private ContentService contentService;
 
-	@Autowired
-	private ClasspageEventLog classpageEventlog;
 
 	@Autowired
 	private CollectionEventLog scollectionEventlog;
@@ -537,10 +534,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	public InviteService getInviteService() {
 		return inviteService;
-	}
-
-	public ClasspageEventLog getClasspageEventlog() {
-		return classpageEventlog;
 	}
 
 	public CollectionRepository getCollectionRepository() {

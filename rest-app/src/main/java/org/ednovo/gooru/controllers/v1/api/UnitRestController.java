@@ -15,6 +15,8 @@ import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.collection.UnitService;
+import org.ednovo.gooru.domain.service.eventlogs.CollectionEventLog;
+import org.ednovo.gooru.domain.service.eventlogs.UnitEventLog;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -31,6 +33,9 @@ public class UnitRestController extends BaseController implements ConstantProper
 
 	@Autowired
 	private UnitService unitService;
+
+	@Autowired
+	private UnitEventLog  unitEventLog;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@RequestMapping(method = RequestMethod.POST)
@@ -62,16 +67,17 @@ public class UnitRestController extends BaseController implements ConstantProper
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(method = RequestMethod.GET)
-	public ModelAndView getUnits(@PathVariable(value = COURSE_ID) final String courseId,  @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request, final HttpServletResponse response) {
+	public ModelAndView getUnits(@PathVariable(value = COURSE_ID) final String courseId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request,
+			final HttpServletResponse response) {
 		return toModelAndViewWithIoFilter(getUnitService().getUnits(courseId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
-	
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_DELETE })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.DELETE)
 	public void deleteUnit(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = ID) final String unitId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		this.getUnitService().deleteUnit(courseId, unitId, user);
+		getUnitEventLog().deleteEventLogs(courseId, unitId, user);
 	}
 
 	private Collection buildUnit(final String data) {
@@ -80,6 +86,14 @@ public class UnitRestController extends BaseController implements ConstantProper
 
 	public UnitService getUnitService() {
 		return unitService;
+	}
+
+	public UnitEventLog getUnitEventLog() {
+		return unitEventLog;
+	}
+
+	public void setUnitEventLog(UnitEventLog unitEventLog) {
+		this.unitEventLog = unitEventLog;
 	}
 
 }

@@ -214,10 +214,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	private static final String SHORTENED_URL_STATUS = "shortenedUrlStatus";
 
-	@Override
-	public List<Resource> listResources(final Map<String, String> filters) {
-		return getResourceRepository().listResources(filters);
-	}
 
 	@Override
 	public Resource findResourceByContentGooruId(final String gooruContentId) {
@@ -364,39 +360,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resource.setTitle(StringUtils.substring(title, 0, 250));
 		}
 		// set the first text that is not blank.
-	}
-
-	@Override
-	public void updateResourceSource(final String resourceTypeString) {
-		List<Resource> resources = null;
-		final Map<String, String> filters = new HashMap<String, String>();
-		int pageNum = 0;
-		int pageSize = 100;
-		filters.put(RESOURCE_TYPE, resourceTypeString);
-		filters.put(IN_USE, ONE);
-		do {
-			filters.put(PAGE_NUM, (++pageNum) + "");
-			filters.put(PAGE_SIZE, pageSize + "");
-			filters.put(RESOURCE_SOURCE, NULL);
-			resources = listResources(filters);
-			LOGGER.debug("no of resource :" + resources.size() + " of page : " + pageNum + " of size : " + pageSize);
-			int count = 0;
-			for (final Resource resource : resources) {
-				final String domainName = BaseUtil.getDomainName(resource.getUrl());
-				if (!domainName.isEmpty()) {
-					final ResourceSource resourceSource = this.getResourceRepository().findResourceSource(domainName);
-					if (resourceSource != null) {
-						LOGGER.debug("resource url : " + resource.getUrl() + " source name : " + " updated domainName: " + domainName + "no of resource to go: " + (++count));
-						this.getResourceRepository().updateResourceSourceId(resource.getContentId(), resourceSource.getResourceSourceId());
-					}
-				}
-			}
-			try {
-				Thread.sleep(5000);
-			} catch (Exception ex) {
-				LOGGER.debug("error" + ex.getMessage());
-			}
-		} while (resources != null && resources.size() > 0);
 	}
 
 	@Override
@@ -1309,11 +1272,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				}
 			}
 		}
-	}
-
-	@Override
-	public Resource getResourceByResourceInstanceId(final String resourceInstanceId) {
-		return resourceRepository.getResourceByResourceInstanceId(resourceInstanceId);
 	}
 
 	public ContentService getContentService() {
