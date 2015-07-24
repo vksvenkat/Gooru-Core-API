@@ -42,6 +42,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -84,6 +85,7 @@ public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements
 	}
 
 	@Override
+	@Cacheable("gooruCache")
 	public PartyCustomField getPartyCustomField(String partyUid, String optionalKey) {
 		String hql = " FROM  PartyCustomField partycustomfield  WHERE partycustomfield.partyUid= '" + partyUid + "'  and  partycustomfield.optionalKey= '" + optionalKey + "'";
 		Query query = getSession().createQuery(hql);
@@ -91,6 +93,7 @@ public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements
 	}
 	
 	@Override
+	@Cacheable("gooruCache")
 	public PartyCustomField getPartyCustomFieldByKey(String optionalValue, String optionalKey) {
 		String hql = " FROM  PartyCustomField partycustomfield  WHERE partycustomfield.optionalValue= '" + optionalValue + "'  and  partycustomfield.optionalKey= '" + optionalKey + "'";
 		Query query = getSession().createQuery(hql);

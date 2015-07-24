@@ -307,7 +307,6 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		rejectIfNull(collection, GL0056, 404, COLLECTION);
 		AssessmentQuestion question = this.getQuestionService().getQuestion(questionId);
 		rejectIfNull(question, GL0056, 404, QUESTION);
-		reject(!(question.getTypeName().equals(AssessmentQuestion.TYPE.OPEN_ENDED.getName())), GL0007, 400, QUESTION);
 		AssessmentQuestion copyQuestion = this.getQuestionService().copyQuestion(question, user);
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setItemType(ADDED);
