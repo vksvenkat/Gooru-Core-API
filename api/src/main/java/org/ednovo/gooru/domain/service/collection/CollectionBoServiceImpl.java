@@ -477,6 +477,10 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			List<Map<String, Object>> depthOfKnowledge = updateContentMetaAssoc(collection, user, DEPTH_OF_KNOWLEDGE, newCollection.getDepthOfKnowledgeIds());
 			data.put(DEPTHOF_KNOWLEDGE, depthOfKnowledge);
 		}
+		if (newCollection.getTaxonomyCourseIds() != null) {
+			List<Map<String, Object>> taxonomyCourse = updateTaxonomyCourse(collection, newCollection.getTaxonomyCourseIds());
+			data.put(TAXONOMY_COURSE, taxonomyCourse);
+		}
 		return data;
 	}
 
