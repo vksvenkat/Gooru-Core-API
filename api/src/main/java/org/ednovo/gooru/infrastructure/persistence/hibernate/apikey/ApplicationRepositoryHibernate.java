@@ -96,6 +96,7 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 	}
 
 	@Override
+	@Cacheable("gooruCache")
 	public Application getApplicationByOrganization(String organizationUid) {
 		String hql = "FROM Application app WHERE app.organization.partyUid =:organizationUid";
 		Query query = getSession().createQuery(hql);
