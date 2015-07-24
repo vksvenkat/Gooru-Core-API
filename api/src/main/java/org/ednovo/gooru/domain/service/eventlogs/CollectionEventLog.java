@@ -5,27 +5,27 @@ import java.util.List;
 import net.sf.json.JSONArray;
 
 import org.ednovo.gooru.core.api.model.Collection;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.constant.ConstantProperties;
-import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CollectionEventLog extends EventLog implements ConstantProperties, ParameterProperties {
+public class CollectionEventLog extends EventLog {
 
 	@Autowired
 	private ClassRepository classRepository;
 
-	public void collectionEventLog(String courseId, String unitId, String lessonId, String collectionId, User user, String collectionType, Collection data, String action) {
+	public void collectionEventLog(String courseId, String unitId, String lessonId, CollectionItem collection, User user, Collection data, String action) {
 		try {
+			String collectionType = collection.getContent().getContentType().getName();
 			JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
-			context.put(CONTENT_GOORU_ID, collectionId);
+			context.put(CONTENT_GOORU_ID, collection.getContent().getGooruOid());
 			context.put(PARENT_GOORU_ID, lessonId);
 			SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 			JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
@@ -46,6 +46,9 @@ public class CollectionEventLog extends EventLog implements ConstantProperties, 
 			if(action.equalsIgnoreCase(ADD)){
 				payLoadObject.put(MODE, ADD);
 				payLoadObject.put(DATA, data);
+				payLoadObject.put(PARENT_SHARING,collection.getCollection().getSharing());
+				payLoadObject.put(ITEM_SEQUENCE,collection.getItemSequence());
+				payLoadObject.put(ITEM_ID,collection.getCollectionItemId());
 			}
 			else{
 				payLoadObject.put(MODE, DELETE);

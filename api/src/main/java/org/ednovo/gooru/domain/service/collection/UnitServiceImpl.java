@@ -45,8 +45,8 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 			rejectIfNull(parentCollection, GL0056, COURSE);
 			collection.setSharing(Sharing.PRIVATE.getSharing());
 			collection.setCollectionType(CollectionType.UNIT.getCollectionType());
-			Collection unit = createCollection(collection, parentCollection, user);
-			getUnitEventLog().unitEventLogs(courseId, unit.getGooruOid(), user, collection, ADD);
+			CollectionItem unit = createCollection(collection, parentCollection, user);
+			getUnitEventLog().unitEventLogs(courseId, unit, user, collection, ADD);
 			Map<String, Object> data = generateUnitMetaData(collection, collection, user);
 			data.put(SUMMARY, MetaConstants.UNIT_SUMMARY);
 			createContentMeta(collection, data);
@@ -101,7 +101,7 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(unitId, user), GL0099, 403, UNIT);
 		Collection course = getCollectionDao().getCollectionByType(courseId, COURSE_TYPE);
 		rejectIfNull(course, GL0056, COURSE);
-		getUnitEventLog().unitEventLogs(courseId, unitId, user, null, DELETE);
+		getUnitEventLog().unitEventLogs(courseId, unit, user, null, DELETE);
 		this.resetSequence(courseId, unit.getContent().getGooruOid(), user.getPartyUid(), UNIT);
 		updateContentMetaDataSummary(course.getContentId(), UNIT, DELETE);
 		unit.getContent().setIsDeleted((short) 1);

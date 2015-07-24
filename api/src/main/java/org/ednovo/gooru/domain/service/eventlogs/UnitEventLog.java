@@ -5,31 +5,30 @@ import java.util.List;
 import net.sf.json.JSONArray;
 
 import org.ednovo.gooru.core.api.model.Collection;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.constant.ConstantProperties;
-import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UnitEventLog extends EventLog implements ConstantProperties, ParameterProperties {
+public class UnitEventLog extends EventLog {
 
 	@Autowired
 	private ClassRepository classRepository;
 
-	public void unitEventLogs(String courseId, String unitId, User user, Collection data, String action) {
+	public void unitEventLogs(String courseId, CollectionItem unit, User user, Collection data, String action) {
 		try {
 			JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
-			context.put(CONTENT_GOORU_ID, unitId);
+			context.put(CONTENT_GOORU_ID, unit.getContent().getGooruOid());
 			context.put(PARENT_GOORU_ID, courseId);
 			SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 			JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 			payLoadObject.put(TYPE, UNIT);
 			payLoadObject.put(COURSE_GOORU_ID, courseId);
-			payLoadObject.put(UNIT_GOORU_ID, unitId);
+			payLoadObject.put(UNIT_GOORU_ID, unit.getContent().getGooruOid());
 			List<String> classUids = this.getClassRepository().getClassUid(courseId);
 			
 			if (!classUids.isEmpty()) {
@@ -46,6 +45,9 @@ public class UnitEventLog extends EventLog implements ConstantProperties, Parame
 			if(action.equalsIgnoreCase(ADD)){
 				payLoadObject.put(MODE, ADD);
 				payLoadObject.put(DATA, data);
+				payLoadObject.put(PARENT_SHARING,unit.getCollection().getSharing());
+				payLoadObject.put(ITEM_SEQUENCE,unit.getItemSequence());
+				payLoadObject.put(ITEM_ID,unit.getCollectionItemId());
 			}
 			else{
 				payLoadObject.put(MODE, DELETE);

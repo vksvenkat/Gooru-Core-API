@@ -42,8 +42,8 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 			rejectIfNull(parentCollection, GL0056,404, UNIT);
 			collection.setSharing(Sharing.PRIVATE.getSharing());
 			collection.setCollectionType(CollectionType.LESSON.getCollectionType());
-			Collection lesson = createCollection(collection, parentCollection, user);
-			getLessonEventLog().lessonEventLogs(courseId, unitId, lesson.getGooruOid(), user, collection, ADD);
+			CollectionItem lesson = createCollection(collection, parentCollection, user);
+			getLessonEventLog().lessonEventLogs(courseId, unitId, lesson, user, collection, ADD);
 			Map<String, Object> data = generateLessonMetaData(collection, collection, user);
 			data.put(SUMMARY, MetaConstants.LESSON_SUMMARY);
 			createContentMeta(collection, data);
@@ -81,7 +81,7 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		rejectIfNull(course, GL0056,404, COURSE);
 		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
 		rejectIfNull(unit, GL0056,404, UNIT);
-		getLessonEventLog().lessonEventLogs(courseId, unitId, lessonId, user, null, DELETE);
+		getLessonEventLog().lessonEventLogs(courseId, unitId, lesson, user, null, DELETE);
 		this.resetSequence(unitId, lesson.getContent().getGooruOid(), user.getPartyUid(), LESSON);
 		updateContentMetaDataSummary(unit.getContentId(), LESSON, DELETE);
 		lesson.getContent().setIsDeleted((short) 1);

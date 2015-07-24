@@ -96,12 +96,12 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 	}
 
 	@Override
-	public Collection createCollection(Collection collection, Collection parentCollection, User user) {
+	public CollectionItem createCollection(Collection collection, Collection parentCollection, User user) {
 		collection = this.createCollection(collection, user);
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setItemType(ADDED);
-		createCollectionItem(collectionItem, parentCollection, collection, user);
-		return collection;
+		CollectionItem collectoinItem = createCollectionItem(collectionItem, parentCollection, collection, user);
+		return collectoinItem;
 	}
 
 	@Override

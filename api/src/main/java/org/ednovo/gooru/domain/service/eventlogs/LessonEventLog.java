@@ -5,32 +5,31 @@ import java.util.List;
 import net.sf.json.JSONArray;
 
 import org.ednovo.gooru.core.api.model.Collection;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.constant.ConstantProperties;
-import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class LessonEventLog extends EventLog implements ConstantProperties, ParameterProperties {
+public class LessonEventLog extends EventLog{
 
 	@Autowired
 	private ClassRepository classRepository;
 
-	public void lessonEventLogs(String courseId, String unitId, String lessonId, User user, Collection data, String action) {
+	public void lessonEventLogs(String courseId, String unitId, CollectionItem lesson, User user, Collection data, String action) {
 		try {
 			JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
-			context.put(CONTENT_GOORU_ID, lessonId);
+			context.put(CONTENT_GOORU_ID, lesson.getContent().getGooruOid());
 			context.put(PARENT_GOORU_ID, unitId);
 			SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 			JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 			payLoadObject.put(TYPE, LESSON);
 			payLoadObject.put(COURSE_GOORU_ID, courseId);
 			payLoadObject.put(UNIT_GOORU_ID, unitId);
-			payLoadObject.put(LESSON_GOORU_ID, lessonId);
+			payLoadObject.put(LESSON_GOORU_ID, lesson.getContent().getGooruOid());
 			List<String> classUids = this.getClassRepository().getClassUid(courseId);
 			if (!classUids.isEmpty()) {
 				JSONArray newArray = new JSONArray();
@@ -46,6 +45,9 @@ public class LessonEventLog extends EventLog implements ConstantProperties, Para
 			if(action.equalsIgnoreCase(ADD)){
 				payLoadObject.put(MODE, ADD);
 				payLoadObject.put(DATA, data);
+				payLoadObject.put(PARENT_SHARING,lesson.getCollection().getSharing());
+				payLoadObject.put(ITEM_SEQUENCE,lesson.getItemSequence());
+				payLoadObject.put(ITEM_ID,lesson.getCollectionItemId());
 			}
 			else{
 				payLoadObject.put(MODE, DELETE);

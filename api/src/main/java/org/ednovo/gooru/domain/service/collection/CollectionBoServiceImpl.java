@@ -89,7 +89,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		this.updateContentMetaDataSummary(lesson.getContentId(), collection.getContent().getContentType().getName(), DELETE);
 		collection.getContent().setIsDeleted((short) 1);
 		this.getCollectionDao().save(collection);
-		getCollectionEventLog().collectionEventLog(courseId, unitId, lessonId, collectionId, user, collection.getContent().getContentType().getName(), null, DELETE);
+		getCollectionEventLog().collectionEventLog(courseId, unitId, lessonId, collection, user, null, DELETE);
 	}
 
 	@Override
@@ -103,8 +103,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 			rejectIfNull(unit, GL0056, 404, UNIT);
 			Collection lesson = getCollectionDao().getCollectionByType(lessonId, LESSON_TYPE);
 			rejectIfNull(lesson, GL0056, 404, LESSON);
-			Collection newCollection = createCollection(user, collection, lesson);
-			getCollectionEventLog().collectionEventLog(courseId, unitId, lessonId, newCollection.getGooruOid(), user, newCollection.getContentType().getName(), collection, ADD);
+			CollectionItem newCollection = createCollection(user, collection, lesson);
+			getCollectionEventLog().collectionEventLog(courseId, unitId, lessonId, newCollection, user, collection, ADD);
 			Map<String, Object> data = generateCollectionMetaData(collection, collection, user);
 			data.put(SUMMARY, MetaConstants.COLLECTION_SUMMARY);
 			createContentMeta(collection, data);
@@ -558,8 +558,8 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		return content;
 	}
 
-	private Collection createCollection(User user, Collection collection, Collection parentCollection) {
-		createCollection(collection, parentCollection, user);
+	private CollectionItem createCollection(User user, Collection collection, Collection parentCollection) {
+		CollectionItem collectionItem = createCollection(collection, parentCollection, user);
 		if (collection.getSharing() != null && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && collection.getSharing().equalsIgnoreCase(PUBLIC)) {
 			collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
 		}
@@ -571,7 +571,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())) {
 			getIndexHandler().setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		}
-		return collection;
+		return collectionItem;
 	}
 
 	private void createCollectionSettings(Collection collection) {
