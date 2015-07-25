@@ -36,7 +36,7 @@ public class ConfigSettingRestController extends BaseController {
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CONFIG_SETTINGS_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/config-settings")
-	public ModelAndView getConfigSettings(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView getConfigSettings(HttpServletRequest request, HttpServletResponse response)  {
 		ModelAndView jsonmodel = new ModelAndView(REST_MODEL);
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		XStream stream = new XStream(new DomDriver());
@@ -48,7 +48,7 @@ public class ConfigSettingRestController extends BaseController {
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CONFIG_SETTINGS_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/config-setting/{key}/value")
-	public ModelAndView getConfigSetting(HttpServletRequest request, HttpServletResponse response, @PathVariable(KEY) String key, @RequestParam(value = FORMAT, required = false) String format) throws Exception {
+	public ModelAndView getConfigSetting(HttpServletRequest request, HttpServletResponse response, @PathVariable(KEY) String key, @RequestParam(value = FORMAT, required = false) String format)  {
 
 		if (key.equals(ConfigConstants.MAIL_FROM) || key.equals(ConfigConstants.MAIL_PASSWORD) || key.equals(ConfigConstants.MAIL_USERNAME) || key.equals(ConfigConstants.PUBLISHER)) {
 			throw new AccessDeniedException("Permission denied to fetch the value of key : " + key);
@@ -67,14 +67,14 @@ public class ConfigSettingRestController extends BaseController {
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CONFIG_SETTINGS_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/config-settings/reset")
-	public void resetMailHandlerConfig(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public void resetMailHandlerConfig(HttpServletRequest request, HttpServletResponse response)  {
 		settingService.resetConfigSettings();
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CONFIG_SETTINGS_UPDATE })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value="/{key}")
-	public void updateConfigSettingValues(HttpServletRequest request, HttpServletResponse response, @PathVariable String key, @RequestParam (value=CONFIG_VALUE) String configValue) throws Exception {
+	public void updateConfigSettingValues(HttpServletRequest request, HttpServletResponse response, @PathVariable String key, @RequestParam (value=CONFIG_VALUE) String configValue)  {
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		settingService.updateConfigSettingValue(apiCaller.getOrganization().getPartyUid(), key, configValue);
 	}
