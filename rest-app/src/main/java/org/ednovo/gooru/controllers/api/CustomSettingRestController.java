@@ -12,8 +12,6 @@ import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.customsetting.CustomSettingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,7 +27,7 @@ public class CustomSettingRestController extends BaseController implements Const
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CUSTOM_SETTING_ADD })
 	@RequestMapping(method = RequestMethod.POST)
 	public ModelAndView createCustomSetting(HttpServletRequest request, @RequestParam(value = KEY, required = true) String key, @RequestParam(value = VALUE, required = true) Boolean value, @RequestParam(value = SESSIONTOKEN, required = false) String sessionToken,
-			@RequestParam(value = FORMAT, defaultValue = JSON, required = false) String format, HttpServletResponse response) throws Exception {
+			@RequestParam(value = FORMAT, defaultValue = JSON, required = false) String format, HttpServletResponse response)   {
 		request.setAttribute(Constants.EVENT_PREDICATE, CREATE_CUSTOM_SETTING);
 		CustomSetting customSetting = customSettingService.createCustomSetting(key, value);
 		return toModelAndViewWithInFilter(customSetting, format, CUSTOM_SETTING_INCLUDES);
