@@ -61,7 +61,7 @@ public class CommentRestV2Controller extends BaseController implements Parameter
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COMMENT_ADD })
 	@RequestMapping(value = "", method = RequestMethod.POST)
-	public ModelAndView createComment(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+	public ModelAndView createComment(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response)   {
 		final User user = (User) request.getAttribute(Constants.USER);
 		
 		final ActionResponseDTO<Comment> comment = getCommentService().createComment(this.buildCommentFromInputParameters(data), user );
@@ -76,7 +76,7 @@ public class CommentRestV2Controller extends BaseController implements Parameter
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COMMENT_UPDATE })
 	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-	public ModelAndView updateComment(@PathVariable(value = ID) final String commentUid, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+	public ModelAndView updateComment(@PathVariable(value = ID) final String commentUid, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response)   {
 		final User user = (User) request.getAttribute(Constants.USER);
 		final Comment comment = this.getCommentService().updateComment(commentUid, this.buildCommentFromInputParameters(data), user);
 		final String includes[] = (String[]) ArrayUtils.addAll(COMMENT_INCLUDES, ERROR_INCLUDE);
@@ -86,7 +86,7 @@ public class CommentRestV2Controller extends BaseController implements Parameter
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COMMENT_READ })
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public ModelAndView getComment(@PathVariable(value = ID) final String commentUid, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+	public ModelAndView getComment(@PathVariable(value = ID) final String commentUid, final HttpServletRequest request, final HttpServletResponse response)   {
 		final String includes[] = (String[]) ArrayUtils.addAll(COMMENT_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(this.getCommentService().getComment(commentUid), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
@@ -94,14 +94,14 @@ public class CommentRestV2Controller extends BaseController implements Parameter
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COMMENT_READ })
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public ModelAndView getComments(final HttpServletRequest request, @RequestParam(value = GOORU_OID, required = false) final String gooruOid,@RequestParam(value = "itemId", required = false) final String itemId,@RequestParam(value = _GOORU_UID, required = false) final String gooruUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset,
-			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") final Integer limit,@RequestParam(value=FETCH_TYPE,required=true,defaultValue="notdeleted") final String fetchType, final HttpServletResponse response) throws Exception {
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") final Integer limit,@RequestParam(value=FETCH_TYPE,required=true,defaultValue="notdeleted") final String fetchType, final HttpServletResponse response)   {
 		final String includes[] = (String[]) ArrayUtils.addAll(COMMENT_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(this.getCommentService().getCommentsCount(itemId,gooruOid, gooruUid, limit, offset, fetchType), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COMMENT_DELETE })
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-	public void deleteComment(@PathVariable(value = ID) final String commentUid,@RequestParam(value=SOFT_DELETE,required=false,defaultValue=TRUE) final Boolean softdelete, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+	public void deleteComment(@PathVariable(value = ID) final String commentUid,@RequestParam(value=SOFT_DELETE,required=false,defaultValue=TRUE) final Boolean softdelete, final HttpServletRequest request, final HttpServletResponse response)   {
 		final User user = (User) request.getAttribute(Constants.USER);
 		this.getCommentService().deleteComment(commentUid, user,softdelete);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
