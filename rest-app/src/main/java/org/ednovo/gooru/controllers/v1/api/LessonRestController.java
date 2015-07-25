@@ -15,7 +15,6 @@ import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.collection.LessonService;
-import org.ednovo.gooru.domain.service.eventlogs.LessonEventLog;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -32,9 +31,6 @@ public class LessonRestController extends BaseController implements ConstantProp
 
 	@Autowired
 	private LessonService lessonService;
-	
-	@Autowired
-	private LessonEventLog lessonEventLog;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@RequestMapping(method = RequestMethod.POST)
@@ -75,7 +71,6 @@ public class LessonRestController extends BaseController implements ConstantProp
 	public void deleteLesson(@PathVariable(value = COURSE_ID) final String courseId, @PathVariable(value = UNIT_ID) final String unitId, @PathVariable(value = ID) final String lessonId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		this.getLessonService().deleteLesson(courseId, unitId, lessonId, user);
-		getLessonEventLog().deleteEventLogs(courseId, unitId, lessonId, user);
 	}
 
 	private Collection buildLesson(final String data) {
@@ -86,7 +81,4 @@ public class LessonRestController extends BaseController implements ConstantProp
 		return lessonService;
 	}
 
-	public LessonEventLog getLessonEventLog() {
-		return lessonEventLog;
-	}
 }

@@ -176,13 +176,8 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
 		
 		if (!errors.hasErrors()) {
-			if (username == null) {
-				throw new BadRequestException(generateErrorMessage(GL0061, "Username"), GL0061);
-			}
-			if (password == null) {
-				throw new BadRequestException(generateErrorMessage(GL0061, "Password"), GL0061);
-			}
-			
+			rejectIfNull(username, GL0061, 400, USER_NAME);
+			rejectIfNull(password, GL0061, 400, PASSWORD);
 			String apiKey = request.getHeader(Constants.GOORU_API_KEY) != null ? request.getHeader(Constants.GOORU_API_KEY) : request.getParameter(API_KEY);
 			String sessionToken = null;
 			Application application = null;
@@ -269,15 +264,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			userToken.setFirstLogin(firstLogin);
 			userToken.getUser().setMeta(this.getUserManagementService().userMeta(user));
 
-			final Profile profile = getPartyService().getUserDateOfBirth(user.getPartyUid(), user);
-
-			if (profile.getUserType() != null) {
-				userToken.setUserRole(profile.getUserType());
-			}
-			if (profile != null && profile.getDateOfBirth() != null) {
-				userToken.setDateOfBirth(profile.getDateOfBirth().toString());
-			}
-
 			identity.setLastLogin(new Date(System.currentTimeMillis()));
 			this.getUserRepository().save(identity);
 			this.getUserTokenRepository().save(userToken);
@@ -351,29 +337,23 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		
 		boolean isValidReferrer = false;
 		
-		String host = null;
+		String requestDomain = null;
 		String registeredRefererDomains = null;
 		
 		if (request.getHeader(HOST) != null){
-			host = request.getHeader(HOST);
+			requestDomain = request.getHeader(HOST);
 		}else if (request.getHeader(REFERER) != null){
-			host = request.getHeader(REFERER);
+			requestDomain = request.getHeader(REFERER);
 		}
 
-		if (host != null){			
-			String hostElements [] = host.split(REGX_DOT);
-			StringBuffer domainName = new StringBuffer();
-			if(hostElements.length >= 2){
-				domainName.append(hostElements[0]).append(DOT).append(hostElements[1]);
-				domainName.append(hostElements[hostElements.length - 2]).append(DOT).append(hostElements[hostElements.length - 1]);
-			}
-			
+		if (requestDomain != null){			
+
 			registeredRefererDomains = application.getRefererDomains();
 			
 			if(registeredRefererDomains != null ){				
 				String whiteListedDomains [] = registeredRefererDomains.split(COMMA);
-				for (String refererDomain : whiteListedDomains) {
-					if(refererDomain.equalsIgnoreCase(domainName.toString())){
+				for (String whitelistedDomain : whiteListedDomains) {
+					if(requestDomain.endsWith(whitelistedDomain)){
 						isValidReferrer = true;
 						break;						
 					}

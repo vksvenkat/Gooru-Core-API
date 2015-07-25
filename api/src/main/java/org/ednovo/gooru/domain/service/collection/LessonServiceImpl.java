@@ -14,6 +14,7 @@ import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.service.eventlogs.CollectionEventLog;
+import org.ednovo.gooru.domain.service.eventlogs.LessonEventLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -26,6 +27,9 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		
 	@Autowired
     private CollectionEventLog classEventLog;
+	
+	@Autowired
+	private LessonEventLog lessonEventLog;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -38,7 +42,8 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 			rejectIfNull(parentCollection, GL0056,404, UNIT);
 			collection.setSharing(Sharing.PRIVATE.getSharing());
 			collection.setCollectionType(CollectionType.LESSON.getCollectionType());
-			createCollection(collection, parentCollection, user);
+			CollectionItem lesson = createCollection(collection, parentCollection, user);
+			getLessonEventLog().lessonEventLogs(courseId, unitId, lesson, user, collection, ADD);
 			Map<String, Object> data = generateLessonMetaData(collection, collection, user);
 			data.put(SUMMARY, MetaConstants.LESSON_SUMMARY);
 			createContentMeta(collection, data);
@@ -76,6 +81,7 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		rejectIfNull(course, GL0056,404, COURSE);
 		Collection unit = getCollectionDao().getCollectionByType(unitId, UNIT_TYPE);
 		rejectIfNull(unit, GL0056,404, UNIT);
+		getLessonEventLog().lessonEventLogs(courseId, unitId, lesson, user, null, DELETE);
 		this.resetSequence(unitId, lesson.getContent().getGooruOid(), user.getPartyUid(), LESSON);
 		updateContentMetaDataSummary(unit.getContentId(), LESSON, DELETE);
 		lesson.getContent().setIsDeleted((short) 1);
@@ -85,7 +91,7 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getLesson(String lessonId) {
-		return this.getCollection(lessonId, CollectionType.UNIT.getCollectionType());
+		return this.getCollection(lessonId, CollectionType.LESSON.getCollectionType());
 	}
 
 	@Override
@@ -94,7 +100,7 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put(COLLECTION_TYPE, LESSON_TYPE);
 		filters.put(PARENT_GOORU_OID, unitId);
-		List<Map<String, Object>> results = this.getCollections(filters, limit, offset);
+		List<Map<String, Object>> results = this.getCollections(filters,limit, offset);
 		List<Map<String, Object>> lessons = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> lesson : results) {
 			lessons.add(mergeMetaData(lesson));
@@ -108,6 +114,10 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 			List<Map<String, Object>> standards = updateContentCode(collection, newCollection.getStandardIds(), MetaConstants.CONTENT_CLASSIFICATION_STANDARD_TYPE_ID);
 			data.put(STANDARDS, standards);
 		}
+		if (newCollection.getTaxonomyCourseIds() != null) {
+			List<Map<String, Object>> taxonomyCourse = updateTaxonomyCourse(collection, newCollection.getTaxonomyCourseIds());
+			data.put(TAXONOMY_COURSE, taxonomyCourse);
+		}
 		return data;
 	}
 
@@ -120,6 +130,10 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 	}
 	public CollectionEventLog getClassEventLog() {
 		return classEventLog;
+	}
+
+	public LessonEventLog getLessonEventLog() {
+		return lessonEventLog;
 	}
 
 }

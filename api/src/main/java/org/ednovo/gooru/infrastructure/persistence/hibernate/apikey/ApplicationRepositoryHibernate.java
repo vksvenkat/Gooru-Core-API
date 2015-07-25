@@ -33,6 +33,7 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -65,6 +66,7 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 	}
 
 	@Override
+	@Cacheable("gooruCache")
 	public Application getApplication(String apiKey) {
 		String hql = "FROM Application app WHERE app.key=:apiKey AND app.status.keyValue =:type";
 		Query query = getSession().createQuery(hql);
@@ -94,6 +96,7 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 	}
 
 	@Override
+	@Cacheable("gooruCache")
 	public Application getApplicationByOrganization(String organizationUid) {
 		String hql = "FROM Application app WHERE app.organization.partyUid =:organizationUid";
 		Query query = getSession().createQuery(hql);
